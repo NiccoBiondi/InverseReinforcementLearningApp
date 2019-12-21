@@ -17,11 +17,12 @@ class ReplayButton(QPushButton):
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
         self.setEnabled(False)
 
+        self._model.choiseButtonVisiblitySignal.connect(self.setVisability)
     
     def replayVideo(self):
         for i in range(self._model.lenDisplayImage):
             self._timer.start()
 
-    #TODO: 
+    @pyqtSlot()
     def setVisability(self):
         self.setEnabled(not self.isEnabled())

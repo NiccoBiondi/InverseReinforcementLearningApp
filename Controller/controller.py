@@ -1,8 +1,12 @@
 import os 
 import sys 
 import torch
+from datetime import date
 
 from View.AlgView import AlgView
+
+from Thread.PolicyThread import PolicyThread
+from Thread.ClipsThread import ClipsThread
 
 from Utility.utility import load_values, load_annotation_buffer
 
@@ -17,6 +21,10 @@ class Controller(QObject):
         super().__init__()
 
         self._model = model
+
+        # Define threads
+        self._policy_t = PolicyThread(self._model)
+        self._clips_t = ClipsThread(self._model)
 
     @pyqtSlot(dict)
     def init_values(self, values):
@@ -47,9 +55,10 @@ class Controller(QObject):
                 if 'policy_weight.pth' in os.listdir(fileName):
                     self._model._policy.load_state_dict(torch.load( fileName + '/policy_weight.pth' ))
 
-
                 if 'values.csv' in os.listdir(fileName):
                     self._model._model_parameters = load_values(fileName + '/values.csv')
+                    self._model._auto_save_foder += self._model.model_parameters['minigrid_env'] + date.today().strftime("%d/%m/%Y") + '/'
+                    print(self._model._auto_save_foder)
                 
                 if 'annotation_buffer' in os.listdir(fileName):
                     self._model._annotation_buffer, self._model._iteration = load_annotation_buffer(fileName + '/annotation_buffer/')
@@ -93,4 +102,6 @@ class Controller(QObject):
 
     @pyqtSlot()
     def process(self):
-        pass
+        self._model.processButton = False
+        self._policy_t.start()
+        self._clips_t.start()

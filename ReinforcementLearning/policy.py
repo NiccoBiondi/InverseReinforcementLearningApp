@@ -101,6 +101,6 @@ def run_episode(env, policy, length):
     # Return the sequence of states, actions, and the corresponding rewards.
     return (states, actions, dones)
 
-def save_policy_weights(model, save_weights):
-    torch.save(model.state_dict(), save_weights + '/policy_weight.pth')
+def save_policy_weights(model, save_weights_path):
+    torch.save(model.state_dict(), save_weights_path + '/policy_weight.pth')
 

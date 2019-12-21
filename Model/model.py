@@ -3,6 +3,7 @@ import os
 import torch
 import gym
 import gym_minigrid
+from datetime import date
 
 from ReinforcementLearning.csvRewardModel import csvRewardModel
 from ReinforcementLearning.policy import Policy
@@ -17,37 +18,45 @@ DIR_NAME = os.path.dirname(os.path.abspath('__file__'))
 
 class Model(QObject):
     refreshHistorySignal = pyqtSignal()
-    logBarSxSignal = pyqtSignal(str)
-    logBarDxSignal = pyqtSignal(str)
+    processButtonVisiblitySignal = pyqtSignal()
+    choiseButtonVisiblitySignal = pyqtSignal()
     updateDisplayImageSignal = pyqtSignal(list)
     preferenceChangedSignal = pyqtSignal(list)
     setClipsHistorySignal = pyqtSignal(list)
     pathLoadedSignal = pyqtSignal(str)
     setSpeedSignal = pyqtSignal(str)
+    logBarSxSignal = pyqtSignal(str)
+    logBarDxSignal = pyqtSignal(str)
     changeWindowSignal = pyqtSignal(object)
     
     
     def __init__(self):
         super().__init__()
 
+        # Define botton visibility
+        self._processButton = True
+        self._choiseButton = False
+
         # Define if a initialize model
         self._model_init = False
         self._model_load = False
 
         # Define default path  
-        self._weigth_path = DIR_NAME +  '/Model/reward_model_init_weight/'
+        self._weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight'
         self._auto_save_foder = DIR_NAME + '/SAVEFOLDER/'
+        self._clips_database = DIR_NAME + '/Clips_Database/'
+        self._load_path = ''
 
         # Define variable to train policy and reward model 
         self._annotation_buffer = []
         self._annotation_buffer_index = 0
-        self._iteration = 0
         self._oracle = False
 
         # Define util variable
-        self._auto_save_clock = 5
-        self._annotator = None
-        self._load_path = ''
+        self._folder = 0 # memorize where i arrived in annotation process
+        self._iteration = 0 # memorize the episodes where the policy arrived
+        self._auto_save_clock_policy = 2000
+        self._annotator = Annotator()
         self._model_parameters = {}
         self._preferencies = None
         self._oracle = False
@@ -73,6 +82,13 @@ class Model(QObject):
         self._timer_sx.setInterval(450)
         self._currentInterval = 450
         self._speed = 1
+
+    @property
+    def processButton(self):
+        return self._processButton
+    @property
+    def choiseButton(self):
+        return self._choiseButton
 
     @property
     def oracle(self):
@@ -122,6 +138,16 @@ class Model(QObject):
     def preferencies(self):
         return self._preferencies
 
+    @processButton.setter
+    def processButton(self, val):
+        self._processButton = val
+        self.processButtonVisiblitySignal.emit()
+
+    @choiseButton.setter
+    def choiseButton(self, val):
+        self._choiseButton= val
+        self.choiseButtonVisiblitySignal.emit()   
+
     @oracle.setter
     def oracle(self, slot):
         self._oracle = slot
@@ -140,6 +166,7 @@ class Model(QObject):
         
     @model_init.setter
     def model_init(self, value):
+
         self._model_init = value
         self._model_load = not value
         self.load_path = ''
@@ -147,11 +174,11 @@ class Model(QObject):
         # Init env
         self._env = RGBImgObsWrapper(gym.make(self._model_parameters['minigrid_env']))
         self._env.reset()
+        self._auto_save_foder += self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d/%m/%Y") + ')/'
 
         # load reward model starting weight if they exists reward model
         if os.path.exists(self._weigth_path + 'csv_reward_weght.pth'):
             self._reward_model.load_state_dict(torch.load( self._weigth_path + 'csv_reward_weght.pth' ))
-            #TODO: i can make the policy train in first iteration
 
         self._policy.cuda()
         self._reward_model.cuda()
@@ -163,8 +190,9 @@ class Model(QObject):
         if not os.path.exists(DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env']):
             os.makedirs(DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env'])
 
-        self.annotator = Annotator(DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env'])
-        self.annotator.reset_clips_database()
+        self._clips_database = DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env']
+
+        self._annotator.reset_clips_database(self._clips_database)
 
 
     @model_parameters.setter
