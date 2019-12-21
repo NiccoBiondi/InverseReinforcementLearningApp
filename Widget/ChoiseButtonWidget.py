@@ -1,9 +1,10 @@
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QSizePolicy
 
 class ChoiseButton(QPushButton):
     ''' Choose button to decide the clips you prefer '''
 
-    def __init__(self, name, preferencies, on_configure, **kwargs):
+    def __init__(self, name, preferencies, on_configure, model, **kwargs):
         super().__init__(**kwargs)
 
         # Define button preferencies, it label the clisp when push the button
@@ -18,8 +19,11 @@ class ChoiseButton(QPushButton):
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
         self.setEnabled(False)
 
+        model.choiseButtonVisiblitySignal.connect(self.setVisability)
+
     def update_preferencies(self):
         self._on_configure = self._preferencies
     
+    @pyqtSlot()
     def setVisability(self):
         self.setEnabled(not self.isEnabled())

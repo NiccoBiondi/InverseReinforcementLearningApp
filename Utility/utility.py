@@ -9,31 +9,29 @@ import gym
 import gym_minigrid
 
 # Create the csv file 
-def save_clips(name, clips, num_clips, obs):
+def save_clips(name, clips, num_clips):
     save_path = name + '/clip_' + str(num_clips)
     if not os.path.exists(save_path):
         os.mkdir(save_path)
 
-    if not obs:
-        with open(save_path + '/clip_' + str(num_clips) + '.csv', 'w') as csvfile:
-            filewriter = csv.writer(csvfile)
-            for i in range(len(clips)):
-                lines = [clips[i]['obs']]
-                filewriter.writerow(lines)
-                plt.imsave(save_path + '/fig_' + str(i) + '.png', clips[i]['image'])
-    if obs:
+    
+    with open(save_path + '/clip_' + str(num_clips) + '.csv', 'w') as csvfile:
+        filewriter = csv.writer(csvfile)
         for i in range(len(clips)):
-            plt.imsave(save_path + '/fig_' + str(i) + '.png', clips[i])
+            lines = [clips[i]['obs']]
+            filewriter.writerow(lines)
+            plt.imsave(save_path + '/fig_' + str(i) + '.png', clips[i]['image'])
 
 
-def clips_generator(states, dones, clips_len, name, obs=False): 
+def clips_generator(states, dones, clips_len): 
+    total_clisp = []
     clips = []
     clip_num = 0
     clips_goal = []
     diff = len(states) % clips_len
 
-    if not os.path.exists(name):
-            os.mkdir(name) 
+    #if not os.path.exists(name):
+    #        os.mkdir(name) 
 
     if (diff == 1) and (True in dones):
         clips_goal.append(states[len(states) - 2])
@@ -53,12 +51,16 @@ def clips_generator(states, dones, clips_len, name, obs=False):
             clips.append(states[i])
             
         elif len(clips) == clips_len:
-            save_clips(name, clips, clip_num, obs)
+            #save_clips(name, clips, clip_num, obs)
+            total_clisp.append(clips)
             clip_num += 1
             clips = [states[i]]
     
     if len(clips_goal) != 0:
-        save_clips(name, clips_goal, clip_num + 1, obs)
+        #save_clips(name, clips_goal, clip_num + 1, obs)
+        total_clisp.insert(0, clips_goal)
+    
+    return total_clisp
 
 def convert_string(image):
     num = []

@@ -97,7 +97,9 @@ class HistoryWindowModel(QObject):
     
 
 class HistoryWindowController(QObject):
+    
     treeRefreshSignal = pyqtSignal(list)
+
     def __init__(self, model, configure):
         super().__init__()
 

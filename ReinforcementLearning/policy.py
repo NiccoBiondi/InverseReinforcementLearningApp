@@ -77,10 +77,10 @@ def run_episode(env, policy, length):
     # We need to keep a record of states, actions, and the
     # instantaneous rewards.
     states = [state]
-    #obs = [env.get_obs_render(state['obs'], mode='rgb_array')]
     actions = []
     rewards = []
     dones = []
+
     # Run for desired episode length.
     for step in range(length):
 
@@ -89,18 +89,18 @@ def run_episode(env, policy, length):
 
         # Simulate one step, get new state and instantaneous reward.
         state, reward, done, _ = env.step(action.item())
+
         states.append(state)
-        #obs.append(env.get_obs_render(state['obs'], mode='rgb_array'))
         rewards.append(reward)
         actions.append(action.item())
         dones.append(done)
+
         if done:
             break
             
-
     # Return the sequence of states, actions, and the corresponding rewards.
     return (states, actions, dones)
 
-def save_policy_weights(model, save_weights):
-    torch.save(model.state_dict(), save_weights + '/policy_weight.pth')
+def save_policy_weights(model, save_weights_path):
+    torch.save(model.state_dict(), save_weights_path + '/policy_weight.pth')
 
