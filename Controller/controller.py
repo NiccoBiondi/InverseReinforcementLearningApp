@@ -104,4 +104,4 @@ class Controller(QObject):
     def process(self):
         self._model.processButton = False
         self._policy_t.start()
-        self._clips_t.start()
+        #self._clips_t.start()

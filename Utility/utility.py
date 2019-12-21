@@ -58,7 +58,7 @@ def clips_generator(states, dones, clips_len):
     
     if len(clips_goal) != 0:
         #save_clips(name, clips_goal, clip_num + 1, obs)
-        total_clisp.insert(0, clips)
+        total_clisp.insert(0, clips_goal)
     
     return total_clisp
 

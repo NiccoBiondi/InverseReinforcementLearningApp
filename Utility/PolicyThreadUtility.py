@@ -15,10 +15,10 @@ def save_clips(name, clips):
         
         with open(save_path + '/clip_' + str(num_clips) + '.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
-            for i in range(len(clips)):
-                lines = [clips[i]['obs']]
+            for i in range(len(clip)):
+                lines = [clip[i]['obs']]
                 filewriter.writerow(lines)
-                plt.imsave(save_path + '/fig_' + str(i) + '.png', clips[i]['image'])
+                plt.imsave(save_path + '/fig_' + str(i) + '.png', clip[i]['image'])
 
 
 def clips_generator(states, dones, clips_len): 

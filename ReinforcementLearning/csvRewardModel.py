@@ -23,6 +23,7 @@ class csvRewardModel(nn.Module):
 
     def forward(self, clip):
         rewads = []
+        
         for obs in clip:
             x_1 = state_filter(obs).cuda().view(-1, 7*7)
             x_1 = F.relu(self.affine1(x_1))

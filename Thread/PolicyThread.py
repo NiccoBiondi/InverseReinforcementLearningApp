@@ -15,6 +15,16 @@ def save_model(path, policy, model_parameters):
     save_policy_weights(policy, path)
     save_model_parameters(path, model_parameters)
 
+def save_annotation(save_path, annotation_buffer):
+    for i, triple in enumerate(annotation_buffer):
+            with open(save_path + '/annotation_buffer/triple_' + str(i) + '.csv', 'w') as csvfile:
+                filewriter = csv.writer(csvfile)
+                for idx, clip in enumerate(triple[0]):
+        
+                    filewriter.writerow([clip, triple[1][idx], triple[2]])
+
+
+
 
 class PolicyThread(QThread):
 
@@ -24,7 +34,7 @@ class PolicyThread(QThread):
         self._model = model
         self._max_len = 50
         self._train = True if os.listdir(self._model._weigth_path) else False
-        
+
 
     def run(self):
 
@@ -45,18 +55,39 @@ class PolicyThread(QThread):
 
                 clips_generated.append(clips[index])
 
+            for clips_folder in os.listdir(self._model._clips_database):
+                
+                clips, disp_figure = self._model._annotator.load_clips_figure(self._model._clips_database, clips_folder)
+                #FIXME: non entra qui.......
+                for idx in range(len(disp_figure), 2):
+
+                    self._model.updateDisplayImages(disp_figure[idx], disp_figure[idx + 1])
+                    self._model.choiseButton = True
+
+                    while(self._model._preferencies == None):
+                        self._model.logBarDxSignal.emit('Waiting annotation')
+
+                    self._model._annotation_buffer.append([clips[idx]['clip'], clips[idx + 1]['clip'], self._model._preferencies])
+                    annotation = [clips[idx]['path'], clips[idx+ 1]['path'], '[' + str(self._model._preferencies[0]) + ',' + str(self._model._preferencies[1]) + ']']
+                    self._model.updateHistoryList(annotation)
+                    self._model.choiseButton = False
+                    save_annotation(self._model._auto_save_foder, self._model._annotation_buffer)
+
+
             if step > 0 and step % self._model._auto_save_clock_policy == 0:
                     save_model(self._model._auto_save_foder, self._model.policy, clips_generated, self._model._model_parameters)
                     self._model.logBarSxSignal.emit('Auto-save in :' +  self._model._auto_save_foder)
-                    time.sleep(0.5)
+                    self._model.annoatate = True
+                    time.sleep(0.5) 
 
-            if self._train:
+            if not self._train:
 
                 s = [obs['obs'] for obs in states]
                 rewards = self._model._reward_model(s)
                 l = Loss(self._model._policy, self._model._optimizer_p, states, actions, rewards)
+            
 
-                print("Train policy loss: {:.3f}".format((sum(l)/len(l))))
+                #print("Train policy loss: {:.3f}".format((sum(l)/len(l))))
             
             self._model._iteration += 1 
             self._model.logBarSxSignal.emit('Policy processing :' +  str(step) + '/' + self._model.model_parameters['episodes'] + ' episodes')

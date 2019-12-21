@@ -20,7 +20,8 @@ class Model(QObject):
     refreshHistorySignal = pyqtSignal()
     processButtonVisiblitySignal = pyqtSignal()
     choiseButtonVisiblitySignal = pyqtSignal()
-    updateDisplayImageSignal = pyqtSignal(list)
+    updateDisplaySxImageSignal = pyqtSignal(list)
+    updateDisplayDxImageSignal = pyqtSignal(list)
     preferenceChangedSignal = pyqtSignal(list)
     setClipsHistorySignal = pyqtSignal(list)
     pathLoadedSignal = pyqtSignal(str)
@@ -53,9 +54,9 @@ class Model(QObject):
         self._oracle = False
 
         # Define util variable
-        self._folder = 0 # memorize where i arrived in annotation process
+        self._annotate = False # signal when the clip thread can start to annoatate 
         self._iteration = 0 # memorize the episodes where the policy arrived
-        self._auto_save_clock_policy = 2000
+        self._auto_save_clock_policy = 2000 
         self._annotator = Annotator()
         self._model_parameters = {}
         self._preferencies = None
@@ -73,15 +74,16 @@ class Model(QObject):
         self._optimizer_r = None
 
         # Define the two Display and replay buttons timers
-        self._lenDisplayImage = 0
-        self._displayImage_dx = []
         self._timer_dx = QTimer()
         self._timer_dx.setInterval(450)
-        self._displayImage_sx = []
         self._timer_sx = QTimer() 
         self._timer_sx.setInterval(450)
         self._currentInterval = 450
         self._speed = 1
+
+    @property
+    def annotate(self):
+        return self._annotate
 
     @property
     def processButton(self):
@@ -93,18 +95,6 @@ class Model(QObject):
     @property
     def oracle(self):
         return self._oracle
-
-    @property
-    def displayImage_sx(self):
-        return self._displayImage_sx
-    
-    @property
-    def displayImage_dx(self):
-        return self._displayImage_dx
-
-    @property
-    def lenDisplayImage(self):
-        return self._lenDisplayImage
     
     @property
     def timer_dx(self):
@@ -138,6 +128,10 @@ class Model(QObject):
     def preferencies(self):
         return self._preferencies
 
+    @annotate.setter
+    def annotate(self, slot):
+        self._annotate = slot
+
     @processButton.setter
     def processButton(self, val):
         self._processButton = val
@@ -151,18 +145,6 @@ class Model(QObject):
     @oracle.setter
     def oracle(self, slot):
         self._oracle = slot
-
-    @displayImage_sx.setter
-    def displayImage_sx(self, image):
-        self._displayImage_sx = image
-
-    @displayImage_dx.setter
-    def displayImage_dx(self, image):
-        self._displayImage_dx = image
-
-    @lenDisplayImage.setter
-    def lenDisplayImage(self, slot):
-        self._lenDisplayImage = slot
         
     @model_init.setter
     def model_init(self, value):
@@ -191,8 +173,6 @@ class Model(QObject):
             os.makedirs(DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env'])
 
         self._clips_database = DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env']
-
-        self._annotator.reset_clips_database(self._clips_database)
 
 
     @model_parameters.setter
@@ -225,6 +205,7 @@ class Model(QObject):
     @pyqtSlot(object)
     def set_newWindow(self, window):
         self.changeWindowSignal.emit(window)
+        self._annotator.reset_clips_database(self._clips_database)
 
     @pyqtSlot(list)
     def set_timerSpeed(self, slot):
@@ -251,4 +232,12 @@ class Model(QObject):
         self.annotation_buffer_index = len(self.annotation_buffer) - 1
         self.refreshHistorySignal.emit()
 
-    #TODO: setClipsHistorySignal function.....
+    @pyqtSlot(list)
+    def updateDisplayImages(self, images):
+        self.updateDisplaySxImageSignal(images[0])
+        self.updateDisplayDxImageSignal(images[1])
+    
+
+    @pyqtSlot(list)
+    def updateHistoryList(self, slot):
+        self.setClipsHistorySignal(slot)

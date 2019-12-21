@@ -32,7 +32,7 @@ class VideoPane(QGridLayout):
     def __init__(self, model, cols=2, **kwargs):
         super().__init__(**kwargs)
 
-        display = [Display(model.timer_sx, model), Display(model.timer_dx, model), ReplayButton(model.timer_sx, model), ReplayButton(model.timer_dx, model)]
+        display = [Display(model.timer_sx, model, model.updateDisplaySxImageSignal), Display(model.timer_dx, model, model.updateDisplayDxImageSignal), ReplayButton(model.timer_sx, model), ReplayButton(model.timer_dx, model)]
 
         for i in range(len(display)):
             self.addWidget(display[i], i // cols, i % cols)
