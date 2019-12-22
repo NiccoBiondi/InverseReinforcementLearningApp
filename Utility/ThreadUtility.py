@@ -6,19 +6,12 @@ import matplotlib.pyplot as plt
 from ReinforcementLearning.policy import save_policy_weights
 
 
-def save_model(path, policy, model_parameters):
+def save_model(path, policy, model_parameters, iteration):
+
     if not os.path.exists:
         os.makedirs(path)
     save_policy_weights(policy, path)
-    save_model_parameters(path, model_parameters)
-
-def save_annotation(save_path, annotation_buffer):
-    for i, triple in enumerate(annotation_buffer):
-            with open(save_path + '/annotation_buffer/triple_' + str(i) + '.csv', 'w') as csvfile:
-                filewriter = csv.writer(csvfile)
-                for idx, clip in enumerate(triple[0]):
-        
-                    filewriter.writerow([clip, triple[1][idx], triple[2]])
+    save_model_parameters(path, model_parameters, iteration)
 
 # Create the csv file 
 def save_clips(name, clips):
@@ -49,9 +42,6 @@ def clips_generator(states, dones, clips_len):
     clips_goal = []
     diff = len(states) % clips_len
 
-    #if not os.path.exists(name):
-    #        os.mkdir(name) 
-
     if (diff == 1) and (True in dones):
         clips_goal.append(states[len(states) - 2])
         goal = states.pop()
@@ -70,20 +60,30 @@ def clips_generator(states, dones, clips_len):
             clips.append(states[i])
             
         elif len(clips) == clips_len:
-            #save_clips(name, clips, clip_num, obs)
             total_clisp.append(clips)
             clip_num += 1
             clips = [states[i]]
     
     if len(clips_goal) != 0:
-        #save_clips(name, clips_goal, clip_num + 1, obs)
         total_clisp.insert(0, clips_goal)
     
     return total_clisp
 
-def save_model_parameters(path, model_parameters):
+def save_model_parameters(path, model_parameters, iteration):
     with open(path + '/values.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
             filewriter.writerow([model_parameters['minigrid_env'], model_parameters['episode_len'], 
                                     model_parameters['lr'], model_parameters['clips_len'], model_parameters['episodes'], 
-                                    model_parameters['K'], model_parameters['idx']])
+                                    model_parameters['K'], model_parameters['idx'], iteration])
+
+def save_annotation(self, save_path, annotation_buffer, iteration):
+
+    if not os.path.exists(save_path + '/annotation_buffer'):
+            os.makedirs(save_path + '/annotation_buffer')
+
+    for i, triple in enumerate(annotation_buffer):
+        with open(save_path + '/annotation_buffer/triple_' + str(i) + '.csv', 'w') as csvfile:
+            filewriter = csv.writer(csvfile)
+            for idx, clip in enumerate(triple[0]):
+    
+                filewriter.writerow([clip, triple[1][idx], triple[2], iteration])

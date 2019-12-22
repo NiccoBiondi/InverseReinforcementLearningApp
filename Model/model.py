@@ -1,14 +1,19 @@
 import sys
 import os
+import numpy as np
+from datetime import date
+
 import torch
 import gym
 import gym_minigrid
-from datetime import date
+
 
 from ReinforcementLearning.csvRewardModel import csvRewardModel
 from ReinforcementLearning.policy import Policy
 from ReinforcementLearning.wrapper import RGBImgObsWrapper
+from ReinforcementLearning.policy import run_episode, Loss, save_policy_weights
 
+from Utility.ThreadUtility import clips_generator, save_clips, save_model
 from Utility.annotator import Annotator
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer
@@ -20,9 +25,9 @@ class Model(QObject):
     refreshHistorySignal = pyqtSignal()
     processButtonVisiblitySignal = pyqtSignal()
     choiseButtonVisiblitySignal = pyqtSignal()
+    preferenceChangedSignal = pyqtSignal()
     updateDisplaySxImageSignal = pyqtSignal(list)
     updateDisplayDxImageSignal = pyqtSignal(list)
-    preferenceChangedSignal = pyqtSignal(list)
     setClipsHistorySignal = pyqtSignal(list)
     pathLoadedSignal = pyqtSignal(str)
     setSpeedSignal = pyqtSignal(str)
@@ -44,7 +49,7 @@ class Model(QObject):
 
         # Define default path  
         self._weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight'
-        self._auto_save_foder = DIR_NAME + '/SAVEFOLDER/'
+        self._auto_save_folder = DIR_NAME + '/SAVEFOLDER/'
         self._clips_database = DIR_NAME + '/Clips_Database/'
         self._load_path = ''
 
@@ -55,13 +60,12 @@ class Model(QObject):
         self._oracle = False
 
         # Define util variable
-        self._annotate = False # signal when the clip thread can start to annoatate 
         self._iteration = 0 # memorize the episodes where the policy arrived
+        self._ann_point = 0 # memorize the folder where the annotator arrive
         self._auto_save_clock_policy = 2000 
         self._annotator = Annotator()
         self._model_parameters = {}
         self._preferencies = None
-        self._oracle = False
 
         # Define Inverse Reinforcement Learning element
         self._obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
@@ -76,13 +80,13 @@ class Model(QObject):
 
         # Define the two Display and replay buttons timers
         self._timer_dx = QTimer()
-        self._timer_dx.setInterval(450)
+        self._timer_dx.setInterval(400)
         self._timer_sx = QTimer() 
-        self._timer_sx.setInterval(450)
-        self._currentInterval = 450
+        self._timer_sx.setInterval(400)
+        self._currentInterval = 400
         self._speed = 1
-        self._diplay_imageDx = []
-        self._diplay_imageSx = []
+        self._display_imageDx = []
+        self._display_imageSx = []
         self._display_imageLen = 0
 
     @property
@@ -94,16 +98,12 @@ class Model(QObject):
         return self._display_imageLen
 
     @property
-    def diplay_imageDx(self):
-        return self._diplay_imageDx
+    def display_imageDx(self):
+        return self._display_imageDx
 
     @property
-    def diplay_imageSx(self):
-        return self._diplay_imageSx
-
-    @property
-    def annotate(self):
-        return self._annotate
+    def display_imageSx(self):
+        return self._display_imageSx
 
     @property
     def processButton(self):
@@ -157,21 +157,17 @@ class Model(QObject):
     def display_imageLen(self, slot):
         self._display_imageLen = slot
 
-    @diplay_imageDx.setter
-    def diplay_imageDx(self, images):
-        self._diplay_imageDx = images
+    @display_imageDx.setter
+    def display_imageDx(self, images):
+        self._display_imageDx = images
         self.updateDisplayDxImageSignal.emit(images)
         self._timer_dx.start()
 
-    @diplay_imageSx.setter
-    def diplay_imageSx(self, images):
-        self._diplay_imageSx = images
+    @display_imageSx.setter
+    def display_imageSx(self, images):
+        self._display_imageSx = images
         self.updateDisplaySxImageSignal.emit(images)
         self._timer_sx.start()
-
-    @annotate.setter
-    def annotate(self, slot):
-        self._annotate = slot
 
     @processButton.setter
     def processButton(self, val):
@@ -197,7 +193,7 @@ class Model(QObject):
         # Init env
         self._env = RGBImgObsWrapper(gym.make(self._model_parameters['minigrid_env']))
         self._env.reset()
-        self._auto_save_foder += self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d/%m/%Y") + ')/'
+        self._auto_save_folder += self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d/%m/%Y") + ')/'
 
         # load reward model starting weight if they exists reward model
         if os.path.exists(self._weigth_path + 'csv_reward_weght.pth'):
@@ -214,6 +210,7 @@ class Model(QObject):
             os.makedirs(DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env'])
 
         self._clips_database = DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env']
+        self._annotator.reset_clips_database(self._clips_database)
 
 
     @model_parameters.setter
@@ -242,11 +239,11 @@ class Model(QObject):
     @preferencies.setter
     def preferencies(self, slot):
         self._preferencies = slot
+        self.preferenceChangedSignal.emit()
 
     @pyqtSlot(object)
     def set_newWindow(self, window):
         self.changeWindowSignal.emit(window)
-        self._annotator.reset_clips_database(self._clips_database)
 
     @pyqtSlot(list)
     def set_timerSpeed(self, slot):
@@ -272,3 +269,5 @@ class Model(QObject):
 
         self.annotation_buffer_index = len(self.annotation_buffer) - 1
         self.refreshHistorySignal.emit()
+
+        

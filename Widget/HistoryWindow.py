@@ -25,7 +25,7 @@ class HistoryWindow(QDialog):
         super().__init__()
 
         # Define path of minigrid environment
-        self.data_path = 'model.annotator.get_path()'
+        self.data_path = model._clips_database
 
         # Define model and controller 
         self._model = HistoryWindowModel()
@@ -52,10 +52,10 @@ class HistoryWindow(QDialog):
     def add_annotation(self, new_item):
         item = QTreeWidgetItem()
         item.setCheckState(0, Qt.Unchecked)
-        item.setText(3, new_item[0][2])
+        item.setText(3, new_item[2])
         self.ui.annotationList.addTopLevelItem(item)
-        self.ui.annotationList.setItemWidget(item, 1, HistoryWindowButton(new_item[0][0], self.data_path))
-        self.ui.annotationList.setItemWidget(item, 2, HistoryWindowButton(new_item[0][1], self.data_path))
+        self.ui.annotationList.setItemWidget(item, 1, HistoryWindowButton(new_item[0], self.data_path))
+        self.ui.annotationList.setItemWidget(item, 2, HistoryWindowButton(new_item[1], self.data_path))
 
     @pyqtSlot(list)
     def refreshTreeList(self, el_list):
@@ -108,6 +108,7 @@ class HistoryWindowController(QObject):
         # Then i refresh the annotation buffer
         self._model = model
         self._on_configure = configure
+        self._current_key = 0
 
     @pyqtSlot()
     def ok_button(self):
@@ -121,12 +122,13 @@ class HistoryWindowController(QObject):
 
     @pyqtSlot(QTreeWidgetItem, QTreeWidgetItem)
     def update_annotation_list(self, current, previous):
-        self._model.annotation_list = [str(id(current)), self._model.annotation_list[str(id(previous))] + 1]
+        self._model.annotation_list = [str(id(current)), self._current_key]
+        self._current_key += 1
 
     @pyqtSlot()
     def refresh(self):
-        for i, key in enumerate(self._model.annotation_list.keys()):
-            self._model.annotation_list = [key, i]
+        for i, key in enumerate(self._model._annotation_list.keys()):
+            self._model._annotation_list[key] = i
 
     @pyqtSlot(QTreeWidgetItem, int)
     def upload_selected_element(self, item, column):

@@ -8,10 +8,6 @@ class HistoryButton(QPushButton):
     def __init__(self, model, **kwargs):
         super().__init__(**kwargs)
 
-        # Define button functionality: open history dialog window and take enventually 
-        # selected element and give them to the controller
-        #self._on_configure = on_configure
-
         # Connect History button to its Window and define its ok_button configuration
         self._window = HistoryWindow(model)
 
