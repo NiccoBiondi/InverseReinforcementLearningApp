@@ -146,11 +146,11 @@ class Controller(QObject):
                 
                 self._model.logBarDxSignal.emit('Waiting annotation')
                 self.wait_signal()
-
+                self._model.choiseButton = False
+                
                 self._model._annotation_buffer.append([self._model._clips[idx]['clip'], self._model._clips[idx + 1]['clip'], self._model._preferencies])
                 annotation = [self._model._clips[idx]['path'], self._model._clips[idx + 1]['path'], '[' + str(self._model._preferencies[0]) + ',' + str(self._model._preferencies[1]) + ']']
                 self._model.annotation = annotation
-                self._model.choiseButton = False
             
             self._model._ann_point += 1
             save_annotation(self._model._auto_save_folder, self._model._annotation_buffer, self._model._ann_point)
