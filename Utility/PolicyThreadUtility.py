@@ -3,12 +3,32 @@ import sys
 import csv
 import matplotlib.pyplot as plt
 
+from ReinforcementLearning.policy import save_policy_weights
+
+
+def save_model(path, policy, model_parameters):
+    if not os.path.exists:
+        os.makedirs(path)
+    save_policy_weights(policy, path)
+    save_model_parameters(path, model_parameters)
+
+def save_annotation(save_path, annotation_buffer):
+    for i, triple in enumerate(annotation_buffer):
+            with open(save_path + '/annotation_buffer/triple_' + str(i) + '.csv', 'w') as csvfile:
+                filewriter = csv.writer(csvfile)
+                for idx, clip in enumerate(triple[0]):
+        
+                    filewriter.writerow([clip, triple[1][idx], triple[2]])
+
 # Create the csv file 
 def save_clips(name, clips):
 
-    for num_clips, clip in enumerate(clips):
+    clips_path = []
 
+    for num_clips, clip in enumerate(clips):
+        clips_path.append(name.split('/')[-1] + '/clip_' + str(num_clips))
         save_path = name + '/clip_' + str(num_clips)
+
         if not os.path.exists(save_path):
             os.makedirs(save_path)
 
@@ -19,7 +39,8 @@ def save_clips(name, clips):
                 lines = [clip[i]['obs']]
                 filewriter.writerow(lines)
                 plt.imsave(save_path + '/fig_' + str(i) + '.png', clip[i]['image'])
-
+                
+    return clips_path
 
 def clips_generator(states, dones, clips_len): 
     total_clisp = []
@@ -56,7 +77,7 @@ def clips_generator(states, dones, clips_len):
     
     if len(clips_goal) != 0:
         #save_clips(name, clips_goal, clip_num + 1, obs)
-        total_clisp.insert(0, clips)
+        total_clisp.insert(0, clips_goal)
     
     return total_clisp
 

@@ -25,9 +25,9 @@ class Display(QLabel):
     @pyqtSlot()
     def update_display(self):
         if self._count != len(self._displayImage):
-            h, w, ch = self._displayImage[self.count].shape
+            h, w, ch = self._displayImage[self._count].shape
             bytesPerLine = ch * w
-            convertToQtFormat = QImage(self._displayImage[self.count], w, h, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
+            convertToQtFormat = QImage(self._displayImage[self._count], w, h, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
             self.setPixmap(QPixmap.fromImage(convertToQtFormat))
             self.resize(1000, 900)
             self._count += 1

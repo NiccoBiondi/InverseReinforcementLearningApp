@@ -16,6 +16,5 @@ class SpeedButton(QPushButton):
         model.setSpeedSignal.connect(self.increment_velocity) 
 
     @pyqtSlot(str)
-    def increment_velocity(self, speed):
-        
+    def increment_velocity(self, speed):  
         self.setText('Speed : {}x'.format(speed))

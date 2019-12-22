@@ -22,7 +22,7 @@ class ChoiseButton(QPushButton):
         model.choiseButtonVisiblitySignal.connect(self.setVisability)
 
     def update_preferencies(self):
-        self._on_configure = self._preferencies
+        self._on_configure(self._preferencies)
     
     @pyqtSlot()
     def setVisability(self):

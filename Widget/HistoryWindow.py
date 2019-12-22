@@ -112,9 +112,9 @@ class HistoryWindowController(QObject):
     @pyqtSlot()
     def ok_button(self):
         sel_el = []
-        for el in self._model.selected_element:
-            identifier = str(id(el))
-            sel_el.append([self._model.annotation_list[identifier], self._model.el[i].text(1), el[i].text(2)])
+        for item in self._model.selected_element:
+            identifier = str(id(item))
+            sel_el.append([self._model.annotation_list[identifier], item.text(1), item.text(2)])
             
         self._on_configure(sel_el)
         self._model.treeRefreshSignal.emit(sel_el)

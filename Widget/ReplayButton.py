@@ -20,7 +20,7 @@ class ReplayButton(QPushButton):
         self._model.choiseButtonVisiblitySignal.connect(self.setVisability)
     
     def replayVideo(self):
-        for i in range(self._model.lenDisplayImage):
+        for i in range(self._model.display_imageLen):
             self._timer.start()
 
     @pyqtSlot()

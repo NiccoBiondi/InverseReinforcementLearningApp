@@ -48,7 +48,8 @@ class Model(QObject):
         self._clips_database = DIR_NAME + '/Clips_Database/'
         self._load_path = ''
 
-        # Define variable to train policy and reward model 
+        # Define variable to train policy and reward model
+        self._annotation = None 
         self._annotation_buffer = []
         self._annotation_buffer_index = 0
         self._oracle = False
@@ -80,6 +81,25 @@ class Model(QObject):
         self._timer_sx.setInterval(450)
         self._currentInterval = 450
         self._speed = 1
+        self._diplay_imageDx = []
+        self._diplay_imageSx = []
+        self._display_imageLen = 0
+
+    @property
+    def annotation(self):
+        return self._annotation
+
+    @property
+    def display_imageLen(self):
+        return self._display_imageLen
+
+    @property
+    def diplay_imageDx(self):
+        return self._diplay_imageDx
+
+    @property
+    def diplay_imageSx(self):
+        return self._diplay_imageSx
 
     @property
     def annotate(self):
@@ -127,6 +147,27 @@ class Model(QObject):
     @property
     def preferencies(self):
         return self._preferencies
+
+    @annotation.setter
+    def annotation(self, slot):
+        self._annotation = slot
+        self.setClipsHistorySignal.emit(slot)
+    
+    @display_imageLen.setter
+    def display_imageLen(self, slot):
+        self._display_imageLen = slot
+
+    @diplay_imageDx.setter
+    def diplay_imageDx(self, images):
+        self._diplay_imageDx = images
+        self.updateDisplayDxImageSignal.emit(images)
+        self._timer_dx.start()
+
+    @diplay_imageSx.setter
+    def diplay_imageSx(self, images):
+        self._diplay_imageSx = images
+        self.updateDisplaySxImageSignal.emit(images)
+        self._timer_sx.start()
 
     @annotate.setter
     def annotate(self, slot):
@@ -231,13 +272,3 @@ class Model(QObject):
 
         self.annotation_buffer_index = len(self.annotation_buffer) - 1
         self.refreshHistorySignal.emit()
-
-    @pyqtSlot(list)
-    def updateDisplayImages(self, images):
-        self.updateDisplaySxImageSignal(images[0])
-        self.updateDisplayDxImageSignal(images[1])
-    
-
-    @pyqtSlot(list)
-    def updateHistoryList(self, slot):
-        self.setClipsHistorySignal(slot)

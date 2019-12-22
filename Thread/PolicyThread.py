@@ -1,29 +1,14 @@
 import os
 import sys
 import time
+import cv2
 import numpy as np
 
 from ReinforcementLearning.policy import run_episode, Loss, save_policy_weights
 
-from Utility.PolicyThreadUtility import clips_generator, save_clips, save_model_parameters
+from Utility.PolicyThreadUtility import clips_generator, save_clips, save_model_parameters, save_model, save_annotation
 
 from PyQt5.QtCore import QThread
-
-def save_model(path, policy, model_parameters):
-    if not os.path.exists:
-        os.makedirs(path)
-    save_policy_weights(policy, path)
-    save_model_parameters(path, model_parameters)
-
-def save_annotation(save_path, annotation_buffer):
-    for i, triple in enumerate(annotation_buffer):
-            with open(save_path + '/annotation_buffer/triple_' + str(i) + '.csv', 'w') as csvfile:
-                filewriter = csv.writer(csvfile)
-                for idx, clip in enumerate(triple[0]):
-        
-                    filewriter.writerow([clip, triple[1][idx], triple[2]])
-
-
 
 
 class PolicyThread(QThread):
@@ -39,7 +24,11 @@ class PolicyThread(QThread):
     def run(self):
 
         clips_generated = []
-        
+        annotation = []
+        clips_path = []
+        ann_clips = []
+        disp_figure = []
+
         for step in range(self._model._iteration, int(self._model.model_parameters['episodes'])):
             
             (states, actions, dones) = run_episode(self._model._env, self._model._policy, int(self._model._model_parameters['episode_len']))
@@ -49,29 +38,44 @@ class PolicyThread(QThread):
             # Sample the clips generated
             for index in np.random.randint(low = 0, high = len(clips), size= len(clips)//2):
                 if len(clips_generated) == 50:
-                    save_clips(self._model._clips_database + '/clips2annotate_' + str(self._model._model_parameters['idx']), clips_generated)
+                    clips_path = save_clips(self._model._clips_database + '/clips2annotate_' + str(self._model._model_parameters['idx']), clips_generated)
+                    annotation = clips_generated
                     clips_generated = [clips[index]]
                     self._model._model_parameters['idx'] += 1
 
                 clips_generated.append(clips[index])
 
-            for clips_folder in os.listdir(self._model._clips_database):
-                
-                clips, disp_figure = self._model._annotator.load_clips_figure(self._model._clips_database, clips_folder)
-                #FIXME: non entra qui.......
-                for idx in range(len(disp_figure), 2):
+            if len(annotation) > 0:
 
-                    self._model.updateDisplayImages(disp_figure[idx], disp_figure[idx + 1])
+                for i, ann in enumerate(annotation):
+                    c = [clip['obs'] for clip in ann]
+                    ann_clips.append({ 'clip' : c, 'path': clips_path[i]})
+                    disp_figure.append([cv2.resize(clip['image'], (800, 700)) for clip in ann])
+                
+
+
+                for idx in range(0, len(disp_figure), 2):
+                    
+                    self._model.display_imageLen = len(disp_figure[idx])
+                    self._model.diplay_imageDx = disp_figure[idx]
+                    self._model.display_imageSx = disp_figure[idx + 1]
                     self._model.choiseButton = True
 
+                    self._model.logBarDxSignal.emit('Waiting annotation')
                     while(self._model._preferencies == None):
-                        self._model.logBarDxSignal.emit('Waiting annotation')
+                        continue
 
-                    self._model._annotation_buffer.append([clips[idx]['clip'], clips[idx + 1]['clip'], self._model._preferencies])
-                    annotation = [clips[idx]['path'], clips[idx+ 1]['path'], '[' + str(self._model._preferencies[0]) + ',' + str(self._model._preferencies[1]) + ']']
-                    self._model.updateHistoryList(annotation)
+                    self._model._annotation_buffer.append([ann_clips[idx]['clip'], ann_clips[idx + 1]['clip'], self._model._preferencies])
+                    annotation = [ann_clips[idx]['path'], ann_clips[idx + 1]['path'], '[' + str(self._model._preferencies[0]) + ',' + str(self._model._preferencies[1]) + ']']
+                    self._model.annotation = annotation
                     self._model.choiseButton = False
-                    save_annotation(self._model._auto_save_foder, self._model._annotation_buffer)
+                save_annotation(self._model._auto_save_foder, self._model._annotation_buffer)
+            
+            annotation = []
+            ann_clips = []
+            disp_figure = []
+
+            #clips, disp_figure = self._model._annotator.load_clips_figure(self._model._clips_database, clips_folder)
 
 
             if step > 0 and step % self._model._auto_save_clock_policy == 0:
@@ -91,3 +95,5 @@ class PolicyThread(QThread):
             
             self._model._iteration += 1 
             self._model.logBarSxSignal.emit('Policy processing :' +  str(step) + '/' + self._model.model_parameters['episodes'] + ' episodes')
+        
+        self._model._iteration = 0

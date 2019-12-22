@@ -1,5 +1,7 @@
 import os 
 import sys 
+import gym
+import gym_minigrid
 import torch
 from datetime import date
 
@@ -7,6 +9,8 @@ from View.AlgView import AlgView
 
 from Thread.PolicyThread import PolicyThread
 from Thread.ClipsThread import ClipsThread
+
+from ReinforcementLearning.wrapper import RGBImgObsWrapper
 
 from Utility.utility import load_values, load_annotation_buffer
 
@@ -57,6 +61,8 @@ class Controller(QObject):
 
                 if 'values.csv' in os.listdir(fileName):
                     self._model._model_parameters = load_values(fileName + '/values.csv')
+                    self._model._env = RGBImgObsWrapper(gym.make(self._model_parameters['minigrid_env']))
+                    self._model._env.reset() 
                     self._model._auto_save_foder += self._model.model_parameters['minigrid_env'] + date.today().strftime("%d/%m/%Y") + '/'
                     print(self._model._auto_save_foder)
                 
@@ -93,8 +99,6 @@ class Controller(QObject):
             self._model.set_timerSpeed([1, 450])
         else:
             self._model.set_timerSpeed([1, -150])
-
-    #TODO: display image setter
 
     @pyqtSlot(list)
     def changePreferencies(self, pref):
