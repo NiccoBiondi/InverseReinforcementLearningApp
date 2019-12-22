@@ -1,5 +1,4 @@
 # Don't track content of these folders
 *.vscode/
 *__pycache__
-*/auto_save/
 Clips_Database/
