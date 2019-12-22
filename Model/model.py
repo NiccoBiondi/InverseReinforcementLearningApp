@@ -71,6 +71,7 @@ class Model(QObject):
         self._obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
         self._act_size = 7      # Seven possible actions (turn left, right, forward, pickup, drop, etc.)
         self._inner_size = 64   # Number of neurons in two hidden layers.
+        self._reward_batch = 16
 
         self._env = None 
         self._reward_model = csvRewardModel(obs_size = self._obs_size, inner_size = self._inner_size)

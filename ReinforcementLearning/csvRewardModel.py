@@ -32,15 +32,14 @@ class csvRewardModel(nn.Module):
         return rewads
 
     
-    def compute_rewards(self, reward_model, optimizer, train_clips, logModel):
+    def compute_rewards(self, reward_model, optimizer, train_clips, signal):
         
         probs = []
         reward_model.train()
         optimizer.zero_grad()
-
+        signal.emit('Processing triple : ...')
         for idx, triple in enumerate(train_clips):
 
-            logModel.log('Processing triple : ...')
             QApplication.processEvents()
             
             reward_1 = reward_model.forward(triple[0])
@@ -62,7 +61,7 @@ class csvRewardModel(nn.Module):
         optimizer.step()
 
         reward_model.eval()
-
+        signal.emit('done')
         return loss.item()
 
 def save_reward_weights(reward_model, save_weights):
