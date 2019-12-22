@@ -134,7 +134,7 @@ class HistoryWindowController(QObject):
     def refresh(self):
         for i, key in enumerate(self._model._annotation_list.keys()):
             self._model._annotation_list[key] = i
-        if 
+            
         self._current_key = len(self._model._annotation_list) - 1 if len(self._model._annotation_list) != 0 else 0
 
     @pyqtSlot(QTreeWidgetItem, int)
