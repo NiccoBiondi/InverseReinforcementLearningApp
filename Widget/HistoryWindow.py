@@ -52,6 +52,8 @@ class HistoryWindow(QDialog):
     def add_annotation(self, new_item):
         item = QTreeWidgetItem()
         item.setCheckState(0, Qt.Unchecked)
+        item.setText(1, new_item[0])
+        item.setText(2, new_item[1])
         item.setText(3, new_item[2])
         self.ui.annotationList.addTopLevelItem(item)
         self.ui.annotationList.setItemWidget(item, 1, HistoryWindowButton(new_item[0], self.data_path))
@@ -98,7 +100,6 @@ class HistoryWindowModel(QObject):
 
 class HistoryWindowController(QObject):
     
-    treeRefreshSignal = pyqtSignal(list)
 
     def __init__(self, model, configure, tree):
         super().__init__()
@@ -119,17 +120,22 @@ class HistoryWindowController(QObject):
             sel_el.append([self._model.annotation_list[identifier], item.text(1), item.text(2)])
             
         self._on_configure(sel_el)
-        self._model.treeRefreshSignal.emit(sel_el)
+        self._model.listUpdateSignal.emit(self._model.selected_element)
+        self._model.selected_element
+        
 
     @pyqtSlot(QTreeWidgetItem, QTreeWidgetItem)
     def update_annotation_list(self, current, previous):
-        self._model.annotation_list = [str(id(current)), self._current_key]
-        self._current_key += 1
+        if current != None:
+            self._model.annotation_list = [str(id(current)), self._current_key]
+            self._current_key += 1
 
     @pyqtSlot()
     def refresh(self):
         for i, key in enumerate(self._model._annotation_list.keys()):
             self._model._annotation_list[key] = i
+        if 
+        self._current_key = len(self._model._annotation_list) - 1 if len(self._model._annotation_list) != 0 else 0
 
     @pyqtSlot(QTreeWidgetItem, int)
     def upload_selected_element(self, item, column):

@@ -13,8 +13,9 @@ class Annotator():
     def reload_figure(self, data_path, path):
         img = []
         for figure in sorted(os.listdir(data_path + '/' + path)):
-            tmp = cv2.imread(data_path + '/' + path + '/' + figure)
-            img.append(cv2.resize(tmp, (800, 700)))
+            if '.png' in figure:
+                tmp = cv2.imread(data_path + '/' + path + '/' + figure)
+                img.append(cv2.resize(tmp, (800, 700)))
         return img
 
 

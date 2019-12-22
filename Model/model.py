@@ -288,7 +288,6 @@ class Model(QObject):
             self.disp_figure.insert(0, self._annotator.reload_figure(self._clips_database, el[1]))
             self.disp_figure.insert(0, self._annotator.reload_figure(self._clips_database, el[2]))
 
-        self.annotation_buffer_index = len(self.annotation_buffer) - 1
         self.refreshHistorySignal.emit()
 
         
