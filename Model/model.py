@@ -67,6 +67,10 @@ class Model(QObject):
         self._model_parameters = {}
         self._preferencies = None
 
+        # Define variable used to the annotation phase
+        self._clips = []
+        self._disp_figure = []
+
         # Define Inverse Reinforcement Learning element
         self._obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
         self._act_size = 7      # Seven possible actions (turn left, right, forward, pickup, drop, etc.)
@@ -90,6 +94,13 @@ class Model(QObject):
         self._display_imageSx = []
         self._display_imageLen = 0
 
+    @property
+    def clips(self):
+        return self._clips
+
+    @property
+    def disp_figure(self):
+        return self._disp_figure
     @property
     def annotation(self):
         return self._annotation
@@ -148,6 +159,14 @@ class Model(QObject):
     @property
     def preferencies(self):
         return self._preferencies
+
+    @clips.setter
+    def clips(self, slot):
+        self._clips = slot
+
+    @disp_figure.setter
+    def disp_figure(self, slot):
+        self._disp_figure = slot
 
     @annotation.setter
     def annotation(self, slot):
@@ -262,11 +281,12 @@ class Model(QObject):
     @pyqtSlot(list)
     def refreshAnnotationBuffer(self, annotation):
         for el in annotation:
-            triple = self.annotation_buffer[el[0]]
+            triple = self._annotation_buffer[el[0]]
+            del self._annotation_buffer[el[0]]
             self.clips.insert(0, triple[0])
             self.clips.insert(0, triple[1])
-            self.disp_figure.insert(0, self.annotator.reload_figure(el[1]))
-            self.disp_figure.insert(0, self.annotator.reload_figure(el[2]))
+            self.disp_figure.insert(0, self._annotator.reload_figure(self._clips_database, el[1]))
+            self.disp_figure.insert(0, self._annotator.reload_figure(self._clips_database, el[2]))
 
         self.annotation_buffer_index = len(self.annotation_buffer) - 1
         self.refreshHistorySignal.emit()

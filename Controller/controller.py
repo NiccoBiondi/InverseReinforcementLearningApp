@@ -52,7 +52,6 @@ class Controller(QObject):
             fileName = dialog.selectedFiles()[0] 
         
         if fileName:
-            #FIXME: fix the iteration and ann folder load .....
             if fileName != self._model.load_path:
 
                 if 'csv_reward_weight.pth' in os.listdir(fileName):
@@ -62,14 +61,14 @@ class Controller(QObject):
                     self._model._policy.load_state_dict(torch.load( fileName + '/policy_weight.pth' ))
 
                 if 'values.csv' in os.listdir(fileName):
-                    self._model._model_parameters = load_values(fileName + '/values.csv')
+                    self._model._model_parameters, self._model._iteration = load_values(fileName + '/values.csv')
                     self._model._env = RGBImgObsWrapper(gym.make(self._model_parameters['minigrid_env']))
                     self._model._env.reset() 
                     self._model._auto_save_foder += self._model.model_parameters['minigrid_env'] + date.today().strftime("%d/%m/%Y") + '/'
                     print(self._model._auto_save_foder)
                 
                 if 'annotation_buffer' in os.listdir(fileName):
-                    self._model._annotation_buffer, self._model._iteration = load_annotation_buffer(fileName + '/annotation_buffer/')
+                    self._model._annotation_buffer, self._model._ann_point = load_annotation_buffer(fileName + '/annotation_buffer/')
 
                 self._model.load_path = fileName
         
@@ -122,6 +121,7 @@ class Controller(QObject):
             reward_t = RewardModelWorker(self._model)
             
     def wait_signal(self):
+        self._model.choiseButton = True
         loop = QEventLoop()
         self._model.preferenceChangedSignal.connect(loop.quit)
         loop.exec_()
@@ -136,20 +136,19 @@ class Controller(QObject):
 
         for folder in folders:
     
-            clips, disp_figure = self._model._annotator.load_clips_figure(self._model._clips_database, folder)
+            self._model.clips, self._model.disp_figure = self._model._annotator.load_clips_figure(self._model._clips_database, folder)
 
-            for idx in range(0, len(disp_figure), 2):
-                self._model.choiseButton = True
+            for idx in range(0, len(self._model._disp_figure), 2):
             
-                self._model.display_imageLen = len(disp_figure[idx])
-                self._model.display_imageDx = disp_figure[idx]
-                self._model.display_imageSx = disp_figure[idx + 1]
+                self._model.display_imageLen = len(self._model._disp_figure[idx])
+                self._model.display_imageDx = self._model._disp_figure[idx]
+                self._model.display_imageSx = self._model._disp_figure[idx + 1]
                 
                 self._model.logBarDxSignal.emit('Waiting annotation')
                 self.wait_signal()
 
-                self._model._annotation_buffer.append([clips[idx]['clip'], clips[idx + 1]['clip'], self._model._preferencies])
-                annotation = [clips[idx]['path'], clips[idx + 1]['path'], '[' + str(self._model._preferencies[0]) + ',' + str(self._model._preferencies[1]) + ']']
+                self._model._annotation_buffer.append([self._model._clips[idx]['clip'], self._model._clips[idx + 1]['clip'], self._model._preferencies])
+                annotation = [self._model._clips[idx]['path'], self._model._clips[idx + 1]['path'], '[' + str(self._model._preferencies[0]) + ',' + str(self._model._preferencies[1]) + ']']
                 self._model.annotation = annotation
                 self._model.choiseButton = False
             

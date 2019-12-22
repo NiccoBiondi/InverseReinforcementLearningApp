@@ -23,16 +23,16 @@ class HistoryWindowButton(QPushButton):
 class HistoryWindow(QDialog):
     def __init__(self, model):
         super().__init__()
+        
+        self.ui = Ui_historyWindow()
+        self.ui.setupUi(self)
 
         # Define path of minigrid environment
         self.data_path = model._clips_database
 
         # Define model and controller 
         self._model = HistoryWindowModel()
-        self._controller = HistoryWindowController(self._model, model.refreshAnnotationBuffer)
-
-        self.ui = Ui_historyWindow()
-        self.ui.setupUi(self)
+        self._controller = HistoryWindowController(self._model, model.refreshAnnotationBuffer, self.ui.annotationList)
 
         self.ui.buttonBox.accepted.connect(self._controller.ok_button)
         self.ui.buttonBox.rejected.connect(lambda : self.close())
@@ -89,10 +89,10 @@ class HistoryWindowModel(QObject):
 
     @selected_element.setter
     def selected_element(self, element):
-        if element in self.selected_element:
-            self._selected_element.append(element)
-        else:
-            self._selected_element.remove(element)
+        #if not element in self.selected_element:
+        self._selected_element.append(element)
+        #else:
+        #    self._selected_element.remove(element)
 
     
 
@@ -100,7 +100,7 @@ class HistoryWindowController(QObject):
     
     treeRefreshSignal = pyqtSignal(list)
 
-    def __init__(self, model, configure):
+    def __init__(self, model, configure, tree):
         super().__init__()
 
         # Define model and o_button configuration. 
@@ -109,6 +109,7 @@ class HistoryWindowController(QObject):
         self._model = model
         self._on_configure = configure
         self._current_key = 0
+        self._tree = tree
 
     @pyqtSlot()
     def ok_button(self):
@@ -132,7 +133,18 @@ class HistoryWindowController(QObject):
 
     @pyqtSlot(QTreeWidgetItem, int)
     def upload_selected_element(self, item, column):
-        self._model.selected_element = item
+        root = self._tree.invisibleRootItem()
+        child_count = root.childCount()
+        selected = []
+        for i in range(child_count):
+            item = root.child(i)
+            if item in self._model.selected_element:
+                self._selected_element.remove(item)
+            else:
+                if (item.checkState(0) == Qt.Checked):
+                    self._model.selected_element = item
+            
+            
 
 
 

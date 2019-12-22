@@ -10,8 +10,12 @@ from Utility.utility import read_csv_clips
 class Annotator():
 
 
-    def get_path(self):
-        return self.data_path
+    def reload_figure(self, data_path, path):
+        img = []
+        for figure in sorted(os.listdir(data_path + '/' + path)):
+            tmp = cv2.imread(data_path + '/' + path + '/' + figure)
+            img.append(cv2.resize(tmp, (800, 700)))
+        return img
 
 
     def load_clips_figure(self, data_path, folder):

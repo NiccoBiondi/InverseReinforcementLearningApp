@@ -83,7 +83,7 @@ def read_csv_clips(dir_path):
 
 def load_values(path):
     values = {}
-    data_df = pd.read_csv(path , error_bad_lines=False, names=["minigrid_env", "episode_len", "lr", "clips_len", "episodes", "K", "idx"])
+    data_df = pd.read_csv(path , error_bad_lines=False, names=["minigrid_env", "episode_len", "lr", "clips_len", "episodes", "K", "idx", 'iteration'])
     values['minigrid_env'] = str(data_df["minigrid_env"].values[0])
     values['episode_len'] = int(data_df["episode_len"].values[0])
     values['lr'] = float(data_df["lr"].values[0])
@@ -92,7 +92,7 @@ def load_values(path):
     values['K'] = int(data_df["K"].values[0])
     values['idx'] = int(data_df["idx"].values[0])
 
-    return values
+    return values, int(data_df["iteration"].values[0])
 
 def load_annotation_buffer(load_path):
 
