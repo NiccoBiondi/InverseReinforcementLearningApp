@@ -40,17 +40,17 @@ class RewardModelWorker(QRunnable):
     def run(self):
         loss = []
 
-        for k in range(self._model._model_parameters['K']):
+        for k in range(self._model.model_parameters['K']):
             self._model.logBarSxSignal("Train reward model : k-batch " + str(k) + ' of ' + str(self.values['K']) )
-            train_clips = data_loader(self._model._annotation_buffer, self._model._reward_batch)
-            loss.append(self._model._reward_model.compute_rewards(self._model._reward_model, self._model._optimizer_r, train_clips, self._model._logBarDxSignal))
+            train_clips = data_loader(self._model.annotation_buffer, self._model.reward_batch)
+            loss.append(self._model.reward_model.compute_rewards(self._model.reward_model, self._model.optimizer_r, train_clips, self._model.logBarDxSignal))
 
         self._model._iteration = 0
         self._model._model_parameters['idx'] = 0
-        shutil.rmtree(self._model._auto_save_folder + '/annotation_buffer')
-        save_model_parameters(self._model._auto_save_folder, self._model._model_parameters, self._model._iteration)
+        shutil.rmtree(self._model.auto_save_folder + '/annotation_buffer')
+        save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, self._model.iteration)
         
-        self._model._reward_model.save_reward_weights(self._model._reward_model, self._model._auto_save_folder)
+        self._model._reward_model.save_reward_weights(self._model.reward_model, self._model.auto_save_folder)
         self._model._logBarDxSignal.emit("End train reward model, the loss is : {:.3f}".format((sum(loss)/len(loss))))
         self._model._logBarSxSignal.emit("Press process to continue or quit application")
         self._model.processButton = True

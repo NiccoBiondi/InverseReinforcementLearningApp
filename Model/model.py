@@ -56,7 +56,6 @@ class Model(QObject):
         # Define variable to train policy and reward model
         self._annotation = None 
         self._annotation_buffer = []
-        self._annotation_buffer_index = 0
         self._oracle = False
 
         # Define util variable
@@ -95,12 +94,57 @@ class Model(QObject):
         self._display_imageLen = 0
 
     @property
+    def annotator(self):
+        return self._annotator
+
+    @property
+    def env(self):
+        return self._env
+
+    @property
+    def policy(self):
+        return self._policy
+
+    @property
+    def clips_database(self):
+        return self._clips_database
+    
+    @property
+    def auto_save_clock_policy(self):
+        return self._auto_save_clock_policy
+
+    @property
+    def auto_save_folder(self):
+        return self._auto_save_folder
+    
+    @property
+    def annotation_buffer(self):
+        return self._annotation_buffer
+
+    @property
+    def reward_model(self):
+        return self._reward_model
+    
+    @property
+    def reward_batch(self):
+        return self._reward_batch
+    
+    @property
+    def optimizer_p(self):
+        return self._optimizer_p
+        
+    @property
+    def optimizer_r(self):
+        return self._optimizer_r
+
+    @property
     def clips(self):
         return self._clips
 
     @property
     def disp_figure(self):
         return self._disp_figure
+        
     @property
     def annotation(self):
         return self._annotation
@@ -160,6 +204,30 @@ class Model(QObject):
     def preferencies(self):
         return self._preferencies
 
+    @property 
+    def iteration(self):
+        return self._iteration
+
+    @property
+    def weigth_path(self):
+        return self._weigth_path
+
+    @property
+    def ann_point(self):
+        return self._ann_point
+
+    @ann_point.setter
+    def ann_point(self, slot):
+        self._ann_point = slot
+
+    @annotation_buffer.setter
+    def annotation_buffer(self, slot):
+        self._annotation_buffer = slot
+
+    @auto_save_foder.setter
+    def auto_save_foder(self, path):
+        self._auto_save_folder = path
+
     @clips.setter
     def clips(self, slot):
         self._clips = slot
@@ -202,6 +270,10 @@ class Model(QObject):
     @oracle.setter
     def oracle(self, slot):
         self._oracle = slot
+    
+    @iteration.setter
+    def iteration(self, slot):
+        self._iteration = slot
         
     @model_init.setter
     def model_init(self, value):
@@ -238,10 +310,10 @@ class Model(QObject):
 
         if isinstance(model_par, dict):
             self._model_parameters = model_par
+            if not 'idx' in self._model_parameters.keys():
+                self._model_parameters['idx'] = 0
         else:
             self._model_parameters[model_par[0]] = model_par[1]
-
-        self._model_parameters['idx'] = 0
 
     @load_path.setter
     def load_path(self, path):

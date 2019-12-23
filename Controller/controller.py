@@ -55,20 +55,19 @@ class Controller(QObject):
             if fileName != self._model.load_path:
 
                 if 'csv_reward_weight.pth' in os.listdir(fileName):
-                    self._model._reward_model.load_state_dict(torch.load( fileName + '/csv_reward_weight.pth' ))
+                    self._model.reward_model.load_state_dict(torch.load( fileName + '/csv_reward_weight.pth' ))
                 
                 if 'policy_weight.pth' in os.listdir(fileName):
-                    self._model._policy.load_state_dict(torch.load( fileName + '/policy_weight.pth' ))
+                    self._model.policy.load_state_dict(torch.load( fileName + '/policy_weight.pth' ))
 
                 if 'values.csv' in os.listdir(fileName):
-                    self._model._model_parameters, self._model._iteration = load_values(fileName + '/values.csv')
-                    self._model._env = RGBImgObsWrapper(gym.make(self._model_parameters['minigrid_env']))
-                    self._model._env.reset() 
-                    self._model._auto_save_foder += self._model.model_parameters['minigrid_env'] + date.today().strftime("%d/%m/%Y") + '/'
-                    print(self._model._auto_save_foder)
+                    self._model.model_parameters, self._model.iteration = load_values(fileName + '/values.csv')
+                    self._model.env = RGBImgObsWrapper(gym.make(self._model.model_parameters['minigrid_env']))
+                    self._model.env.reset() 
+                    self._model.auto_save_foder = self._model.auto_save_foder + self._model.model_parameters['minigrid_env'] + date.today().strftime("%d/%m/%Y") + '/'
                 
                 if 'annotation_buffer' in os.listdir(fileName):
-                    self._model._annotation_buffer, self._model._ann_point = load_annotation_buffer(fileName + '/annotation_buffer/')
+                    self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + '/annotation_buffer/')
 
                 self._model.load_path = fileName
         
@@ -107,7 +106,7 @@ class Controller(QObject):
 
     @pyqtSlot()
     def process(self):
-        if self._model._iteration < int(self._model._model_parameters['episodes']):
+        if self._model.iteration < int(self._model.model_parameters['episodes']):
             self._model.logBarSxSignal.emit('Start the policy work')
             self._model.logBarDxSignal.emit('Wait for clips to annotate')
             self._policy_t._signals.finishedSignal.connect(self.annotation)
@@ -131,29 +130,37 @@ class Controller(QObject):
     def annotation(self):
         
         # riparto dal folder da cui mi ero fermato ad annotare
-        folders = os.listdir(self._model._clips_database)
-        folders = [folders[i] for i in range([i for i in range(len(folders)) if str(self._model._ann_point) in folders[i]][0], len(folders))] 
+        folders = os.listdir(self._model.clips_database)
+        folders = [folders[i] for i in range([i for i in range(len(folders)) if str(self._model.ann_point) in folders[i]][0], len(folders))] 
 
         for folder in folders:
     
-            self._model.clips, self._model.disp_figure = self._model._annotator.load_clips_figure(self._model._clips_database, folder)
+            self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database, folder)
 
-            for idx in range(0, len(self._model._disp_figure), 2):
+            for idx in range(0, len(self._model.disp_figure), 2):
             
-                self._model.display_imageLen = len(self._model._disp_figure[idx])
-                self._model.display_imageDx = self._model._disp_figure[idx]
-                self._model.display_imageSx = self._model._disp_figure[idx + 1]
+                self._model.display_imageLen = len(self._model.disp_figure[idx])
+                self._model.display_imageDx = self._model.disp_figure[idx]
+                self._model.display_imageSx = self._model.disp_figure[idx + 1]
                 
                 self._model.logBarDxSignal.emit('Waiting annotation')
                 self.wait_signal()
                 self._model.choiseButton = False
                 
-                self._model._annotation_buffer.append([self._model._clips[idx]['clip'], self._model._clips[idx + 1]['clip'], self._model._preferencies])
-                annotation = [self._model._clips[idx]['path'], self._model._clips[idx + 1]['path'], '[' + str(self._model._preferencies[0]) + ',' + str(self._model._preferencies[1]) + ']']
-                self._model.annotation = annotation
+                try:
+                    
+                    self._model.annotation_buffer.append([self._model.clips[idx]['clip'], self._model.clips[idx + 1]['clip'], self._model.preferencies])
+                    annotation = [self._model.clips[idx]['path'], self._model.clips[idx + 1]['path'], '[' + str(self._model.preferencies[0]) + ',' + str(self._model.preferencies[1]) + ']']
+                    self._model.annotation = annotation
+
+                except Exception:
+                    print(Exception)
+                
+                finally:
+                    sys.exit()
             
-            self._model._ann_point += 1
-            save_annotation(self._model._auto_save_folder, self._model._annotation_buffer, self._model._ann_point)
+            self._model.ann_point = self._model.ann_point + 1
+            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
 
         self._model.choiseButton = False
         self.process()
