@@ -84,9 +84,9 @@ class Model(QObject):
 
         # Define the two Display and replay buttons timers
         self._timer_dx = QTimer()
-        self._timer_dx.setInterval(400)
+        self._timer_dx.setInterval(350)
         self._timer_sx = QTimer() 
-        self._timer_sx.setInterval(400)
+        self._timer_sx.setInterval(350)
         self._currentInterval = 400
         self._speed = 1
         self._display_imageDx = []
@@ -144,7 +144,7 @@ class Model(QObject):
     @property
     def disp_figure(self):
         return self._disp_figure
-        
+
     @property
     def annotation(self):
         return self._annotation

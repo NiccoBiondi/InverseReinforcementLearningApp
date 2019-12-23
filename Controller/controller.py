@@ -96,9 +96,9 @@ class Controller(QObject):
     @pyqtSlot()
     def change_speed(self):
         if (self._model.speed + 1) % 4 == 0:
-            self._model.set_timerSpeed([1, 450])
+            self._model.set_timerSpeed([1, 350])
         else:
-            self._model.set_timerSpeed([1, -150])
+            self._model.set_timerSpeed([1, -75])
 
     @pyqtSlot(list)
     def changePreferencies(self, pref):
@@ -148,7 +148,7 @@ class Controller(QObject):
                 self._model.choiseButton = False
                 
                 try:
-                    
+
                     self._model.annotation_buffer.append([self._model.clips[idx]['clip'], self._model.clips[idx + 1]['clip'], self._model.preferencies])
                     annotation = [self._model.clips[idx]['path'], self._model.clips[idx + 1]['path'], '[' + str(self._model.preferencies[0]) + ',' + str(self._model.preferencies[1]) + ']']
                     self._model.annotation = annotation
