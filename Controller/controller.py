@@ -3,6 +3,7 @@ import sys
 import gym
 import gym_minigrid
 import torch
+import time
 from datetime import date
 
 from View.AlgView import AlgView
@@ -117,12 +118,15 @@ class Controller(QObject):
 
     @pyqtSlot()
     def process(self):
+
+        if self._model.processButton:
+            self._model.processButton = False
+
         if self._model.iteration < int(self._model.model_parameters['episodes']):
+
             self._model.logBarSxSignal.emit('Start the policy work')
-            self._model.logBarDxSignal.emit('Wait for clips to annotate')
             worker = PolicyWorker(self._model)
             worker._signals.finishedSignal.connect(self.annotation)
-            self._model.processButton = False
         
         else:
             
@@ -135,7 +139,6 @@ class Controller(QObject):
     def wait_signal(self):
         loop = QEventLoop()
         self._model.preferenceChangedSignal.connect(loop.quit)
-        self._model.choiseButton = True
         loop.exec_()
 
 
@@ -154,9 +157,9 @@ class Controller(QObject):
             for idx in range(0, len(self._model.disp_figure), 2):
                 self._model.logBarDxSignal.emit('Remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + ' clips to annotate')
                 self._model.display_imageLen = len(self._model.disp_figure[idx])
-                self._model.display_imageDx = self._model.disp_figure[idx]
-                self._model.display_imageSx = self._model.disp_figure[idx + 1]
-                
+                self._model.display_imageSx = self._model.disp_figure[idx]
+                self._model.display_imageDx = self._model.disp_figure[idx + 1]
+                self._model.choiseButton = True
                 self._model.logBarDxSignal.emit('Remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + ' clips to annotate...Waiting annotation')
                 self.wait_signal()
                 self._model.choiseButton = False
@@ -175,7 +178,6 @@ class Controller(QObject):
             self._model.ann_point = self._model.ann_point + 1
         save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
 
-        self._model.choiseButton = False
         self.process()
             
             

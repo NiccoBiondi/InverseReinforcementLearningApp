@@ -94,6 +94,7 @@ class Model(QObject):
         self._display_imageSx = []
         self._display_imageLen = 0
 
+
     @property
     def annotator(self):
         return self._annotator
@@ -165,6 +166,7 @@ class Model(QObject):
     @property
     def processButton(self):
         return self._processButton
+
     @property
     def choiseButton(self):
         return self._choiseButton
@@ -269,12 +271,12 @@ class Model(QObject):
     @processButton.setter
     def processButton(self, val):
         self._processButton = val
-        self.processButtonVisiblitySignal.emit()
+        self.processButtonVisiblitySignal.emit() 
 
     @choiseButton.setter
     def choiseButton(self, val):
-        self._choiseButton= val
-        self.choiseButtonVisiblitySignal.emit()   
+        self._choiseButton = val
+        self.choiseButtonVisiblitySignal.emit()
 
     @oracle.setter
     def oracle(self, slot):
@@ -369,4 +371,5 @@ class Model(QObject):
 
         self.refreshHistorySignal.emit()
 
+    
         
