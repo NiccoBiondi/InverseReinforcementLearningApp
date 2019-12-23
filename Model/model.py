@@ -224,8 +224,8 @@ class Model(QObject):
     def annotation_buffer(self, slot):
         self._annotation_buffer = slot
 
-    @auto_save_foder.setter
-    def auto_save_foder(self, path):
+    @auto_save_folder.setter
+    def auto_save_folder(self, path):
         self._auto_save_folder = path
 
     @clips.setter
