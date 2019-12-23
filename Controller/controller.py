@@ -167,9 +167,8 @@ class Controller(QObject):
 
                 except Exception:
                     print(Exception)
-                
-                finally:
                     sys.exit()
+                
             
             self._model.ann_point = self._model.ann_point + 1
             save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
