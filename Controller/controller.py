@@ -13,6 +13,8 @@ from Thread.RewardModelWorker import RewardModelWorker
 from ReinforcementLearning.wrapper import RGBImgObsWrapper
 
 from Utility.utility import save_annotation
+from Utility.utility import save_model
+
 from Utility.utility import load_values
 from Utility.utility import load_annotation_buffer
 
@@ -37,21 +39,29 @@ class Controller(QObject):
         self._model.model_parameters = values
 
     @pyqtSlot()
+    def save_action(self):
+        file_name = ''
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName = QFileDialog.getSaveFileName(caption="Define folder to save element", directory=DIR_NAME + "/SAVE_FOLDER/", options=options)
+        if fileName:
+            save_path = fileName[0] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
+            if os.path.exists(save_path):
+                os.makedirs(save_path)
+            
+            save_model(save_path, self._model.policy, self._model.model_parameters, self._model.iteration)
+            if len(self._model.annotation_buffer):
+                save_annotation(save_path, self._model.annotation_buffer, self._model.ann_point)
+            
+
+    @pyqtSlot()
     def set_loadPath(self):
         fileName = ''
 
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
+        fileName = QFileDialog.getExistingDirectory(caption="Choose checkpoint to load", directory=DIR_NAME + "/SAVE_FOLDER/", options=options)
 
-        dialog = QFileDialog()
-        dialog.setOptions(options)
-        
-        dialog.setFileMode(QFileDialog.DirectoryOnly)
-        dialog.setDirectory(DIR_NAME + "/SAVEFOLDER/")
-
-        if dialog.exec_() == QDialog.Accepted:
-            fileName = dialog.selectedFiles()[0] 
-        
         if fileName:
             if fileName != self._model.load_path:
 
@@ -66,7 +76,6 @@ class Controller(QObject):
                     self._model.env = RGBImgObsWrapper(gym.make(self._model.model_parameters['minigrid_env']))
                     self._model.env.reset() 
                     self._model.auto_save_folder = self._model.auto_save_folder + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')/'
-                    print(self._model.auto_save_folder)
                 if 'annotation_buffer' in os.listdir(fileName):
                     self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + '/annotation_buffer/')
 

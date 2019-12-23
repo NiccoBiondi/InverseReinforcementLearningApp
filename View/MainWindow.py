@@ -35,8 +35,9 @@ class MainWindow(QMainWindow):
         # Create setup dialog and wire actions.
         self._setupModel = SetupDialog(self._model)
 
-        # Connect quit, save, load action
+        # Connect quit and save action
         self.ui.action_Quit.triggered.connect(QApplication.exit)
+        self.ui.action_Save_state.triggered.connect(self._controller.save_action)
 
         # Define buttons logics
         self.ui.startButton.clicked.connect(lambda : self._controller.start_button())
