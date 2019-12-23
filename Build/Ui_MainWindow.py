@@ -124,12 +124,16 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Inverse Reinforcement Learning Tool"))
-        self.statusLabel.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:11pt;\">Welcome to Reinforcement Learning tool App. </span></p><p><span style=\" font-size:11pt;\">Press &quot;Set starting settings&quot; to initialize the model or &quot;Load checkpoint&quot; to restore last work checkpoint. </span></p><p><span style=\" font-size:11pt;\">Press &quot;Reset loaded checkpoint&quot; to reset the previous loaded checkpoint.</span></p><p><span style=\" font-size:11pt;\">Finally press &quot;Start&quot; to begin work.</span></p></body></html>"))
+        self.statusLabel.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:11pt;\">Welcome to Reinforcement Learning tool App. </span></p><p><span style=\" font-size:11pt;\">Press &quot;Set starting settings&quot; to initialize the model or &quot;Load checkpoint&quot; to restore last work checkpoint. </span></p><p><span style=\" font-size:11pt;\">Press &quot;Reset loaded checkpoint&quot; to reset the previous loaded checkpoint.</span></p><p><span style=\" font-size:11pt;\">Finally press &quot;Start&quot; to begin work.</span></p><p><br/></p><p><span style=\" font-family:\'inherit\'; font-size:11pt; color:#222222;\">If the model is initialized or loaded, wait for the red text to turn green before press &quot;Start&quot; button.</span></p><p><br/></p></body></html>"))
         self.startButton.setText(_translate("MainWindow", "Start"))
         self.loadState.setText(_translate("MainWindow", "Load Checkpoint"))
         self.InitParameters.setText(_translate("MainWindow", "Set starting settings"))
         self.resetState.setText(_translate("MainWindow", "Reset loaded checkpoint"))
-        self.stateLabel.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:11pt; color:#ff0000;\">STATE NOT LOAD</span></p></body></html>"))
+        self.stateLabel.setText(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'Sans Serif\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:11pt; color:#ff0000;\">MODEL NOT LOAD OR INITIALIZE</span></p></body></html>"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.action_Save_state.setText(_translate("MainWindow", "&Save State"))

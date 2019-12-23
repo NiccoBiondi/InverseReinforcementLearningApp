@@ -2,9 +2,12 @@ import os
 import sys
 import numpy as np
 
-from ReinforcementLearning.policy import run_episode, Loss, save_policy_weights
+from ReinforcementLearning.policy import run_episode
+from ReinforcementLearning.policy import Loss
 
-from Utility.ThreadUtility import clips_generator, save_clips, save_model
+from Utility.utility import clips_generator
+from Utility.utility import save_clips
+from Utility.utility import save_model
 
 from PyQt5.QtCore import QRunnable, pyqtSlot, QObject, pyqtSignal
 
@@ -29,7 +32,7 @@ class PolicyWorker(QRunnable):
         clips_generated = []
 
         while (not self._done):
-            self._model.logBarSxSignal.emit('Policy processing :' +  str(self._model.iteration) + '/' + self._model.model_parameters['episodes'] + ' episodes')
+            self._model.logBarSxSignal.emit('Policy processing :' +  str(self._model.iteration) + '/' + str(self._model.model_parameters['episodes']) + ' episodes')
         #for step in range(self._model._iteration, int(self._model._model_parameters['episodes'])):     
             (states, actions, dones) = run_episode(self._model.env, self._model.policy, int(self._model.model_parameters['episode_len']))
 

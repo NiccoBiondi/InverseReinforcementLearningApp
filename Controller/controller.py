@@ -12,8 +12,9 @@ from Thread.RewardModelWorker import RewardModelWorker
 
 from ReinforcementLearning.wrapper import RGBImgObsWrapper
 
-from Utility.ThreadUtility import save_annotation
-from Utility.utility import load_values, load_annotation_buffer
+from Utility.utility import save_annotation
+from Utility.utility import load_values
+from Utility.utility import load_annotation_buffer
 
 from PyQt5.QtCore import QObject, pyqtSlot, QThreadPool, QEventLoop
 from PyQt5.QtWidgets import QFileDialog, QDialog, QMessageBox
@@ -64,11 +65,12 @@ class Controller(QObject):
                     self._model.model_parameters, self._model.iteration = load_values(fileName + '/values.csv')
                     self._model.env = RGBImgObsWrapper(gym.make(self._model.model_parameters['minigrid_env']))
                     self._model.env.reset() 
-                    self._model.auto_save_foder = self._model.auto_save_foder + self._model.model_parameters['minigrid_env'] + date.today().strftime("%d/%m/%Y") + '/'
-                
+                    self._model.auto_save_folder = self._model.auto_save_folder + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')/'
+                    print(self._model.auto_save_folder)
                 if 'annotation_buffer' in os.listdir(fileName):
                     self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + '/annotation_buffer/')
 
+        
                 self._model.load_path = fileName
         
     @pyqtSlot(bool)
@@ -106,6 +108,7 @@ class Controller(QObject):
 
     @pyqtSlot()
     def process(self):
+        print(self._model.model_parameters.keys())
         if self._model.iteration < int(self._model.model_parameters['episodes']):
             self._model.logBarSxSignal.emit('Start the policy work')
             self._model.logBarDxSignal.emit('Wait for clips to annotate')

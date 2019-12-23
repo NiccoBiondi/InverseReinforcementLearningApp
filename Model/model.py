@@ -13,7 +13,6 @@ from ReinforcementLearning.policy import Policy
 from ReinforcementLearning.wrapper import RGBImgObsWrapper
 from ReinforcementLearning.policy import run_episode, Loss, save_policy_weights
 
-from Utility.ThreadUtility import clips_generator, save_clips, save_model
 from Utility.annotator import Annotator
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer
@@ -49,7 +48,7 @@ class Model(QObject):
 
         # Define default path  
         self._weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight'
-        self._auto_save_folder = DIR_NAME + '/SAVEFOLDER/'
+        self._auto_save_folder = DIR_NAME + '/SAVE_FOLDER/'
         self._clips_database = DIR_NAME + '/Clips_Database/'
         self._load_path = ''
 
@@ -77,8 +76,10 @@ class Model(QObject):
         self._reward_batch = 16
 
         self._env = None 
-        self._reward_model = csvRewardModel(obs_size = self._obs_size, inner_size = self._inner_size)
-        self._policy = Policy(obs_size = self._obs_size, act_size = self._act_size, inner_size = self._inner_size)
+        self._reward_model = csvRewardModel(obs_size = self._obs_size, inner_size = self._inner_size).cuda()
+        self._policy = Policy(obs_size = self._obs_size, act_size = self._act_size, inner_size = self._inner_size).cuda()
+        #self._policy.cuda()
+        #self._reward_model.cuda()
         self._optimizer_p = None
         self._optimizer_r = None
 
@@ -216,6 +217,10 @@ class Model(QObject):
     def ann_point(self):
         return self._ann_point
 
+    @env.setter
+    def env(self, slot):
+        self._env = slot
+
     @ann_point.setter
     def ann_point(self, slot):
         self._ann_point = slot
@@ -285,14 +290,12 @@ class Model(QObject):
         # Init env
         self._env = RGBImgObsWrapper(gym.make(self._model_parameters['minigrid_env']))
         self._env.reset()
-        self._auto_save_folder += self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d/%m/%Y") + ')/'
+        self._auto_save_folder = self._auto_save_folder + self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')/'
+
 
         # load reward model starting weight if they exists reward model
         if os.path.exists(self._weigth_path + 'csv_reward_weght.pth'):
             self._reward_model.load_state_dict(torch.load( self._weigth_path + 'csv_reward_weght.pth' ))
-
-        self._policy.cuda()
-        self._reward_model.cuda()
 
         # Use the Adam optimizer.
         self._optimizer_p = torch.optim.Adam(params=self._policy.parameters(), lr = float(self._model_parameters['lr']))
@@ -303,6 +306,7 @@ class Model(QObject):
 
         self._clips_database = DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env']
         self._annotator.reset_clips_database(self._clips_database)
+        self.pathLoadedSignal.emit('MODEL LOADED')
 
 
     @model_parameters.setter
@@ -322,8 +326,7 @@ class Model(QObject):
             self._load_path = path
             self._model_init, self._model_load = False, True
             splits = self._load_path.split("/")
-            print(splits[-1])
-            self.pathLoadedSignal.emit(splits[-1])
+            self.pathLoadedSignal.emit("MODEL LOADED FROM : " + splits[-1])
         else:
             self._model_load = False
             self.pathLoadedSignal.emit('')

@@ -49,17 +49,16 @@ class MainWindow(QMainWindow):
         self._model.changeWindowSignal.connect(self.set_centralWidget)
 
 
-
     @pyqtSlot(str)
     def change_label(self, string):
         if string != '':
             # Set the load state
-            self.ui.stateLabel.setText("STATE  '" + string + "'  LOADED")
+            self.ui.stateLabel.setText(string)
             self.ui.stateLabel.setStyleSheet('color : green')
             
-        else:
-            # Reset the load state 
-            self.ui.stateLabel.setText("STATE NOT LOAD")
+        elif 'FROM' in self.ui.stateLabel.text():
+            # Reset the load state  if it is loaded
+            self.ui.stateLabel.setText("MODEL NOT LOAD OR INITIALIZE")
             self.ui.stateLabel.setStyleSheet('color : red')
 
     @pyqtSlot(object)

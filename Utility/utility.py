@@ -5,33 +5,56 @@ import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-import gym
-import gym_minigrid
+from ReinforcementLearning.policy import save_policy_weights
 
-# Create the csv file 
-def save_clips(name, clips, num_clips):
-    save_path = name + '/clip_' + str(num_clips)
-    if not os.path.exists(save_path):
-        os.mkdir(save_path)
+# save the policy model during the policy training
+def save_model(path, policy, model_parameters, iteration):
 
-    
-    with open(save_path + '/clip_' + str(num_clips) + '.csv', 'w') as csvfile:
-        filewriter = csv.writer(csvfile)
-        for i in range(len(clips)):
-            lines = [clips[i]['obs']]
-            filewriter.writerow(lines)
-            plt.imsave(save_path + '/fig_' + str(i) + '.png', clips[i]['image'])
+    if not os.path.exists:
+        os.makedirs(path)
+    save_policy_weights(policy, path)
+    save_model_parameters(path, model_parameters, iteration)
 
+# Simple utility function to read states saved in csv file
+def read_csv_clips(dir_path):
+    data_df = pd.read_csv(dir_path , error_bad_lines=False, names=["state"])
 
+    states = []
+    for element in data_df['state'].values:
+        result = convert_string(element)
+        result = np.reshape(result, (7, 7, 3))
+        states.append(result)
+    return states
+
+# Create the csv file  containing the clips generated
+def save_clips(name, clips):
+
+    clips_path = []
+
+    for num_clips, clip in enumerate(clips):
+        clips_path.append(name.split('/')[-1] + '/clip_' + str(num_clips))
+        save_path = name + '/clip_' + str(num_clips)
+
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+
+        
+        with open(save_path + '/clip_' + str(num_clips) + '.csv', 'w') as csvfile:
+            filewriter = csv.writer(csvfile)
+            for i in range(len(clip)):
+                lines = [clip[i]['obs']]
+                filewriter.writerow(lines)
+                plt.imsave(save_path + '/fig_' + str(i) + '.png', clip[i]['image'])
+                
+    return clips_path
+
+# Generate clips from trajectory, make sure to take the actions to achieve the goal
 def clips_generator(states, dones, clips_len): 
     total_clisp = []
     clips = []
     clip_num = 0
     clips_goal = []
     diff = len(states) % clips_len
-
-    #if not os.path.exists(name):
-    #        os.mkdir(name) 
 
     if (diff == 1) and (True in dones):
         clips_goal.append(states[len(states) - 2])
@@ -51,16 +74,39 @@ def clips_generator(states, dones, clips_len):
             clips.append(states[i])
             
         elif len(clips) == clips_len:
-            #save_clips(name, clips, clip_num, obs)
             total_clisp.append(clips)
             clip_num += 1
             clips = [states[i]]
     
     if len(clips_goal) != 0:
-        #save_clips(name, clips_goal, clip_num + 1, obs)
         total_clisp.insert(0, clips_goal)
     
     return total_clisp
+
+# Save model parameters define in initialization or in a loaded checkpoint.
+# Is usefull to restart from the checkpoint
+def save_model_parameters(path, model_parameters, iteration):
+    with open(path + '/values.csv', 'w') as csvfile:
+            filewriter = csv.writer(csvfile)
+            filewriter.writerow([model_parameters['minigrid_env'], model_parameters['episode_len'], 
+                                    model_parameters['lr'], model_parameters['clips_len'], model_parameters['episodes'], 
+                                    model_parameters['K'], model_parameters['idx'], iteration])
+
+# Function to save annotation buffer. It is used to restart annotation
+#  and reload what the user do in previous work.
+def save_annotation(save_path, annotation_buffer, iteration):
+
+    if not os.path.exists(save_path + '/annotation_buffer'):
+            os.makedirs(save_path + '/annotation_buffer')
+
+    for i, triple in enumerate(annotation_buffer):
+        with open(save_path + '/annotation_buffer/triple_' + str(i) + '.csv', 'w') as csvfile:
+            filewriter = csv.writer(csvfile)
+            for idx, clip in enumerate(triple[0]):
+    
+                filewriter.writerow([clip, triple[1][idx], triple[2], iteration])
+
+
 
 def convert_string(image):
     num = []
@@ -70,17 +116,7 @@ def convert_string(image):
     
     return np.asarray(num)
 
-                      
-def read_csv_clips(dir_path):
-    data_df = pd.read_csv(dir_path , error_bad_lines=False, names=["state"])
-
-    states = []
-    for element in data_df['state'].values:
-        result = convert_string(element)
-        result = np.reshape(result, (7, 7, 3))
-        states.append(result)
-    return states
-
+# Function to load previous model parameters saved in previous work             
 def load_values(path):
     values = {}
     data_df = pd.read_csv(path , error_bad_lines=False, names=["minigrid_env", "episode_len", "lr", "clips_len", "episodes", "K", "idx", 'iteration'])
@@ -94,6 +130,7 @@ def load_values(path):
 
     return values, int(data_df["iteration"].values[0])
 
+# Function to load the previous annotation made in previous work
 def load_annotation_buffer(load_path):
 
     shape = (7, 7, 3)
@@ -121,23 +158,5 @@ def load_annotation_buffer(load_path):
     
     return annotation_buffer, iteration
         
-
-def save_annotation_buffer(values, annotator_buffer, iteration, save_path):
-
-    with open(save_path + '/values.csv', 'w') as csvfile:
-            filewriter = csv.writer(csvfile)
-            filewriter.writerow([values['env_name'], values['episode_len'], values['lr'], values['clips_len'], values['episodes'], values['K'], values['idx']])
-
-    if len(annotator_buffer) > 0:
-        # Nota : prima posizione prima clip, seconda posizione seconda clip, terza posizione preferenza, quarta posizione iterazione 
-        if not os.path.exists(save_path + '/annotation_buffer'):
-            os.makedirs(save_path + '/annotation_buffer')
-
-        for i, triple in enumerate(annotator_buffer):
-            with open(save_path + '/annotation_buffer/triple_' + str(i) + '.csv', 'w') as csvfile:
-                filewriter = csv.writer(csvfile)
-                for idx, clip in enumerate(triple[0]):
-        
-                    filewriter.writerow([clip, triple[1][idx], triple[2], iteration])
 
 

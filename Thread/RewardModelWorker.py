@@ -3,9 +3,7 @@ import sys
 import shutil
 import numpy as np
 
-from ReinforcementLearning.policy import run_episode, Loss, save_policy_weights
-
-from Utility.ThreadUtility import save_model_parameters
+from Utility.utility import save_model_parameters
 
 from PyQt5.QtCore import QRunnable, pyqtSlot, QObject, pyqtSignal
 

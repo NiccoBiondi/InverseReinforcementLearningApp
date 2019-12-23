@@ -46,8 +46,8 @@ class SetupDialog(QDialog):
         self.ui.K_line.setText(default_param['K'])
     
     def close_Window(self):
-        self.ui.ok_button.setEnabled(False)
         self.close
+
 
 class SetupDialogModel(QObject):
     changeSettingSignal = pyqtSignal(dict)
@@ -127,8 +127,8 @@ class SetupDialogModel(QObject):
 
     @pyqtSlot()
     def done(self):
-        self._model.model_init = True
         self.doneSignal.emit()
+        self._model.model_init = True
 
 
 class SetupDialogController(QObject):
