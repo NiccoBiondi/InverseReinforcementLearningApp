@@ -67,6 +67,7 @@ class Controller(QObject):
 
                 if 'csv_reward_weight.pth' in os.listdir(fileName):
                     self._model.reward_model.load_state_dict(torch.load( fileName + '/csv_reward_weight.pth' ))
+
                 
                 if 'policy_weight.pth' in os.listdir(fileName):
                     self._model.policy.load_state_dict(torch.load( fileName + '/policy_weight.pth' ))
@@ -75,8 +76,10 @@ class Controller(QObject):
                     self._model.model_parameters, self._model.iteration = load_values(fileName + '/values.csv')
                     self._model.env = RGBImgObsWrapper(gym.make(self._model.model_parameters['minigrid_env']))
                     self._model.env.reset() 
-                    self._model.auto_save_folder = self._model.auto_save_folder + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')/'
+                    self._model.auto_save_folder = self._model.auto_save_folder + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
                     self._model.clips_database = self._model.clips_database + self._model.model_parameters['minigrid_env']
+                    self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = float(self._model.model_parameters['lr']))
+                    self._model.optimizer_r = torch.optim.Adam(params=self._model.reward_model.parameters(), lr = float(self._model.model_parameters['lr']), weight_decay=0.01)
                 if 'annotation_buffer' in os.listdir(fileName):
                     self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + '/annotation_buffer/')
 

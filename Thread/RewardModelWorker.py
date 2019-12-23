@@ -3,6 +3,7 @@ import sys
 import shutil
 import numpy as np
 
+from ReinforcementLearning.csvRewardModel import save_reward_weights
 from Utility.utility import save_model_parameters
 
 from PyQt5.QtCore import QRunnable, pyqtSlot, QObject, pyqtSignal
@@ -39,18 +40,19 @@ class RewardModelWorker(QRunnable):
         loss = []
 
         for k in range(self._model.model_parameters['K']):
-            self._model.logBarSxSignal("Train reward model : k-batch " + str(k) + ' of ' + str(self.values['K']) )
+            self._model.logBarSxSignal.emit("Train reward model : k-batch " + str(k) + ' of ' + str(self._model.model_parameters['K']) )
             train_clips = data_loader(self._model.annotation_buffer, self._model.reward_batch)
             loss.append(self._model.reward_model.compute_rewards(self._model.reward_model, self._model.optimizer_r, train_clips, self._model.logBarDxSignal))
 
         self._model._iteration = 0
         self._model._model_parameters['idx'] = 0
-        shutil.rmtree(self._model.auto_save_folder + '/annotation_buffer')
+        self._model._ann_point = 0
+        #shutil.rmtree(self._model.auto_save_folder + 'annotation_buffer')
         save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, self._model.iteration)
         
-        self._model._reward_model.save_reward_weights(self._model.reward_model, self._model.auto_save_folder)
-        self._model._logBarDxSignal.emit("End train reward model, the loss is : {:.3f}".format((sum(loss)/len(loss))))
-        self._model._logBarSxSignal.emit("Press process to continue or quit application")
+        save_reward_weights(self._model.reward_model, self._model.auto_save_folder)
+        self._model.logBarDxSignal.emit("End train reward model, the loss is : {:.3f}".format((sum(loss)/len(loss))))
+        self._model.logBarSxSignal.emit("Press process to continue or quit application")
         self._model.processButton = True
   
 

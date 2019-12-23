@@ -219,6 +219,15 @@ class Model(QObject):
     def ann_point(self):
         return self._ann_point
 
+
+    @optimizer_p.setter
+    def optimizer_p(self, slot):
+        self._optimizer_p = slot
+
+    @optimizer_r.setter
+    def optimizer_r(self, slot):
+        self._optimizer_r = slot
+
     @clips_database.setter
     def clips_database(self, slot):
         self._clips_database = slot
@@ -296,7 +305,7 @@ class Model(QObject):
         # Init env
         self._env = RGBImgObsWrapper(gym.make(self._model_parameters['minigrid_env']))
         self._env.reset()
-        self._auto_save_folder = self._auto_save_folder + self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')/'
+        self._auto_save_folder = self._auto_save_folder + self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
 
 
         # load reward model starting weight if they exists reward model
