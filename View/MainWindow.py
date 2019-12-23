@@ -59,7 +59,7 @@ class MainWindow(QMainWindow):
             
         else:
             # Reset the load state 
-            self.ui.stateLabel.setText("STATE NOT LOADED")
+            self.ui.stateLabel.setText("STATE NOT LOAD")
             self.ui.stateLabel.setStyleSheet('color : red')
 
     @pyqtSlot(object)
