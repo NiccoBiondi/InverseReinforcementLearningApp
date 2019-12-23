@@ -217,6 +217,10 @@ class Model(QObject):
     def ann_point(self):
         return self._ann_point
 
+    @clips_database.setter
+    def clips_database(self, slot):
+        self._clips_database = slot
+
     @env.setter
     def env(self, slot):
         self._env = slot
@@ -300,11 +304,11 @@ class Model(QObject):
         # Use the Adam optimizer.
         self._optimizer_p = torch.optim.Adam(params=self._policy.parameters(), lr = float(self._model_parameters['lr']))
         self._optimizer_r = torch.optim.Adam(params=self._reward_model.parameters(), lr = float(self._model_parameters['lr']), weight_decay=0.01)
+        
+        self._clips_database = self._clips_database + self._model_parameters['minigrid_env']
+        if not os.path.exists(self._clips_database):
+            os.makedirs(self._clips_database)
 
-        if not os.path.exists(DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env']):
-            os.makedirs(DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env'])
-
-        self._clips_database = DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env']
         self._annotator.reset_clips_database(self._clips_database)
         self.pathLoadedSignal.emit('MODEL LOADED')
 

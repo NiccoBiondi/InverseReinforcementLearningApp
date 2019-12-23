@@ -76,6 +76,7 @@ class Controller(QObject):
                     self._model.env = RGBImgObsWrapper(gym.make(self._model.model_parameters['minigrid_env']))
                     self._model.env.reset() 
                     self._model.auto_save_folder = self._model.auto_save_folder + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')/'
+                    self._model.clips_database = self._model.clips_database + self._model_parameters['minigrid_env']
                 if 'annotation_buffer' in os.listdir(fileName):
                     self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + '/annotation_buffer/')
 
@@ -117,7 +118,6 @@ class Controller(QObject):
 
     @pyqtSlot()
     def process(self):
-        print(self._model.model_parameters.keys())
         if self._model.iteration < int(self._model.model_parameters['episodes']):
             self._model.logBarSxSignal.emit('Start the policy work')
             self._model.logBarDxSignal.emit('Wait for clips to annotate')
