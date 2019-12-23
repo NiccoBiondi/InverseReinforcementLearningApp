@@ -31,7 +31,6 @@ class Controller(QObject):
         self._model = model
 
         # Define threads
-        self._policy_t = PolicyWorker(self._model)
         self._treadpool = QThreadPool()
 
     @pyqtSlot(dict)
@@ -121,16 +120,18 @@ class Controller(QObject):
         if self._model.iteration < int(self._model.model_parameters['episodes']):
             self._model.logBarSxSignal.emit('Start the policy work')
             self._model.logBarDxSignal.emit('Wait for clips to annotate')
-            self._policy_t._signals.finishedSignal.connect(self.annotation)
+            worker = PolicyWorker(self._model)
+            worker._signals.finishedSignal.connect(self.annotation)
             self._model.processButton = False
-
-            self._treadpool.start(self._policy_t)
         
         else:
+            
             self._model.logBarDxSignal.emit('')
             self._model.logBarSxSignal.emit('Train reward model')
-            reward_t = RewardModelWorker(self._model)
-            
+            worker = RewardModelWorker(self._model)
+
+        self._treadpool.start(worker)
+        
     def wait_signal(self):
         loop = QEventLoop()
         self._model.preferenceChangedSignal.connect(loop.quit)
@@ -172,7 +173,7 @@ class Controller(QObject):
                 
             
             self._model.ann_point = self._model.ann_point + 1
-            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
+        save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
 
         self._model.choiseButton = False
         self.process()
