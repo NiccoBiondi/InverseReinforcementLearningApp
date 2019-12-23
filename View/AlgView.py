@@ -47,7 +47,7 @@ class AlgView(QWidget):
         self._controller = controller
 
         # Define choise button configuration
-        self._choiseButtonConf = {'left' : [0, 1], 'right' : [0, 1], 'both' : [0, 1], 'discard' : [0, 1]}
+        self._choiseButtonConf = {'left' : [1, 0], 'right' : [0, 1], 'both' : [0.5, 0.5], 'discard' : [0, 0]}
 
         self.createLayout
 

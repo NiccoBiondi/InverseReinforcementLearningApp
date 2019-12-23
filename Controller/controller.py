@@ -132,10 +132,11 @@ class Controller(QObject):
             reward_t = RewardModelWorker(self._model)
             
     def wait_signal(self):
-        self._model.choiseButton = True
         loop = QEventLoop()
         self._model.preferenceChangedSignal.connect(loop.quit)
+        self._model.choiseButton = True
         loop.exec_()
+
 
 
     @pyqtSlot()
@@ -150,12 +151,12 @@ class Controller(QObject):
             self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database, folder)
 
             for idx in range(0, len(self._model.disp_figure), 2):
-            
+                self._model.logBarDxSignal.emit('Remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + ' clips to annotate')
                 self._model.display_imageLen = len(self._model.disp_figure[idx])
                 self._model.display_imageDx = self._model.disp_figure[idx]
                 self._model.display_imageSx = self._model.disp_figure[idx + 1]
                 
-                self._model.logBarDxSignal.emit('Waiting annotation')
+                self._model.logBarDxSignal.emit('Remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + ' clips to annotate...Waiting annotation')
                 self.wait_signal()
                 self._model.choiseButton = False
                 
