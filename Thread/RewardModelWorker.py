@@ -42,7 +42,7 @@ class RewardModelWorker(QRunnable):
         for k in range(self._model.model_parameters['K']):
             self._model.logBarSxSignal.emit("Train reward model : k-batch " + str(k) + ' of ' + str(self._model.model_parameters['K']) )
             train_clips = data_loader(self._model.annotation_buffer, self._model.reward_batch)
-            loss.append(self._model.reward_model.compute_rewards(self._model.reward_model, self._model.optimizer_r, train_clips, self._model.logBarDxSignal))
+            loss.append(self._model.reward_model.compute_rewards(self._model.reward_model, self._model.optimizer_r, train_clips))
 
         self._model._iteration = 0
         self._model._model_parameters['idx'] = 0

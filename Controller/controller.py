@@ -152,7 +152,7 @@ class Controller(QObject):
         # riparto dal folder da cui mi ero fermato ad annotare
         folders = os.listdir(self._model.clips_database)
         folders = [folders[i] for i in range([i for i in range(len(folders)) if str(self._model.ann_point) in folders[i]][0], len(folders))] 
-
+        print(folders)
         for folder in folders:
     
             self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database, folder)
