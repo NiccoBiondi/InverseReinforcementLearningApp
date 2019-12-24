@@ -129,13 +129,12 @@ class Controller(QObject):
     def process(self):
         self._model.logBarSxSignal.emit('Policy processing...')
         self._policy_t.start()
-        
+        self._model.processButton = False
         
     def wait_signal(self):
         loop = QEventLoop()
         self._model.preferenceChangedSignal.connect(loop.quit)
         loop.exec_()
-
 
 
     @pyqtSlot()
@@ -152,11 +151,11 @@ class Controller(QObject):
                     shutil.rmtree(self._model.clips_database + '/' + f)
             
             for folder in os.listdir(self._model.clips_database):
-                self._model.logBarSxSignal.emit('Policy processing :' +  str(self._model.iteration) + '/' + str(self._model.model_parameters['episodes']) + ' episodes')
         
                 self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database, folder)
 
                 for idx in range(0, len(self._model.disp_figure), 2):
+                    self._model.logBarSxSignal.emit('Policy processing :' +  str(self._model.iteration) + '/' + str(self._model.model_parameters['episodes']) + ' episodes')
                     self._model.logBarDxSignal.emit('Remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + ' clips to annotate')
                     self._model.display_imageLen = len(self._model.disp_figure[idx])
                     self._model.display_imageSx = self._model.disp_figure[idx]

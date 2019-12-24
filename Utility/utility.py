@@ -10,8 +10,9 @@ from ReinforcementLearning.policy import save_policy_weights
 # save the policy model during the policy training
 def save_model(path, policy, model_parameters, iteration):
 
-    if not os.path.exists:
+    if not os.path.exists(path):
         os.makedirs(path)
+
     save_policy_weights(policy, path)
     save_model_parameters(path, model_parameters, iteration)
 
