@@ -25,10 +25,10 @@ class WorkerSignals(QObject):
     '''
     finishedSignal = pyqtSignal()
 
-class RewardModelWorker(QRunnable):
+class RewardThread(QRunnable):
 
     def __init__(self, model):
-        super(RewardModelWorker, self).__init__()
+        super(RewardThread, self).__init__()
         # Store constructor arguments (re-used for processing)
         self._signals = WorkerSignals()
         self._model = model

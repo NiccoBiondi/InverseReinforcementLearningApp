@@ -6,10 +6,16 @@ import numpy as np
 
 from ReinforcementLearning.policy import run_episode, Loss, save_policy_weights
 
-from Utility.ThreadUtility import clips_generator, save_clips, save_model
+from Utility.utility import clips_generator, save_clips, save_model
 
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, pyqtSignal, QObject
 
+class ThreadSignals(QObject):
+    '''
+    Defines the signals available from a running worker thread.
+    '''
+    startAnnotation = pyqtSignal()
+    finishedSignal = pyqtSignal()
 
 class PolicyThread(QThread):
 
@@ -17,8 +23,10 @@ class PolicyThread(QThread):
         super().__init__()
 
         self._model = model
+        self._signals = ThreadSignals()
         self._max_len = 50
         self._train = True if os.listdir(self._model._weigth_path) else False
+        self._done = False
 
 
     def run(self):
@@ -37,6 +45,9 @@ class PolicyThread(QThread):
                     clips_path = save_clips(self._model._clips_database + '/clipsToAnnotate_' + str(self._model._model_parameters['idx']), clips_generated)
                     clips_generated = [clips[index]]
                     self._model._model_parameters['idx'] += 1
+                    if not self._done:
+                        self._signals.startAnnotation.emit()
+                        self._done = True
                     #self._model.start_annotation = True
 
                 clips_generated.append(clips[index])

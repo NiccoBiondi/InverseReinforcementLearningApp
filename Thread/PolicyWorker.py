@@ -15,6 +15,7 @@ class WorkerSignals(QObject):
     '''
     Defines the signals available from a running worker thread.
     '''
+    startAnnotation = pyqtSignal()
     finishedSignal = pyqtSignal()
 
 class PolicyWorker(QRunnable):

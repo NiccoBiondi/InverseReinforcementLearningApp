@@ -78,8 +78,6 @@ class Model(QObject):
         self._env = None 
         self._reward_model = csvRewardModel(obs_size = self._obs_size, inner_size = self._inner_size).cuda()
         self._policy = Policy(obs_size = self._obs_size, act_size = self._act_size, inner_size = self._inner_size).cuda()
-        #self._policy.cuda()
-        #self._reward_model.cuda()
         self._optimizer_p = None
         self._optimizer_r = None
 
