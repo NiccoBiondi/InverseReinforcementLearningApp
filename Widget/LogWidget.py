@@ -2,6 +2,8 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QSizePolicy, QLabel
 
 class LogWidget(QLabel):
+    ''' Simple widget uset to display what the application is doing '''
+    
     def __init__(self, signal, text="Welcome to the RL mingrid app. Press 'process' to start the training",**kwargs):
         super().__init__(**kwargs)
 

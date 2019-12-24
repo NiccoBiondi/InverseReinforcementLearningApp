@@ -117,11 +117,11 @@ def save_model_parameters(path, model_parameters, iteration):
 #  and reload what the user do in previous work.
 def save_annotation(save_path, annotation_buffer, iteration):
 
-    if not os.path.exists(save_path + '/clips2annotate_' + str(iteration) + '/annotation_buffer'):
-            os.makedirs(save_path + '/clips2annotate_' + str(iteration) + '/annotation_buffer')
+    if not os.path.exists(save_path + '/annotation_buffer'):
+            os.makedirs(save_path + '/annotation_buffer')
 
     for i, triple in enumerate(annotation_buffer):
-        with open(save_path + '/clips2annotate_' + str(iteration) + '/annotation_buffer/triple_' + str(i) + '.csv', 'w') as csvfile:
+        with open(save_path + '/annotation_buffer/triple_' + str(i) + '.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
             for idx, clip in enumerate(triple[0]):
     

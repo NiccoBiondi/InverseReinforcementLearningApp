@@ -15,11 +15,3 @@ class HistoryButton(QPushButton):
         self.setText('{}'.format(self._name))
         self.clicked.connect(lambda : self._window.exec_())
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
-    '''
-    def open_historyWindow(self):
-        self._window.exec_()  
-        if len(self._window.get_selectedElement()) > 0:
-            self._on_configure(self._window.get_selectedElement())
-        
-        #self._window.reset_list()
-    '''

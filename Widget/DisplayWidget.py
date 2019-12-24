@@ -22,6 +22,7 @@ class Display(QLabel):
 
         self.setAlignment(Qt.AlignCenter)
 
+    # Simple function t upload the displayed image
     @pyqtSlot()
     def update_display(self):
         if self._count != len(self._displayImage):
@@ -35,6 +36,7 @@ class Display(QLabel):
             self._count = 0
             self._timer.stop()
 
+    # Funtion to upload the displayImage variable
     @pyqtSlot(list)
     def updateDisplayImage(self, image):
         self._displayImage = image

@@ -28,7 +28,6 @@ class Policy(nn.Module):
 
 # Simple function to calculate the loss
 def Loss(policy, optimizer, states, actions, discounted_rewards):
-    #discounted_rewards = compute_discounted_rewards(rewards)
     optimizer.zero_grad()
     losses = []
     for (step, a) in enumerate(actions):
@@ -71,7 +70,6 @@ def compute_discounted_rewards(rewards, gamma=0.99):
 
 def run_episode(env, policy, length):
     # Restart the MiniGrid environment.
-    #state = state_filter(env.reset())
     state = env.reset()
 
     # We need to keep a record of states, actions, and the
@@ -98,9 +96,11 @@ def run_episode(env, policy, length):
         if done:
             break
             
-    # Return the sequence of states, actions, and the corresponding rewards.
+    # Return the sequence of states, actions, and the a list contain boolean variables
+    # that is used to understand if in this sequence the agent achieves the goal.
     return (states, actions, dones)
 
+# Simple utility function to save the policy weights
 def save_policy_weights(model, save_weights_path):
     torch.save(model.state_dict(), save_weights_path + '/policy_weight.pth')
 

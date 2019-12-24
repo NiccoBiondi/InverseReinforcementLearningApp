@@ -6,6 +6,8 @@ from Build.Ui_SetupDialog import Ui_SetupModel
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject
 from PyQt5.QtWidgets import QDialog
 
+# Define the setup dialog to take the model parameters.
+# These parameters are settet from the user.
 class SetupDialog(QDialog):
     def __init__(self, model):
         super().__init__()
@@ -36,7 +38,7 @@ class SetupDialog(QDialog):
         self.ui.n_annotation_line.textChanged.connect(self._controller.change_n_annotation)
 
 
-
+    # Set default parameters
     @pyqtSlot(dict)
     def set_default(self, default_param):
         self.ui.minigrid_env.setCurrentIndex(1)

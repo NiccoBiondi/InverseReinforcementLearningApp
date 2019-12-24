@@ -8,10 +8,15 @@ import torch.autograd as autograd
 
 from PyQt5.QtWidgets import QApplication
 
-
+# Utility function. The MiniGrid gym environment uses 3 channels as
+# state, but for this we only use the first channel: represents all
+# objects (including goal) with integers. This function just strips
+# out the first channel and returns it.
 def state_filter(state):
     return torch.from_numpy(state[:,:,0]).float()
 
+# Simple class to calculate states rewards. It takes a clip, collection of states, and process them
+# giving back a list of reward, of for each state.
 class csvRewardModel(nn.Module):
     def __init__(self, obs_size, inner_size):
         super(csvRewardModel, self).__init__()
@@ -31,7 +36,11 @@ class csvRewardModel(nn.Module):
         
         return rewads
 
-    
+    # The primary function. It takes the annotation buffer and process the triples.
+    # A triple is a list composed by [first clip, second clip, preferency]. Thre preferency
+    # is a list that can be [1, 0] if the user choose the firt clip, [0, 1] if the
+    # user choose the second clip, [0.5, 0.5] if the user choose both clips or
+    # [0, 0] if the user discard the clips in triple. the preferency is used in loss computation.
     def compute_rewards(self, reward_model, optimizer, train_clips):
 
         probs = []
@@ -57,12 +66,13 @@ class csvRewardModel(nn.Module):
             
         loss.backward() 
     
-        # nn.utils.clip_grad_norm(reward_model.parameters(), 5)
+        nn.utils.clip_grad_norm(reward_model.parameters(), 5)
         optimizer.step()
 
         reward_model.eval()
         return loss.item()
 
+# Simple utility function to save the reward model weights
 def save_reward_weights(reward_model, save_weights):
     torch.save(reward_model.state_dict(), save_weights + '/csv_reward_weight.pth')
 

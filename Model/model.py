@@ -38,62 +38,67 @@ class Model(QObject):
     def __init__(self):
         super().__init__()
 
-        # Define botton visibility
+        # Define botton visibility variable.
         self._processButton = True
         self._choiseButton = False
 
-        # Define if a initialize model
+        # Define initialize model variable. If the user
+        # don't initialize or load the model, he can't start
+        # to annotate the clips.
         self._model_init = False
         self._model_load = False
 
-        # Define default path  
+        # Define default path where the clips are saved by the policy
+        # thread, the application can make auto save action, and where the
+        # reward model initial weight is saved. "_load_path" variable
+        # is used to memorize if the user loads a checkpoint model.
         self._weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight'
         self._auto_save_folder = DIR_NAME + '/SAVE_FOLDER/'
         self._clips_database = DIR_NAME + '/Clips_Database/'
         self._load_path = ''
 
-        # Define variable to train policy and reward model
-        self._annotation = None 
-        self._annotation_buffer = []
-        self._oracle = False
+        # Define variable to train policy and reward model.
+        self._annotation = None      # Is used to update the history window widget with the current annotation made
+        self._annotation_buffer = [] # Memorize the clips annotate and the preference
+        self._oracle = False         # Boolean variable used to understand if the oracle is used or not
 
-        # Define util variable
-        self._iteration = 0 # memorize the episodes where the policy arrived
-        self._ann_point = 0 # memorize the folder where the annotator arrive
-        self._auto_save_clock_policy = 2000 
-        self._annotator = Annotator()
-        self._model_parameters = {}
-        self._preferencies = None
+        # Define util variable.
+        self._iteration = 0                # Memorize the episodes where the policy arrived.
+        self._ann_point = 0                # Memorize the folder where the annotator arrive.
+        self._auto_save_clock_policy = 100 # Define auto save cock period for the policy thread.
+        self._annotator = Annotator()      # Utility class to reload the csv and the image which represent clips to annotate.
+        self._model_parameters = {}        # Define model initial parameters like learning rate, environment name, trajectory length etc.
+        self._preferencies = None          # Utility function used to take the preferencies of the user during annotation
 
-        # Define variable used to the annotation phase
-        self._clips = []
-        self._disp_figure = []
-        self._folder = []
+        # Define variable used to the annotation phase.
+        self._clips = []       # Contain clips to annotate
+        self._disp_figure = [] # Contain clips images to annotate
+        self._folder = []      # Define the set of clips folders to annotate
 
         # Define Inverse Reinforcement Learning element
         self._obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
         self._act_size = 7      # Seven possible actions (turn left, right, forward, pickup, drop, etc.)
         self._inner_size = 64   # Number of neurons in two hidden layers.
-        self._reward_batch = 16
+        self._reward_batch = 16 # Reward model batch size
 
-        self._env = None 
+        self._env = None          
         self._reward_model = csvRewardModel(obs_size = self._obs_size, inner_size = self._inner_size).cuda()
         self._policy = Policy(obs_size = self._obs_size, act_size = self._act_size, inner_size = self._inner_size).cuda()
         self._optimizer_p = None
-        self._optimizer_r = None
+        self._optimizer_r = None 
 
         # Define the two Display and replay buttons timers
         self._timer_dx = QTimer()
         self._timer_dx.setInterval(350)
         self._timer_sx = QTimer() 
         self._timer_sx.setInterval(350)
-        self._currentInterval = 400
+        self._currentInterval = 350
         self._speed = 1
         self._display_imageDx = []
         self._display_imageSx = []
         self._display_imageLen = 0
 
-
+    # Define a collection of property and property.setter.
     @property
     def annotator(self):
         return self._annotator
@@ -351,6 +356,7 @@ class Model(QObject):
             splits = self._load_path.split("/")
             self.pathLoadedSignal.emit("MODEL LOADED FROM : " + splits[-1])
         else:
+            self._load_path = ''
             self._model_load = False
             self.pathLoadedSignal.emit('')
 

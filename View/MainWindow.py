@@ -15,7 +15,9 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 
 DIR_NAME = os.path.dirname(os.path.abspath('__file__'))
 
-        
+
+# Create the Main window element. Initialize it with a setup layout 
+# defined by the Desiger tool.     
 class MainWindow(QMainWindow):
     def __init__(self, controller, model):
         super().__init__()
@@ -49,7 +51,7 @@ class MainWindow(QMainWindow):
         self._model.pathLoadedSignal.connect(self.change_label)
         self._model.changeWindowSignal.connect(self.set_centralWidget)
 
-
+    # Slot to change the label in Main window starting view
     @pyqtSlot(str)
     def change_label(self, string):
         if string != '':
@@ -62,6 +64,8 @@ class MainWindow(QMainWindow):
             self.ui.stateLabel.setText("MODEL NOT LOAD OR INITIALIZE")
             self.ui.stateLabel.setStyleSheet('color : red')
 
+    # Replace the setting view with the AlgView used for the
+    # Reinforcement Learning process.   
     @pyqtSlot(object)
     def set_centralWidget(self, widget):
         widget.setLayout(widget.createLayout())

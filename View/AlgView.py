@@ -38,6 +38,7 @@ class VideoPane(QGridLayout):
             self.addWidget(display[i], i // cols, i % cols)
 
 
+# Define the view for policy work, annotation work and reward model train.
 class AlgView(QWidget):
     def __init__(self, model, controller):
         super().__init__()
@@ -49,10 +50,7 @@ class AlgView(QWidget):
         # Define choise button configuration
         self._choiseButtonConf = {'left' : [1, 0], 'right' : [0, 1], 'both' : [0.5, 0.5], 'discard' : [0, 0]}
 
-        self.createLayout
-
-
-    
+    # Simple funtion that create the AlgView layout
     def createLayout(self):
         main_layout = QVBoxLayout()
 
