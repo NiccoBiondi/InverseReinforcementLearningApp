@@ -99,10 +99,11 @@ class Controller(QObject):
 
                 # Restart from where the user stop the annotation.
                 # From the clips2annotate folder we take the folder index where the user stop the annotation.
-                # The we initialize the model.folder with the clipsToannotate folder from index onwards. 
-                folders = os.listdir(self._model.clips_database)
-                index = folders.index([f for f in folders if self._model.ann_point in f][0])
-                self._model.folder = folders[index:]
+                # The we initialize the model.folder with the clipsToannotate folder from index onwards.
+                if len(os.listdir(self._model.clips_database)) > 0:
+                    folders = os.listdir(self._model.clips_database)
+                    index = folders.index([f for f in sorted(os.listdir(self._model.clips_database)) if str(self._model.ann_point) in f][0])
+                    self._model.folder = folders[index:]
                 self._model.load_path = fileName
                 
     # This function define oracle button functionality.

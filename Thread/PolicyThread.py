@@ -60,7 +60,7 @@ class PolicyThread(QThread):
 
             # Auto save controll.
             if step > 0 and step % self._model.auto_save_clock_policy == 0:
-                    save_model(self._model.auto_save_folder, self._model.policy, self._model.model_parameters)
+                    save_model(self._model.auto_save_folder, self._model.policy, self._model.model_parameters, self._model.iteration)
                     self._model.logBarSxSignal.emit('Auto-save in :' +  self._model.auto_save_folder)
                     self._model.annoatate = True
                     time.sleep(0.5) 
