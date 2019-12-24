@@ -68,6 +68,7 @@ class Model(QObject):
         # Define variable used to the annotation phase
         self._clips = []
         self._disp_figure = []
+        self._folder = []
 
         # Define Inverse Reinforcement Learning element
         self._obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
@@ -217,6 +218,13 @@ class Model(QObject):
     def ann_point(self):
         return self._ann_point
 
+    @property
+    def folder(self):
+        return self._folder
+
+    @folder.setter
+    def folder(self, folder):
+        self._folder.append(folder)
 
     @optimizer_p.setter
     def optimizer_p(self, slot):

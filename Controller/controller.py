@@ -24,6 +24,7 @@ from Utility.utility import load_annotation_buffer
 from PyQt5.QtCore import QObject, pyqtSlot, QEventLoop
 from PyQt5.QtWidgets import QFileDialog, QDialog, QMessageBox
 
+
 DIR_NAME = os.path.dirname(os.path.abspath('__file__'))
 
 
@@ -74,7 +75,6 @@ class Controller(QObject):
                 if 'csv_reward_weight.pth' in os.listdir(fileName):
                     self._model.reward_model.load_state_dict(torch.load( fileName + '/csv_reward_weight.pth' ))
 
-                
                 if 'policy_weight.pth' in os.listdir(fileName):
                     self._model.policy.load_state_dict(torch.load( fileName + '/policy_weight.pth' ))
 
@@ -89,7 +89,7 @@ class Controller(QObject):
                 if 'annotation_buffer' in os.listdir(fileName):
                     self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + '/annotation_buffer/')
 
-        
+                self._model.folder = os.listdir(self._model.clips_database)
                 self._model.load_path = fileName
         
     @pyqtSlot(bool)
@@ -139,30 +139,24 @@ class Controller(QObject):
 
     @pyqtSlot()
     def annotation(self):
-
+        
+        folders = []
+        index = 0
         while(not self._policy_t.isFinished()):
             
-            # riparto dal folder da cui mi ero fermato ad annotare
-            if self._model.ann_point != 0:
-                folders = os.listdir(self._model.clips_database)
-                folder  = [folders[i] for i in range([i for i in range(len(folders)) if str(self._model.ann_point) in folders[i]][0], len(folders))]
-                index = folders.index(folder[0])
-                for f in folders[:index]:
-                    shutil.rmtree(self._model.clips_database + '/' + f)
-            
             i = 1
-            for folder in os.listdir(self._model.clips_database):
+            while (len(self._model.folder) > 0):
                 
-                self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database, folder)
+                self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database, self._model.folder.pop())
 
                 for idx in range(0, len(self._model.disp_figure), 2):
                     #self._model.logBarSxSignal.emit('Policy processing :' +  str(self._model.iteration) + '/' + str(self._model.model_parameters['episodes']) + ' episodes')
-                    self._model.logBarDxSignal.emit( 'Folder ' + str(i) + '/' + str(len(os.listdir(self._model.clips_database))) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) )
+                    self._model.logBarDxSignal.emit( 'Folder ' + str(i) + '/' + str(len(self._model.folder)) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) )
                     self._model.display_imageLen = len(self._model.disp_figure[idx])
                     self._model.display_imageSx = self._model.disp_figure[idx]
                     self._model.display_imageDx = self._model.disp_figure[idx + 1]
                     self._model.choiseButton = True
-                    self._model.logBarDxSignal.emit('Folder ' + str(i) + '/' + str(len(os.listdir(self._model.clips_database))) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + '..Waiting annotation...')
+                    self._model.logBarDxSignal.emit('Folder ' + str(i) + '/' + str(len(self._model.folder)) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + '..Waiting annotation...')
                     self.wait_signal()
                     self._model.choiseButton = False
                     
@@ -175,8 +169,7 @@ class Controller(QObject):
                     except Exception:
                         print(Exception)
                         sys.exit()
-                    
-                
+
                 self._model.ann_point = self._model.ann_point + 1
                 save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
                 i += 1

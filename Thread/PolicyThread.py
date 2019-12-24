@@ -33,7 +33,7 @@ class PolicyThread(QThread):
     def run(self):
 
         clips_generated = []
-
+        
         for step in range(self._model.iteration, int(self._model.model_parameters['episodes'])):
             self._model.logBarSxSignal.emit('Policy processing :' +  str(self._model.iteration + 1) + '/' + str(self._model.model_parameters['episodes']) + ' episodes')
             
@@ -43,8 +43,9 @@ class PolicyThread(QThread):
 
             # Sample the clips generated
             for index in np.random.randint(low = 0, high = len(clips), size= len(clips)//2):
-                if len(clips_generated) == 10 and self._model.model_parameters['idx']  < int(self._model.model_parameters['n_annotation']):
+                if len(clips_generated) == 50 and self._model.model_parameters['idx']  < int(self._model.model_parameters['n_annotation']):
                     clips_path = save_clips(self._model.clips_database + '/clipsToAnnotate_' + str(self._model.model_parameters['idx']), clips_generated)
+                    self._model.folder = '/clipsToAnnotate_' + str(self._model.model_parameters['idx'])
                     clips_generated = [clips[index]]
                     self._model.model_parameters = ['idx', self._model.model_parameters['idx'] + 1]
                     if not self._done:
