@@ -103,7 +103,8 @@ class Controller(QObject):
                 if len(os.listdir(self._model.clips_database)) > 0:
                     folders = os.listdir(self._model.clips_database)
                     index = folders.index([f for f in sorted(os.listdir(self._model.clips_database)) if str(self._model.ann_point) in f][0])
-                    self._model.folder = folders[index:]
+                    for f in folders[index:]:
+                        self._model.folder = f
                 self._model.load_path = fileName
                 
     # This function define oracle button functionality.
@@ -178,12 +179,12 @@ class Controller(QObject):
 
             for idx in range(0, len(self._model.disp_figure), 2):
 
-                self._model.logBarDxSignal.emit( 'Folder ' + str(i) + '/' + str(len(self._model.model_parameters['n_annotation'])) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) )
+                self._model.logBarDxSignal.emit( 'Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) )
                 self._model.display_imageLen = len(self._model.disp_figure[idx])
                 self._model.display_imageSx = self._model.disp_figure[idx]
                 self._model.display_imageDx = self._model.disp_figure[idx + 1]
                 self._model.choiseButton = True
-                self._model.logBarDxSignal.emit('Folder ' + str(i) + '/' + str(len(self._model.model_parameters['n_annotation'])) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + '..Waiting annotation...')
+                self._model.logBarDxSignal.emit('Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + '..Waiting annotation...')
                 self.wait_signal()
                 self._model.choiseButton = False
                 

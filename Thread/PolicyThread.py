@@ -79,4 +79,4 @@ class PolicyThread(QThread):
         
         # When the policy makes all episodes reset all and save the weight
         save_model(self._model.auto_save_folder, self._model.policy, self._model.model_parameters, self._model.iteration)
-        self._model.iteration = 0
+
