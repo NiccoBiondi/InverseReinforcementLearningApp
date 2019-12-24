@@ -156,9 +156,9 @@ class SetupDialogController(QObject):
         default_param['episode_len'] = str(80)
         default_param['lr'] = str(0.001)
         default_param['clips_len'] = str(5)
-        default_param['episodes'] = str(20000)
+        default_param['episodes'] = str(2000)
         default_param['K'] = str(100)
-        default_param['n_annotation'] = str(50)
+        default_param['n_annotation'] = str(10)
         self._model.default_parameters = default_param
 
     @pyqtSlot(str)
