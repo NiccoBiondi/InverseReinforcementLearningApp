@@ -150,18 +150,19 @@ class Controller(QObject):
                 for f in folders[:index]:
                     shutil.rmtree(self._model.clips_database + '/' + f)
             
+            i = 1
             for folder in os.listdir(self._model.clips_database):
-        
+                
                 self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database, folder)
 
                 for idx in range(0, len(self._model.disp_figure), 2):
-                    self._model.logBarSxSignal.emit('Policy processing :' +  str(self._model.iteration) + '/' + str(self._model.model_parameters['episodes']) + ' episodes')
-                    self._model.logBarDxSignal.emit('Remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + ' clips to annotate')
+                    #self._model.logBarSxSignal.emit('Policy processing :' +  str(self._model.iteration) + '/' + str(self._model.model_parameters['episodes']) + ' episodes')
+                    self._model.logBarDxSignal.emit( 'Folder ' + str(i) + '/' + str(len(os.listdir(self._model.clips_database))) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) )
                     self._model.display_imageLen = len(self._model.disp_figure[idx])
                     self._model.display_imageSx = self._model.disp_figure[idx]
                     self._model.display_imageDx = self._model.disp_figure[idx + 1]
                     self._model.choiseButton = True
-                    self._model.logBarDxSignal.emit('Remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + ' clips to annotate...Waiting annotation')
+                    self._model.logBarDxSignal.emit('Folder ' + str(i) + '/' + str(len(os.listdir(self._model.clips_database))) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + '..Waiting annotation...')
                     self.wait_signal()
                     self._model.choiseButton = False
                     
@@ -178,6 +179,7 @@ class Controller(QObject):
                 
                 self._model.ann_point = self._model.ann_point + 1
                 save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
+                i += 1
 
         self._reward_t.start()
             

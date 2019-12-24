@@ -6,7 +6,7 @@ import numpy as np
 from ReinforcementLearning.csvRewardModel import save_reward_weights
 from Utility.utility import save_model_parameters
 
-from PyQt5.QtCore import QRunnable, pyqtSlot, QObject, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSlot, QObject, pyqtSignal
 
 def data_loader(annotation_buffer, batch):
     
@@ -25,7 +25,7 @@ class WorkerSignals(QObject):
     '''
     finishedSignal = pyqtSignal()
 
-class RewardThread(QRunnable):
+class RewardThread(QThread):
 
     def __init__(self, model):
         super(RewardThread, self).__init__()
@@ -39,7 +39,7 @@ class RewardThread(QRunnable):
     def run(self):
         loss = []
 
-        for k in range(self._model.model_parameters['K']):
+        for k in range(int(self._model.model_parameters['K'])):
             self._model.logBarSxSignal.emit("Train reward model : k-batch " + str(k) + ' of ' + str(self._model.model_parameters['K']) )
             train_clips = data_loader(self._model.annotation_buffer, self._model.reward_batch)
             loss.append(self._model.reward_model.compute_rewards(self._model.reward_model, self._model.optimizer_r, train_clips))

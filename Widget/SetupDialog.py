@@ -33,6 +33,7 @@ class SetupDialog(QDialog):
         self.ui.clips_len_line.textChanged.connect(self._controller.change_clips_len)
         self.ui.episodes_line.textChanged.connect(self._controller.change_episodes)
         self.ui.K_line.textChanged.connect(self._controller.change_K)
+        self.ui.n_annotation_line.textChanged.connect(self._controller.change_n_annotation)
 
 
 
@@ -44,6 +45,7 @@ class SetupDialog(QDialog):
         self.ui.clips_len_line.setText(default_param['clips_len'])
         self.ui.episodes_line.setText(default_param['episodes'])
         self.ui.K_line.setText(default_param['K'])
+        self.ui.n_annotation_line.setText(default_param['n_annotation'])
     
     def close_Window(self):
         self.close
@@ -86,6 +88,10 @@ class SetupDialogModel(QObject):
     @property
     def K(self):
         return self._default_parameters['K']
+    
+    @property
+    def n_annotation(self):
+        return self._default_parameters['n_annotation']
 
     @env.setter
     def env(self, env):
@@ -117,6 +123,10 @@ class SetupDialogModel(QObject):
         self._default_parameters['K'] = K
         self._model.model_parameters = ['K', K]
     
+    @n_annotation.setter
+    def n_annotation(self, n_annotation):
+        self._model.model_parameters = ['n_annotation', n_annotation]
+    
     @default_parameters.setter
     def default_parameters(self, params):
         for key in params.keys():
@@ -146,6 +156,7 @@ class SetupDialogController(QObject):
         default_param['clips_len'] = str(5)
         default_param['episodes'] = str(20000)
         default_param['K'] = str(100)
+        default_param['n_annotation'] = str(50)
         self._model.default_parameters = default_param
 
     @pyqtSlot(str)
@@ -171,6 +182,10 @@ class SetupDialogController(QObject):
     @pyqtSlot(str)
     def change_K(self, value):
         self._model.K = value
+
+    @pyqtSlot(str)
+    def change_n_annotation(self, value):
+        self._model.n_annotation = value
 
     @pyqtSlot()
     def ok_button(self):

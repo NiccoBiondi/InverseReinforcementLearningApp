@@ -87,21 +87,41 @@ def clips_generator(states, dones, clips_len):
 # Save model parameters define in initialization or in a loaded checkpoint.
 # Is usefull to restart from the checkpoint
 def save_model_parameters(path, model_parameters, iteration):
+    '''
+        minigrid_env : gym minigrid environment name
+
+        episode_len : trajectory length 
+
+        lr : policy and reward model learning rate
+
+        clips_len : clips length
+
+        episodes : number of iterations made by the policy
+ 
+        K : mini-batches number for reward model train phase
+
+        n_annotation : number of annotation that the user has to do
+
+        idx : current number of clips set created by policy
+
+        iteration : current episode made by the policy
+        
+    '''
     with open(path + '/values.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
             filewriter.writerow([model_parameters['minigrid_env'], model_parameters['episode_len'], 
                                     model_parameters['lr'], model_parameters['clips_len'], model_parameters['episodes'], 
-                                    model_parameters['K'], model_parameters['idx'], iteration])
+                                    model_parameters['K'], model_parameters['n_annotation'], model_parameters['idx'], iteration])
 
 # Function to save annotation buffer. It is used to restart annotation
 #  and reload what the user do in previous work.
 def save_annotation(save_path, annotation_buffer, iteration):
 
-    if not os.path.exists(save_path + '/annotation_buffer'):
-            os.makedirs(save_path + '/annotation_buffer')
+    if not os.path.exists(save_path + '/clips2annotate_' + str(iteration) + '/annotation_buffer'):
+            os.makedirs(save_path + '/clips2annotate_' + str(iteration) + '/annotation_buffer')
 
     for i, triple in enumerate(annotation_buffer):
-        with open(save_path + '/annotation_buffer/triple_' + str(i) + '.csv', 'w') as csvfile:
+        with open(save_path + '/clips2annotate_' + str(iteration) + '/annotation_buffer/triple_' + str(i) + '.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
             for idx, clip in enumerate(triple[0]):
     
@@ -120,13 +140,14 @@ def convert_string(image):
 # Function to load previous model parameters saved in previous work             
 def load_values(path):
     values = {}
-    data_df = pd.read_csv(path , error_bad_lines=False, names=["minigrid_env", "episode_len", "lr", "clips_len", "episodes", "K", "idx", 'iteration'])
+    data_df = pd.read_csv(path , error_bad_lines=False, names=["minigrid_env", "episode_len", "lr", "clips_len", "episodes", "K", "n_annotation", "idx", 'iteration'])
     values['minigrid_env'] = str(data_df["minigrid_env"].values[0])
     values['episode_len'] = int(data_df["episode_len"].values[0])
     values['lr'] = float(data_df["lr"].values[0])
     values['clips_len'] = int(data_df["clips_len"].values[0])
     values['episodes'] = int(data_df["episodes"].values[0])
     values['K'] = int(data_df["K"].values[0])
+    values['n_annotation'] = int(data_df["n_annotation"][0])
     values['idx'] = int(data_df["idx"].values[0])
 
     return values, int(data_df["iteration"].values[0])

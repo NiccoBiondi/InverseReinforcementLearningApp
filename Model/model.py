@@ -332,6 +332,8 @@ class Model(QObject):
         else:
             self._model_parameters[model_par[0]] = model_par[1]
 
+        
+
     @load_path.setter
     def load_path(self, path):
 
