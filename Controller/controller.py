@@ -101,10 +101,10 @@ class Controller(QObject):
                 # From the clips2annotate folder we take the folder index where the user stop the annotation.
                 # The we initialize the model.folder with the clipsToannotate folder from index onwards.
                 if len(os.listdir(self._model.clips_database)) > 0:
-                    folders = os.listdir(self._model.clips_database)
-                    index = folders.index([f for f in sorted(os.listdir(self._model.clips_database)) if str(self._model.ann_point) in f][0])
-                    for f in folders[index:]:
-                        print(f)
+                    folders = sorted(os.listdir(self._model.clips_database))
+                    print(folders)
+                    #index = folders.index([f for f in sorted(folders) if str(self._model.ann_point) in f][0])                    
+                    for f in folders[self._model.ann_point:]:
                         self._model.folder = f
                 self._model.load_path = fileName
                 
