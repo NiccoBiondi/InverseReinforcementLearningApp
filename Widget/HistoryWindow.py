@@ -21,7 +21,7 @@ class HistoryWindowButton(QPushButton):
         self.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
         self.clicked.connect(self.window.exec_)
 
-# Window that contain all the clips in annotation buffer with the correlated preferencies
+# Window that contain all the clips in annotation buffer with the correlated preferences
 class HistoryWindow(QDialog):
     def __init__(self, model):
         super().__init__()

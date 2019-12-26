@@ -68,7 +68,7 @@ class Model(QObject):
         self._auto_save_clock_policy = 100 # Define auto save cock period for the policy thread.
         self._annotator = Annotator()      # Utility class to reload the csv and the image which represent clips to annotate.
         self._model_parameters = {}        # Define model initial parameters like learning rate, environment name, trajectory length etc.
-        self._preferencies = None          # Utility function used to take the preferencies of the user during annotation
+        self._preferences = None          # Utility function used to take the preferences of the user during annotation
 
         # Define variable used to the annotation phase.
         self._clips = []       # Contain clips to annotate
@@ -208,8 +208,8 @@ class Model(QObject):
         return self._load_path
     
     @property
-    def preferencies(self):
-        return self._preferencies
+    def preferences(self):
+        return self._preferences
 
     @property 
     def iteration(self):
@@ -360,9 +360,9 @@ class Model(QObject):
             self._model_load = False
             self.pathLoadedSignal.emit('')
 
-    @preferencies.setter
-    def preferencies(self, slot):
-        self._preferencies = slot
+    @preferences.setter
+    def preferences(self, slot):
+        self._preferences = slot
         self.preferenceChangedSignal.emit()
 
     @pyqtSlot(object)

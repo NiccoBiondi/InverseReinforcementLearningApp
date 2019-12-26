@@ -143,11 +143,11 @@ class Controller(QObject):
             self._model.set_timerSpeed([1, -75])
 
     # Choise button function. The four button (left, right, both, discard)
-    # have different preferencies which are given to the clips.
-    # The preferencies are the annotation made by the user.
+    # have different preferences which are given to the clips.
+    # The preferences are the annotation made by the user.
     @pyqtSlot(list)
-    def changePreferencies(self, pref):
-        self._model.preferencies = pref
+    def changepreferences(self, pref):
+        self._model.preferences = pref
 
     # Process button function.
     @pyqtSlot()
@@ -190,8 +190,8 @@ class Controller(QObject):
                 
                 try:
 
-                    self._model.annotation_buffer.append([self._model.clips[idx]['clip'], self._model.clips[idx + 1]['clip'], self._model.preferencies])
-                    annotation = [self._model.clips[idx]['path'], self._model.clips[idx + 1]['path'], '[' + str(self._model.preferencies[0]) + ',' + str(self._model.preferencies[1]) + ']']
+                    self._model.annotation_buffer.append([self._model.clips[idx]['clip'], self._model.clips[idx + 1]['clip'], self._model.preferences])
+                    annotation = [self._model.clips[idx]['path'], self._model.clips[idx + 1]['path'], '[' + str(self._model.preferences[0]) + ',' + str(self._model.preferences[1]) + ']']
                     self._model.annotation = annotation
 
                 except Exception:
