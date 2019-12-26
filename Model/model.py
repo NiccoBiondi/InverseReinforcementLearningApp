@@ -319,7 +319,7 @@ class Model(QObject):
         self._auto_save_folder = self._auto_save_folder + self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
 
 
-        # load reward model starting weight if they exists reward model
+        # load reward model with saved weight if they exist
         if os.path.exists(self._weigth_path + 'csv_reward_weght.pth'):
             self._reward_model.load_state_dict(torch.load( self._weigth_path + 'csv_reward_weght.pth' ))
 
@@ -345,7 +345,6 @@ class Model(QObject):
         else:
             self._model_parameters[model_par[0]] = model_par[1]
 
-        
 
     @load_path.setter
     def load_path(self, path):

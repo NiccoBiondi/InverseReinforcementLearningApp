@@ -104,6 +104,7 @@ class Controller(QObject):
                     folders = os.listdir(self._model.clips_database)
                     index = folders.index([f for f in sorted(os.listdir(self._model.clips_database)) if str(self._model.ann_point) in f][0])
                     for f in folders[index:]:
+                        print(f)
                         self._model.folder = f
                 self._model.load_path = fileName
                 
@@ -166,13 +167,14 @@ class Controller(QObject):
     # to annotate the clips. It add the annotation
     # to annotation buffer and to the history window.
     # End the clips to be annotate and the policy thread,
-    #it starts the reward model thread.
+    # it starts the reward model thread.
     @pyqtSlot()
     def annotation(self):
         
         folders = []
         index = 0     
         i = 1
+        print(self._model.folder)
         while (len(self._model.folder) > 0):
             
             self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database, self._model.folder.pop())
@@ -194,14 +196,15 @@ class Controller(QObject):
                     annotation = [self._model.clips[idx]['path'], self._model.clips[idx + 1]['path'], '[' + str(self._model.preferences[0]) + ',' + str(self._model.preferences[1]) + ']']
                     self._model.annotation = annotation
 
-                except Exception:
-                    print(Exception)
+                except Exception as e:
+                    print(e)
                     sys.exit()
 
             self._model.ann_point = self._model.ann_point + 1
             save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
             i += 1
-
+            print('yooooo', len(self._model.folder))
+        print('già quuaaa')
         self._reward_t.start()
             
         

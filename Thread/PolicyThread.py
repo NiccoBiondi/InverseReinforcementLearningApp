@@ -37,10 +37,12 @@ class PolicyThread(QThread):
     def run(self):
 
         clips_generated = []
-        if self._model.iteration == int(self._model.model_parameters['episodes']):
+        
+        if self._model.model_parameters['idx'] == int(self._model.model_parameters['n_annotation']):
             self._signals.startAnnotation.emit()
         
         for step in range(self._model.iteration, int(self._model.model_parameters['episodes'])):
+            
             self._model.logBarSxSignal.emit('Policy processing :' +  str(self._model.iteration + 1) + '/' + str(self._model.model_parameters['episodes']) + ' episodes')
             
             (states, actions, dones) = run_episode(self._model.env, self._model.policy, int(self._model.model_parameters['episode_len']))
