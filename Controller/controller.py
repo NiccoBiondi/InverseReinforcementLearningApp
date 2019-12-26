@@ -173,7 +173,7 @@ class Controller(QObject):
         
         folders = []
         index = 0     
-        i = 1
+        i = self._model.ann_point + 1
         print(self._model.folder)
         while (len(self._model.folder) > 0):
             
