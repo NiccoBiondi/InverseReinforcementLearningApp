@@ -23,7 +23,7 @@ DIR_NAME = os.path.dirname(os.path.abspath('__file__'))
 class Model(QObject):
     refreshHistorySignal = pyqtSignal()
     processButtonVisiblitySignal = pyqtSignal()
-    choiseButtonVisiblitySignal = pyqtSignal()
+    choiceButtonVisiblitySignal = pyqtSignal()
     preferenceChangedSignal = pyqtSignal()
     updateDisplaySxImageSignal = pyqtSignal(list)
     updateDisplayDxImageSignal = pyqtSignal(list)
@@ -40,7 +40,7 @@ class Model(QObject):
 
         # Define botton visibility variable.
         self._processButton = True
-        self._choiseButton = False
+        self._choiceButton = False
 
         # Define initialize model variable. If the user
         # don't initialize or load the model, he can't start
@@ -172,8 +172,8 @@ class Model(QObject):
         return self._processButton
 
     @property
-    def choiseButton(self):
-        return self._choiseButton
+    def choiceButton(self):
+        return self._choiceButton
 
     @property
     def oracle(self):
@@ -293,10 +293,10 @@ class Model(QObject):
         self._processButton = val
         self.processButtonVisiblitySignal.emit() 
 
-    @choiseButton.setter
-    def choiseButton(self, val):
-        self._choiseButton = val
-        self.choiseButtonVisiblitySignal.emit()
+    @choiceButton.setter
+    def choiceButton(self, val):
+        self._choiceButton = val
+        self.choiceButtonVisiblitySignal.emit()
 
     @oracle.setter
     def oracle(self, slot):

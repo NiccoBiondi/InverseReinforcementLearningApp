@@ -17,7 +17,7 @@ class ReplayButton(QPushButton):
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
         self.setEnabled(False)
 
-        self._model.choiseButtonVisiblitySignal.connect(self.setVisability)
+        self._model.choiceButtonVisiblitySignal.connect(self.setVisability)
     
     def replayVideo(self):
         for i in range(self._model.display_imageLen):

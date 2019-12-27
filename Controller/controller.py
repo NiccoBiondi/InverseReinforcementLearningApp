@@ -102,7 +102,6 @@ class Controller(QObject):
                 # The we initialize the model.folder with the clipsToannotate folder from index onwards.
                 if len(os.listdir(self._model.clips_database)) > 0:
                     folders = sorted(os.listdir(self._model.clips_database))
-                    print(folders)
                     #index = folders.index([f for f in sorted(folders) if str(self._model.ann_point) in f][0])                    
                     for f in folders[self._model.ann_point:]:
                         self._model.folder = f
@@ -143,7 +142,7 @@ class Controller(QObject):
         else:
             self._model.set_timerSpeed([1, -75])
 
-    # Choise button function. The four button (left, right, both, discard)
+    # Choice button function. The four button (left, right, both, discard)
     # have different preferences which are given to the clips.
     # The preferences are the annotation made by the user.
     @pyqtSlot(list)
@@ -157,7 +156,7 @@ class Controller(QObject):
         self._policy_t.start()
         self._model.processButton = False
 
-    # Simple QEventLoop used to wait the choise button clicked event.
+    # Simple QEventLoop used to wait the choice button clicked event.
     def wait_signal(self):
         loop = QEventLoop()
         self._model.preferenceChangedSignal.connect(loop.quit)
@@ -174,39 +173,38 @@ class Controller(QObject):
         folders = []
         index = 0     
         i = self._model.ann_point + 1
-        print(self._model.folder)
         while (len(self._model.folder) > 0):
-            
-            self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database, self._model.folder.pop())
 
-            for idx in range(0, len(self._model.disp_figure), 2):
+            if len(self._model.folder) > 0:
+                self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database, self._model.folder.pop())
 
-                self._model.logBarDxSignal.emit( 'Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) )
-                self._model.display_imageLen = len(self._model.disp_figure[idx])
-                self._model.display_imageSx = self._model.disp_figure[idx]
-                self._model.display_imageDx = self._model.disp_figure[idx + 1]
-                self._model.choiseButton = True
-                self._model.logBarDxSignal.emit('Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + '..Waiting annotation...')
-                self.wait_signal()
-                self._model.choiseButton = False
-                
-                try:
+                for idx in range(0, len(self._model.disp_figure), 2):
 
-                    self._model.annotation_buffer.append([self._model.clips[idx]['clip'], self._model.clips[idx + 1]['clip'], self._model.preferences])
-                    annotation = [self._model.clips[idx]['path'], self._model.clips[idx + 1]['path'], '[' + str(self._model.preferences[0]) + ',' + str(self._model.preferences[1]) + ']']
-                    self._model.annotation = annotation
+                    self._model.logBarDxSignal.emit( 'Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) )
+                    self._model.display_imageLen = len(self._model.disp_figure[idx])
+                    self._model.display_imageSx = self._model.disp_figure[idx]
+                    self._model.display_imageDx = self._model.disp_figure[idx + 1]
+                    self._model.choiceButton = True
+                    self._model.logBarDxSignal.emit('Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + '..Waiting annotation...')
+                    self.wait_signal()
+                    self._model.choiceButton = False
 
-                except Exception as e:
-                    print(e)
-                    sys.exit()
+                    try:
 
-            self._model.ann_point = self._model.ann_point + 1
-            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
-            i += 1
-            print('yooooo', len(self._model.folder))
-        print('già quuaaa')
-        self._reward_t.start()
-            
+                        self._model.annotation_buffer.append([self._model.clips[idx]['clip'], self._model.clips[idx + 1]['clip'], self._model.preferences])
+                        annotation = [self._model.clips[idx]['path'], self._model.clips[idx + 1]['path'], '[' + str(self._model.preferences[0]) + ',' + str(self._model.preferences[1]) + ']']
+                        self._model.annotation = annotation
+
+                    except Exception as e:
+                        self._model.annotation_buffer = self._model.annotation_buffer[:-1]
+                        save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
+                        sys.exit()
+
+                    self._model.preferences = None
+
+                self._model.ann_point = self._model.ann_point + 1
+                save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
+                i += 1
         
-            
+        self._policy_t._signals.finishedSignal.connect(lambda: self._reward_t.start())
             
