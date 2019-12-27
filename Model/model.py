@@ -68,7 +68,7 @@ class Model(QObject):
         self._auto_save_clock_policy = 100 # Define auto save cock period for the policy thread.
         self._annotator = Annotator()      # Utility class to reload the csv and the image which represent clips to annotate.
         self._model_parameters = {}        # Define model initial parameters like learning rate, environment name, trajectory length etc.
-        self._preferencies = None          # Utility function used to take the preferencies of the user during annotation
+        self._preferences = None          # Utility function used to take the preferences of the user during annotation
 
         # Define variable used to the annotation phase.
         self._clips = []       # Contain clips to annotate
@@ -208,8 +208,8 @@ class Model(QObject):
         return self._load_path
     
     @property
-    def preferencies(self):
-        return self._preferencies
+    def preferences(self):
+        return self._preferences
 
     @property 
     def iteration(self):
@@ -319,7 +319,7 @@ class Model(QObject):
         self._auto_save_folder = self._auto_save_folder + self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
 
 
-        # load reward model starting weight if they exists reward model
+        # load reward model with saved weight if they exist
         if os.path.exists(self._weigth_path + 'csv_reward_weght.pth'):
             self._reward_model.load_state_dict(torch.load( self._weigth_path + 'csv_reward_weght.pth' ))
 
@@ -345,7 +345,6 @@ class Model(QObject):
         else:
             self._model_parameters[model_par[0]] = model_par[1]
 
-        
 
     @load_path.setter
     def load_path(self, path):
@@ -360,9 +359,9 @@ class Model(QObject):
             self._model_load = False
             self.pathLoadedSignal.emit('')
 
-    @preferencies.setter
-    def preferencies(self, slot):
-        self._preferencies = slot
+    @preferences.setter
+    def preferences(self, slot):
+        self._preferences = slot
         self.preferenceChangedSignal.emit()
 
     @pyqtSlot(object)

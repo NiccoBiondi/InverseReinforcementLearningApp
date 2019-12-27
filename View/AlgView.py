@@ -61,7 +61,7 @@ class AlgView(QWidget):
         buttons = []
 
         for key in self._choiseButtonConf.keys():
-            buttons.append(ChoiseButton(key, self._choiseButtonConf[key], self._controller.changePreferencies, self._model))
+            buttons.append(ChoiseButton(key, self._choiseButtonConf[key], self._controller.changepreferences, self._model))
 
         mid_widget.setLayout(ButtonPane(buttons))
         mid_widget.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
