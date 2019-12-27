@@ -1,3 +1,5 @@
+import os
+import time
 import numpy as np
 
 import torch
@@ -74,5 +76,10 @@ class csvRewardModel(nn.Module):
 
 # Simple utility function to save the reward model weights
 def save_reward_weights(reward_model, save_weights):
-    torch.save(reward_model.state_dict(), save_weights + '/csv_reward_weight.pth')
+
+    current_time = time.strftime("%H:%M", time.localtime())
+    if [save_weights + '/' + el for el in os.listdir(save_weights) if 'csv_reward_weight' in el]:
+        os.remove([save_weights + '/' + el for el in os.listdir(save_weights) if 'csv_reward_weight' in el][0])
+
+    torch.save(reward_model.state_dict(), save_weights + '/csv_reward_weight_' + current_time + '.pth')
 
