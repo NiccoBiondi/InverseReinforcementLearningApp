@@ -32,11 +32,17 @@ class PolicyThread(QThread):
         self._train = True if os.listdir(self._model.weigth_path) else False
         self._done = False
 
+    @property
+    def done(self):
+        return self._done
+    
+    @done.setter
+    def done(self, _bool):
+        self._done = _bool
 
     def run(self):
 
         clips_generated = []
-        print(self._model.model_parameters['idx'], self._model.model_parameters['n_annotation'])
         if self._model.model_parameters['idx'] == int(self._model.model_parameters['n_annotation']):
 
             self._signals.startAnnotation.emit()
@@ -56,9 +62,9 @@ class PolicyThread(QThread):
                     self._model.folder = '/clipsToAnnotate_' + str(self._model.model_parameters['idx'])
                     clips_generated = [clips[index]]
                     self._model.model_parameters = ['idx', self._model.model_parameters['idx'] + 1]
-                    if not self._done:
+                    if not self.done:
                         self._signals.startAnnotation.emit()
-                        self._done = True
+                        self.done = True
 
                 clips_generated.append(clips[index])
 
@@ -79,6 +85,8 @@ class PolicyThread(QThread):
             
             self._model.iteration += 1 
         
+        self._model.logBarSxSignal.emit('Training of policy finished')
+
         self._signals.finishedSignal.emit()
         # When the policy makes all episodes reset all and save the weight
         save_model(self._model.auto_save_folder, self._model.policy, self._model.model_parameters, self._model.iteration)

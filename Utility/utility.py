@@ -116,6 +116,10 @@ def save_model_parameters(path, model_parameters, iteration):
 # Function to save annotation buffer. It is used to restart annotation
 #  and reload what the user do in previous work.
 def save_annotation(save_path, annotation_buffer, iteration):
+    
+    if os.path.exists(save_path):
+        os.removedirs(save_path)
+        os.makedirs(save_path)
 
     if not os.path.exists(save_path + '/annotation_buffer'):
             os.makedirs(save_path + '/annotation_buffer')
@@ -126,7 +130,6 @@ def save_annotation(save_path, annotation_buffer, iteration):
             for idx, clip in enumerate(triple[0]):
     
                 filewriter.writerow([clip, triple[1][idx], triple[2], iteration])
-
 
 
 def convert_string(image):

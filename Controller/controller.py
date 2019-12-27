@@ -52,7 +52,7 @@ class Controller(QObject):
         file_name = ''
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName = QFileDialog.getSaveFileName(caption="Define folder to save element", directory=DIR_NAME + "/SAVE_FOLDER/", options=options)
+        fileName = QFileDialog.getSaveFileName(caption="Define folder where to save element", directory=DIR_NAME + "/SAVE_FOLDER/", options=options)
         if fileName:
             save_path = fileName[0] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
             
@@ -153,6 +153,7 @@ class Controller(QObject):
     @pyqtSlot()
     def process(self):
         self._model.logBarSxSignal.emit('Policy processing...')
+        self._policy_t.done = False
         self._policy_t.start()
         self._model.processButton = False
 
@@ -205,7 +206,8 @@ class Controller(QObject):
                 self._model.ann_point = self._model.ann_point + 1
                 save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
                 i += 1
-                
+
+        self._model.logBarDxSignal.emit('Annotation phase finished')   
         if self._policy_t.isRunning():        
             loop = QEventLoop()
             self._policy_t._signals.finishedSignal.connect(loop.quit)
