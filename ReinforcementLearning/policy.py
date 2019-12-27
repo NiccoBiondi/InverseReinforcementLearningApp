@@ -1,3 +1,4 @@
+import os
 import time
 import gym
 import gym_minigrid
@@ -102,5 +103,10 @@ def run_episode(env, policy, length):
 
 # Simple utility function to save the policy weights
 def save_policy_weights(model, save_weights_path):
-    torch.save(model.state_dict(), save_weights_path + '/policy_weight.pth')
+
+    current_time = time.strftime("%H:%M", time.localtime())
+    if [save_weights_path + '/' + el for el in os.listdir(save_weights_path) if 'policy' in el]:
+        os.remove([save_weights_path + '/' + el for el in os.listdir(save_weights_path) if 'policy' in el][0])
+
+    torch.save(model.state_dict(), save_weights_path + '/policy_weight' + current_time + '.pth')
 

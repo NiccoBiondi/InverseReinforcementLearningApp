@@ -26,6 +26,14 @@
      </column>
      <column>
       <property name="text">
+       <string>List pos</string>
+      </property>
+      <property name="textAlignment">
+       <set>AlignCenter</set>
+      </property>
+     </column>
+     <column>
+      <property name="text">
        <string>Clip 1</string>
       </property>
       <property name="textAlignment">

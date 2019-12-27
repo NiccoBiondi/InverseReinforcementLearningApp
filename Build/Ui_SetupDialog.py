@@ -2,13 +2,11 @@
 
 # Form implementation generated from reading ui file 'SetupDialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_SetupModel(object):
     def setupUi(self, SetupModel):
@@ -171,3 +169,4 @@ class Ui_SetupModel(object):
         self.label.setText(_translate("SetupModel", "<html><head/><body><p>To understand the parameters please see the documentations in the site.</p></body></html>"))
         self.defaultButton.setText(_translate("SetupModel", "Default parameters"))
         self.n_annotations.setText(_translate("SetupModel", "Number of annotations:"))
+

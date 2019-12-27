@@ -78,15 +78,17 @@ class Controller(QObject):
 
         if fileName:
             if fileName != self._model.load_path:
+                
+                if [path for path in os.listdir(fileName) if 'csv_reward_weight' in path]:
+                    self._model.reward_model.load_state_dict(torch.load( fileName + [ '/' + path for path in os.listdir(fileName) if 'csv_reward_weight' in path][0] ))
 
-                if 'csv_reward_weight.pth' in os.listdir(fileName):
-                    self._model.reward_model.load_state_dict(torch.load( fileName + '/csv_reward_weight.pth' ))
+                
+                if [path for path in os.listdir(fileName) if 'policy_weight' in path]:
+                    self._model.policy.load_state_dict(torch.load( fileName + [ '/' + path for path in os.listdir(fileName) if 'policy_weight' in path][0] ))
+                
+                if [path for path in os.listdir(fileName) if 'values' in path]:
 
-                if 'policy_weight.pth' in os.listdir(fileName):
-                    self._model.policy.load_state_dict(torch.load( fileName + '/policy_weight.pth' ))
-
-                if 'values.csv' in os.listdir(fileName):
-                    self._model.model_parameters, self._model.iteration = load_values(fileName + '/values.csv')
+                    self._model.model_parameters, self._model.iteration = load_values(fileName + [ '/' + path for path in os.listdir(fileName) if 'values' in path][0])
                     self._model.env = RGBImgObsWrapper(gym.make(self._model.model_parameters['minigrid_env']))
                     self._model.env.reset() 
                     self._model.auto_save_folder = self._model.auto_save_folder + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
@@ -94,8 +96,8 @@ class Controller(QObject):
                     self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = float(self._model.model_parameters['lr']))
                     self._model.optimizer_r = torch.optim.Adam(params=self._model.reward_model.parameters(), lr = float(self._model.model_parameters['lr']), weight_decay=0.01)
                     
-                if 'annotation_buffer' in os.listdir(fileName):
-                    self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + '/annotation_buffer/')
+                if [path for path in os.listdir(fileName) if 'annotation_buffer' in path]:
+                    self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0])
 
                 # Restart from where the user stop the annotation.
                 # From the clips2annotate folder we take the folder index where the user stop the annotation.
@@ -193,7 +195,7 @@ class Controller(QObject):
                     try:
 
                         self._model.annotation_buffer.append([self._model.clips[idx]['clip'], self._model.clips[idx + 1]['clip'], self._model.preferences])
-                        annotation = [self._model.clips[idx]['path'], self._model.clips[idx + 1]['path'], '[' + str(self._model.preferences[0]) + ',' + str(self._model.preferences[1]) + ']']
+                        annotation = [str(len(self._model.annotation_buffer) - 1), self._model.clips[idx]['path'], self._model.clips[idx + 1]['path'], '[' + str(self._model.preferences[0]) + ',' + str(self._model.preferences[1]) + ']']
                         self._model.annotation = annotation
 
                     except Exception as e:

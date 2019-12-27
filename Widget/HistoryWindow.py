@@ -17,6 +17,7 @@ class HistoryWindowButton(QPushButton):
     def __init__(self, name, path):
         super().__init__()
         self.setText(name)
+
         self.window = ReplayClipsWindow(path + '/' + name)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
         self.clicked.connect(self.window.exec_)
@@ -59,9 +60,10 @@ class HistoryWindow(QDialog):
         item.setText(1, new_item[0])
         item.setText(2, new_item[1])
         item.setText(3, new_item[2])
+        item.setText(4, new_item[3])
         self.ui.annotationList.addTopLevelItem(item)
-        self.ui.annotationList.setItemWidget(item, 1, HistoryWindowButton(new_item[0], self.data_path))
         self.ui.annotationList.setItemWidget(item, 2, HistoryWindowButton(new_item[1], self.data_path))
+        self.ui.annotationList.setItemWidget(item, 3, HistoryWindowButton(new_item[2], self.data_path))
 
     # Refresh the QTreeWidget after it's modified
     @pyqtSlot(list)

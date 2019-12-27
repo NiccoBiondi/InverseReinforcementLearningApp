@@ -1,8 +1,10 @@
 import csv
 import os 
 import re
+import time
 import pandas as pd
 import numpy as np 
+import shutil
 import matplotlib.pyplot as plt 
 
 from ReinforcementLearning.policy import save_policy_weights
@@ -107,7 +109,11 @@ def save_model_parameters(path, model_parameters, iteration):
         iteration : current episode made by the policy
         
     '''
-    with open(path + '/values.csv', 'w') as csvfile:
+    current_time = time.strftime("%H:%M", time.localtime())
+    if [path + '/' + el for el in os.listdir(path) if 'values' in el]:
+        os.remove([path + '/' + el for el in os.listdir(path) if 'values' in el][0])
+
+    with open(path + '/values_' + current_time + '.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
             filewriter.writerow([model_parameters['minigrid_env'], model_parameters['episode_len'], 
                                     model_parameters['lr'], model_parameters['clips_len'], model_parameters['episodes'], 
@@ -121,17 +127,22 @@ def save_annotation(save_path, annotation_buffer, iteration):
         os.removedirs(save_path)
         os.makedirs(save_path)
 
-    if not os.path.exists(save_path + '/annotation_buffer'):
-            os.makedirs(save_path + '/annotation_buffer')
+    current_time = time.strftime("%H:%M", time.localtime())
+    if [save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el]:
+        shutil.rmtree([save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el][0])
+
+    if not os.path.exists(save_path + '/annotation_buffer_' + current_time):
+            os.makedirs(save_path + '/annotation_buffer_' + current_time)
 
     for i, triple in enumerate(annotation_buffer):
-        with open(save_path + '/annotation_buffer/triple_' + str(i) + '.csv', 'w') as csvfile:
+        with open(save_path + '/annotation_buffer_' + current_time + '/triple_' + str(i) + '.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
             for idx, clip in enumerate(triple[0]):
     
                 filewriter.writerow([clip, triple[1][idx], triple[2], iteration])
 
 
+# Simple function to convert str matrix or list in integer matrix or list
 def convert_string(image):
     num = []
     for element in image.split():
