@@ -205,6 +205,9 @@ class Controller(QObject):
                 self._model.ann_point = self._model.ann_point + 1
                 save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
                 i += 1
-        
-        self._policy_t._signals.finishedSignal.connect(lambda: self._reward_t.start())
-            
+                
+        if self._policy_t.isRunning():        
+            loop = QEventLoop()
+            self._policy_t._signals.finishedSignal.connect(loop.quit)
+            loop.exec_()
+        self._reward_t.start()            
