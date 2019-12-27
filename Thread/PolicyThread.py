@@ -37,7 +37,7 @@ class PolicyThread(QThread):
     def run(self):
 
         clips_generated = []
-        if self._model.iteration == int(self._model.model_parameters['episodes']):
+        if self._model.model_parameters['idx'] == int(self._model.model_parameters['episodes']):
             self._signals.startAnnotation.emit()
         
         for step in range(self._model.iteration, int(self._model.model_parameters['episodes'])):
