@@ -5,7 +5,7 @@ import numpy as np
 
 from Widget.DisplayWidget import Display
 from Widget.ReplayButton import ReplayButton
-from Widget.ChoiseButtonWidget import ChoiseButton
+from Widget.ChoiceButtonWidget import ChoiceButton
 from Widget.ProcessButton import ProcessButton
 from Widget.OracleButton import OracleButton
 from Widget.HistoryButton import HistoryButton
@@ -47,8 +47,8 @@ class AlgView(QWidget):
         self._model = model
         self._controller = controller
 
-        # Define choise button configuration
-        self._choiseButtonConf = {'left' : [1, 0], 'right' : [0, 1], 'both' : [0.5, 0.5], 'discard' : [0, 0]}
+        # Define choice button configuration
+        self._choiceButtonConf = {'left' : [1, 0], 'right' : [0, 1], 'both' : [0.5, 0.5], 'discard' : [0, 0]}
 
     # Simple funtion that create the AlgView layout
     def createLayout(self):
@@ -60,8 +60,8 @@ class AlgView(QWidget):
         mid_widget = QWidget()
         buttons = []
 
-        for key in self._choiseButtonConf.keys():
-            buttons.append(ChoiseButton(key, self._choiseButtonConf[key], self._controller.changepreferences, self._model))
+        for key in self._choiceButtonConf.keys():
+            buttons.append(ChoiceButton(key, self._choiceButtonConf[key], self._controller.changepreferences, self._model))
 
         mid_widget.setLayout(ButtonPane(buttons))
         mid_widget.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))

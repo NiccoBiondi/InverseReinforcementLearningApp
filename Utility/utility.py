@@ -164,7 +164,6 @@ def load_annotation_buffer(load_path):
         clip_1 = []
         clip_2 = []
         #pref = list(data_df['pref'][0])
-
         pref = [int(x) for x in re.findall('\d+', data_df['pref'][0])]
 
         if iteration == None:
