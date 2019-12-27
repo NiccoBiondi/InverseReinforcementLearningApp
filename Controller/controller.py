@@ -174,7 +174,7 @@ class Controller(QObject):
         folders = []
         index = 0     
         i = self._model.ann_point + 1
-        print(self._model.folder)
+
         while (len(self._model.folder) > 0):
             
             self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database, self._model.folder.pop())
@@ -203,8 +203,8 @@ class Controller(QObject):
             self._model.ann_point = self._model.ann_point + 1
             save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
             i += 1
-            print('yooooo', len(self._model.folder))
-        print('già quuaaa')
+        
+
         self._reward_t.start()
             
         
