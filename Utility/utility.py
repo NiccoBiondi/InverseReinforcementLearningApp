@@ -121,7 +121,7 @@ def save_model_parameters(path, model_parameters, iteration):
 
 # Function to save annotation buffer. It is used to restart annotation
 #  and reload what the user do in previous work.
-def save_annotation(save_path, annotation_buffer, iteration):
+def save_annotation(save_path, annotation_buffer, iteration, clip_point):
 
     current_time = time.strftime("%H:%M", time.localtime())
     if [save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el]:
@@ -133,9 +133,12 @@ def save_annotation(save_path, annotation_buffer, iteration):
     for i, triple in enumerate(annotation_buffer):
         with open(save_path + '/annotation_buffer_' + current_time + '/triple_' + str(i) + '.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
+
+            # In a triple.csv file in each row is set a first clip stete,
+            # a second clip state, the preferency, the folder where the annotation
+            # arrived and the clip in the folder that are annoted. 
             for idx, clip in enumerate(triple[0]):
-    
-                filewriter.writerow([clip, triple[1][idx], triple[2], iteration])
+                filewriter.writerow([clip, triple[1][idx], triple[2], iteration, clip_point])
 
 
 # Simple function to convert str matrix or list in integer matrix or list
@@ -168,19 +171,21 @@ def load_annotation_buffer(load_path):
     shape = (7, 7, 3)
     annotation_buffer = []
     iteration = None
+    clip_point = None
     
     if len(os.listdir(load_path)) > 0:
 
         for triple in os.listdir(load_path):
-            data_df = pd.read_csv(load_path + triple , error_bad_lines=False, names=["clip_1", "clip_2", "pref", "iteration"])
+            data_df = pd.read_csv(load_path + triple , error_bad_lines=False, names=["clip_1", "clip_2", "pref", "iteration", "clip_point"])
 
             clip_1 = []
             clip_2 = []
             #pref = list(data_df['pref'][0])
             pref = [int(x) for x in re.findall('\d+', data_df['pref'][0])]
 
-            if iteration == None:
+            if iteration == None and clip_point == None:
                 iteration = int(data_df["iteration"][0])
+                clip_point = int(data_df["clip_point"][0])
         
             for idx, element in enumerate(data_df["clip_1"].values):
                 img_1 = convert_string(element)
@@ -193,8 +198,9 @@ def load_annotation_buffer(load_path):
     else:
 
         iteration = 0
+        clip_point = 0
     
-    return annotation_buffer, iteration
+    return annotation_buffer, iteration, clip_point
         
 
 

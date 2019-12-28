@@ -20,7 +20,7 @@ class Annotator():
         return img
 
     # reload clips from csv and images for annotation
-    def load_clips_figure(self, data_path, folder):
+    def load_clips_figure(self, data_path, folder, point):
 
         clips = []
         disp_figure = []
@@ -35,8 +35,8 @@ class Annotator():
                     clips.append({ 'clip' : read_csv_clips(data_path + '/' + folder + '/' + fig + '/' + figure), 'path' : folder + '/' + fig})
 
             disp_figure.append(tmp)
-    
-        return clips, disp_figure
+
+        return clips[point:], disp_figure[point:]
 
     # Reset the Clips Database folder  
     def reset_clips_database(self, data_path):

@@ -23,7 +23,6 @@ DIR_NAME = os.path.dirname(os.path.abspath('__file__'))
 class Model(QObject):
     preferenceChangedSignal = pyqtSignal()
     processButtonVisiblitySignal = pyqtSignal()
-    refreshHistorySignal = pyqtSignal(int)
     choiceButtonVisiblitySignal = pyqtSignal(bool)
     updateDisplaySxImageSignal = pyqtSignal(list)
     updateDisplayDxImageSignal = pyqtSignal(list)
@@ -65,6 +64,7 @@ class Model(QObject):
         # Define util variable.
         self._iteration = 0                # Memorize the episodes where the policy arrived.
         self._ann_point = 0                # Memorize the folder where the annotator arrive.
+        self._clip_point = 0               # Memorize the clips in the folder where the annotator arrive.
         self._auto_save_clock_policy = 100 # Define auto save cock period for the policy thread.
         self._annotator = Annotator()      # Utility class to reload the csv and the image which represent clips to annotate.
         self._model_parameters = {}        # Define model initial parameters like learning rate, environment name, trajectory length etc.
@@ -100,6 +100,10 @@ class Model(QObject):
         self._display_imageLen = 0
 
     # Define a collection of property and property.setter.
+
+    @property
+    def clip_point(self):
+        return self._clip_point
 
     @property
     def start_ann_disp(self):
@@ -232,6 +236,10 @@ class Model(QObject):
     @property
     def folder(self):
         return self._folder
+    
+    @clip_point.setter
+    def clip_point(self, slot):
+        self._clip_point = slot
 
     @start_ann_disp.setter
     def start_ann_disp(self, slot):
@@ -398,15 +406,14 @@ class Model(QObject):
 
        
         for el in annotation:
-            
+
             triple = self._annotation_buffer[int(el[0])]
-            del self._annotation_buffer[int(el[0])]
+            self._annotation_buffer.pop(int(el[0]))
             self.clips.insert(0, triple[0])
             self.clips.insert(0, triple[1])
             self.disp_figure.insert(0, self._annotator.reload_figure(self._clips_database, el[1]))
             self.disp_figure.insert(0, self._annotator.reload_figure(self._clips_database, el[2]))
 
-        self.refreshHistorySignal.emit(self._start_ann_disp)
 
     
         

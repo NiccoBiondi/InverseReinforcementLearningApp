@@ -47,6 +47,7 @@ class RewardThread(QThread):
         self._model._iteration = 0
         self._model._model_parameters['idx'] = 0
         self._model._ann_point = 0
+        self._model.clip_point = 0
 
         # Reset all folders used for the entire process
         self._model.annotator.reset_clips_database(self._model.clips_database)
