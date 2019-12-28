@@ -99,6 +99,7 @@ class Controller(QObject):
                     
                 if [path for path in os.listdir(fileName) if 'annotation_buffer' in path]:
                     self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0])
+                    self._model.start_ann_disp = len(self._model.annotation_buffer)
 
 
                 # Restart from where the user stop the annotation.
@@ -185,16 +186,17 @@ class Controller(QObject):
 
                 for idx in range(0, len(self._model.disp_figure), 2):
 
-                    self._model.logBarDxSignal.emit( 'Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) )
                     self._model.display_imageLen = len(self._model.disp_figure[idx])
-                    self._model.display_imageSx = self._model.disp_figure[idx]
-                    self._model.display_imageDx = self._model.disp_figure[idx + 1]
+                    self._model.display_imageSx = self._model.disp_figure.pop()
+                    self._model.display_imageDx = self._model.disp_figure.pop()
+                    self._model.logBarDxSignal.emit( 'Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(len(self._model.disp_figure)) + ' clips')
 
                     
-                    self._model.logBarDxSignal.emit('Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + '..Waiting annotation...')
+                    self._model.logBarDxSignal.emit('Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(len(self._model.disp_figure)) + ' clips.. Waiting annotation...')
                     self.wait_signal()
 
                     self._model.choiceButton = False
+
                     try:
 
                         self._model.annotation_buffer.append([self._model.clips[idx]['clip'], self._model.clips[idx + 1]['clip'], self._model.preferences])

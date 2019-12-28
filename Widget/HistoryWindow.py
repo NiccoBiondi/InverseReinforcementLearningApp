@@ -43,7 +43,7 @@ class HistoryWindow(QDialog):
 
         # Connect window to principal model update
         model.setClipsHistorySignal.connect(self.add_annotation)
-        model.refreshHistorySignal.connect(self._controller.refresh)
+        #model.refreshHistorySignal.connect(self._controller.refresh)
 
         # Connect qtree list to update of key-value hash element
         self.ui.annotationList.currentItemChanged.connect(self._controller.update_annotation_list)
@@ -64,24 +64,40 @@ class HistoryWindow(QDialog):
         self.ui.annotationList.addTopLevelItem(item)
         self.ui.annotationList.setItemWidget(item, 2, HistoryWindowButton(new_item[1], self.data_path))
         self.ui.annotationList.setItemWidget(item, 3, HistoryWindowButton(new_item[2], self.data_path))
+        
 
     # Refresh the QTreeWidget after it's modified
-    @pyqtSlot(list)
+    @pyqtSlot(dict)
     def refreshTreeList(self, el_list):
-        for el in el_list:
-            itemIndex = self.ui.annotationList.indexOfTopLevelItem(el)
+        init_pos = 0
+        i = 0
+        items = [el_list[i][1] for i in el_list if el_list[i][0]]
+        for it in items:
+
+            itemIndex = self.ui.annotationList.indexOfTopLevelItem(it)
             self.ui.annotationList.takeTopLevelItem(itemIndex)
+ 
+        for i in range(self.ui.annotationList.topLevelItemCount()):
+            item = self.ui.annotationList.topLevelItem(i)
+
+            if i == 0:
+                init_pos = int(item.text(1))
+
+            if [i for i in el_list.keys() if item.text(1) == el_list[i][1].text(1) and not el_list[i][0]]:
+                item.setText(1, str(init_pos))
+                item.setCheckState(0, Qt.Unchecked)
+                init_pos += 1
 
 
 class HistoryWindowModel(QObject):
-    listUpdateSignal = pyqtSignal(list)
+    listUpdateSignal = pyqtSignal(dict)
 
     def __init__(self):
         super().__init__()
 
         # Define window utilities: the first define the element to add to annotation buffer
         # The second define the key-value hash to connect QtreeItems to annotation buffer items
-        self._selected_element = []
+        self._selected_element = {}
         self._annotation_list = {}
     
     @property
@@ -98,7 +114,7 @@ class HistoryWindowModel(QObject):
 
     @selected_element.setter
     def selected_element(self, element):
-        self._selected_element.append(element)
+        self._selected_element[element[0]] = element[1]
 
     
 
@@ -113,7 +129,6 @@ class HistoryWindowController(QObject):
         # Then i refresh the annotation buffer
         self._model = model
         self._on_configure = configure
-        self._current_key = 0
         self._tree = tree
 
     # The ok button has to take the selected element from QTreeWidget,
@@ -121,35 +136,40 @@ class HistoryWindowController(QObject):
     # selected element in the clips list which have to be annotate.
     @pyqtSlot()
     def ok_button(self):
-        sel_el = []
-        for item in self._model.selected_element:
-            identifier = str(id(item))
-            sel_el.append([self._model.annotation_list[identifier], item.text(1), item.text(2)])
-            
+        #sel_el = []
+        #for item in self._model.selected_element:
+        #    identifier = str(id(item))
+        #    sel_el.append([self._model.annotation_list[identifier], item.text(1), item.text(2)])
+        identifier = [identifier for identifier in self._model.selected_element.keys() if self._model.selected_element[identifier][0]]
+        idx = [self._model.selected_element[i][1].text(1) for i in identifier]
+        sel_el = [ [ idx[i], self._model.selected_element[identifier[i]][1].text(2), self._model.selected_element[identifier[i]][1].text(3) ] for i in range(len(idx)) ]
         self._on_configure(sel_el)
         self._model.listUpdateSignal.emit(self._model.selected_element)
-        self._model.selected_element
-        
+        self._model._selected_element = {} 
+
+
     # When a new triple is added to annotation list is added in 
     # history window widget.
     @pyqtSlot(QTreeWidgetItem, QTreeWidgetItem)
     def update_annotation_list(self, current, previous):
         if current != None:
-            self._model.annotation_list = [str(id(current)), self._current_key]
-            self._current_key += 1
+            self._model.annotation_list = [str(id(current)), current.text(1)]
 
     # Refresh the QTreeWidget.
     @pyqtSlot()
-    def refresh(self):
+    def refresh(self, start):
+
+        s = start
+
         for i, key in enumerate(self._model._annotation_list.keys()):
-            self._model._annotation_list[key] = i
-            
-        self._current_key = len(self._model._annotation_list) - 1 if len(self._model._annotation_list) != 0 else 0
+            self._model._annotation_list[key] = s
+            s += 1
 
     # When a element is selected or deselected the 
     # selected_element variable is updated.
     @pyqtSlot(QTreeWidgetItem, int)
     def upload_selected_element(self, item, column):
+        '''
         root = self._tree.invisibleRootItem()
         child_count = root.childCount()
         selected = []
@@ -160,6 +180,10 @@ class HistoryWindowController(QObject):
             else:
                 if (item.checkState(0) == Qt.Checked):
                     self._model.selected_element = item
+        '''
+        for i in range(self._tree.invisibleRootItem().childCount()):
+            item = self._tree.invisibleRootItem().child(i)
+            self._model.selected_element =  [str(id(item)), [True if item.checkState(0) == Qt.Checked else False, item]]
             
             
 

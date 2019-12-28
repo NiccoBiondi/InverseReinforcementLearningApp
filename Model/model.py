@@ -21,10 +21,10 @@ from PyQt5.QtWidgets import QWidget
 DIR_NAME = os.path.dirname(os.path.abspath('__file__'))
 
 class Model(QObject):
-    refreshHistorySignal = pyqtSignal()
-    processButtonVisiblitySignal = pyqtSignal()
-    choiceButtonVisiblitySignal = pyqtSignal(bool)
     preferenceChangedSignal = pyqtSignal()
+    processButtonVisiblitySignal = pyqtSignal()
+    refreshHistorySignal = pyqtSignal(int)
+    choiceButtonVisiblitySignal = pyqtSignal(bool)
     updateDisplaySxImageSignal = pyqtSignal(list)
     updateDisplayDxImageSignal = pyqtSignal(list)
     setClipsHistorySignal = pyqtSignal(list)
@@ -68,7 +68,8 @@ class Model(QObject):
         self._auto_save_clock_policy = 100 # Define auto save cock period for the policy thread.
         self._annotator = Annotator()      # Utility class to reload the csv and the image which represent clips to annotate.
         self._model_parameters = {}        # Define model initial parameters like learning rate, environment name, trajectory length etc.
-        self._preferences = None          # Utility function used to take the preferences of the user during annotation
+        self._preferences = None           # Utility function used to take the preferences of the user during annotation
+        self._start_ann_disp = 0           # Variable used only for graphic aim : take updated the history window 'List pos' column in correct way
 
         # Define variable used to the annotation phase.
         self._clips = []       # Contain clips to annotate
@@ -99,6 +100,11 @@ class Model(QObject):
         self._display_imageLen = 0
 
     # Define a collection of property and property.setter.
+
+    @property
+    def start_ann_disp(self):
+        return self._start_ann_disp
+
     @property
     def annotator(self):
         return self._annotator
@@ -226,6 +232,10 @@ class Model(QObject):
     @property
     def folder(self):
         return self._folder
+
+    @start_ann_disp.setter
+    def start_ann_disp(self, slot):
+        self._start_ann_disp = slot
 
     @folder.setter
     def folder(self, folder):
@@ -385,15 +395,18 @@ class Model(QObject):
 
     @pyqtSlot(list)
     def refreshAnnotationBuffer(self, annotation):
+
+       
         for el in annotation:
-            triple = self._annotation_buffer[el[0]]
-            del self._annotation_buffer[el[0]]
+            
+            triple = self._annotation_buffer[int(el[0])]
+            del self._annotation_buffer[int(el[0])]
             self.clips.insert(0, triple[0])
             self.clips.insert(0, triple[1])
             self.disp_figure.insert(0, self._annotator.reload_figure(self._clips_database, el[1]))
             self.disp_figure.insert(0, self._annotator.reload_figure(self._clips_database, el[2]))
 
-        self.refreshHistorySignal.emit()
+        self.refreshHistorySignal.emit(self._start_ann_disp)
 
     
         
