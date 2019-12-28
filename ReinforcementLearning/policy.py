@@ -108,5 +108,5 @@ def save_policy_weights(model, save_weights_path):
     if [save_weights_path + '/' + el for el in os.listdir(save_weights_path) if 'policy' in el]:
         os.remove([save_weights_path + '/' + el for el in os.listdir(save_weights_path) if 'policy' in el][0])
 
-    torch.save(model.state_dict(), save_weights_path + '/policy_weight' + current_time + '.pth')
+    torch.save(model.state_dict(), save_weights_path + '/policy_weight_' + current_time + '.pth')
 
