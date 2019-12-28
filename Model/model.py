@@ -318,6 +318,8 @@ class Model(QObject):
         self._env.reset()
         self._auto_save_folder = self._auto_save_folder + self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
 
+        if not os.path.exists(self._auto_save_folder):
+            os.mkdir(self._auto_save_folder)
 
         # load reward model with saved weight if they exist
         if os.path.exists(self._weigth_path + 'csv_reward_weght.pth'):

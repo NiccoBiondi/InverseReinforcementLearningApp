@@ -122,10 +122,6 @@ def save_model_parameters(path, model_parameters, iteration):
 # Function to save annotation buffer. It is used to restart annotation
 #  and reload what the user do in previous work.
 def save_annotation(save_path, annotation_buffer, iteration):
-    
-    if os.path.exists(save_path):
-        os.removedirs(save_path)
-        os.makedirs(save_path)
 
     current_time = time.strftime("%H:%M", time.localtime())
     if [save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el]:
