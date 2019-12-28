@@ -17,6 +17,7 @@ from ReinforcementLearning.wrapper import RGBImgObsWrapper
 
 from Utility.utility import save_annotation
 from Utility.utility import save_model
+from Utility.utility import save_model_parameters
 
 from Utility.utility import load_values
 from Utility.utility import load_annotation_buffer
@@ -98,6 +99,7 @@ class Controller(QObject):
                     
                 if [path for path in os.listdir(fileName) if 'annotation_buffer' in path]:
                     self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0])
+
 
                 # Restart from where the user stop the annotation.
                 # From the clips2annotate folder we take the folder index where the user stop the annotation.
@@ -187,11 +189,12 @@ class Controller(QObject):
                     self._model.display_imageLen = len(self._model.disp_figure[idx])
                     self._model.display_imageSx = self._model.disp_figure[idx]
                     self._model.display_imageDx = self._model.disp_figure[idx + 1]
-                    self._model.choiceButton = True
+
+                    
                     self._model.logBarDxSignal.emit('Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(idx) + '/' + str(len(self._model.disp_figure)) + '..Waiting annotation...')
                     self.wait_signal()
-                    self._model.choiceButton = False
 
+                    self._model.choiceButton = False
                     try:
 
                         self._model.annotation_buffer.append([self._model.clips[idx]['clip'], self._model.clips[idx + 1]['clip'], self._model.preferences])
@@ -202,6 +205,7 @@ class Controller(QObject):
 
                         self._model.annotation_buffer = self._model.annotation_buffer[:-1]
                         save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
+                        save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, self._model.iteration)
                         sys.exit()
 
                     self._model.preferences = None

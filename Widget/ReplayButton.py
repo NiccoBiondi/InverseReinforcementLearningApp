@@ -23,6 +23,6 @@ class ReplayButton(QPushButton):
         for i in range(self._model.display_imageLen):
             self._timer.start()
 
-    @pyqtSlot()
-    def setVisability(self):
-        self.setEnabled(not self.isEnabled())
+    @pyqtSlot(bool)
+    def setVisability(self, enable):
+        self.setEnabled(enable)

@@ -86,8 +86,11 @@ class PolicyThread(QThread):
             self._model.iteration += 1 
         
         self._model.logBarSxSignal.emit('Training of policy finished')
+        if self._model.model_parameters['idx'] < self._model.model_parameters['n_annotation']:
+            self._model.model_parameters = ['n_annotation', self._model.model_parameters['idx']]
 
         self._signals.finishedSignal.emit()
-        # When the policy makes all episodes reset all and save the weight
+
+        # When the policy makes all episodes save the weight and model parameters
         save_model(self._model.auto_save_folder, self._model.policy, self._model.model_parameters, self._model.iteration)
 

@@ -23,7 +23,7 @@ DIR_NAME = os.path.dirname(os.path.abspath('__file__'))
 class Model(QObject):
     refreshHistorySignal = pyqtSignal()
     processButtonVisiblitySignal = pyqtSignal()
-    choiceButtonVisiblitySignal = pyqtSignal()
+    choiceButtonVisiblitySignal = pyqtSignal(bool)
     preferenceChangedSignal = pyqtSignal()
     updateDisplaySxImageSignal = pyqtSignal(list)
     updateDisplayDxImageSignal = pyqtSignal(list)
@@ -296,7 +296,7 @@ class Model(QObject):
     @choiceButton.setter
     def choiceButton(self, val):
         self._choiceButton = val
-        self.choiceButtonVisiblitySignal.emit()
+        self.choiceButtonVisiblitySignal.emit(val)
 
     @oracle.setter
     def oracle(self, slot):

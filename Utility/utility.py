@@ -168,24 +168,31 @@ def load_annotation_buffer(load_path):
     shape = (7, 7, 3)
     annotation_buffer = []
     iteration = None
-    for triple in os.listdir(load_path):
-        data_df = pd.read_csv(load_path + triple , error_bad_lines=False, names=["clip_1", "clip_2", "pref", "iteration"])
-
-        clip_1 = []
-        clip_2 = []
-        #pref = list(data_df['pref'][0])
-        pref = [int(x) for x in re.findall('\d+', data_df['pref'][0])]
-
-        if iteration == None:
-            iteration = int(data_df["iteration"][0])
     
-        for idx, element in enumerate(data_df["clip_1"].values):
-            img_1 = convert_string(element)
-            img_2 = convert_string(data_df["clip_1"].values[idx])
-            clip_1.append(np.reshape(img_1, shape))
-            clip_2.append(np.reshape(img_2, shape))
+    if len(os.listdir(load_path)) > 0:
 
-        annotation_buffer.append([clip_1, clip_2, pref])
+        for triple in os.listdir(load_path):
+            data_df = pd.read_csv(load_path + triple , error_bad_lines=False, names=["clip_1", "clip_2", "pref", "iteration"])
+
+            clip_1 = []
+            clip_2 = []
+            #pref = list(data_df['pref'][0])
+            pref = [int(x) for x in re.findall('\d+', data_df['pref'][0])]
+
+            if iteration == None:
+                iteration = int(data_df["iteration"][0])
+        
+            for idx, element in enumerate(data_df["clip_1"].values):
+                img_1 = convert_string(element)
+                img_2 = convert_string(data_df["clip_1"].values[idx])
+                clip_1.append(np.reshape(img_1, shape))
+                clip_2.append(np.reshape(img_2, shape))
+
+            annotation_buffer.append([clip_1, clip_2, pref])
+    
+    else:
+
+        iteration = 0
     
     return annotation_buffer, iteration
         

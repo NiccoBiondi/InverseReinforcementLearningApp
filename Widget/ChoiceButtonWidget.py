@@ -24,6 +24,6 @@ class ChoiceButton(QPushButton):
     def update_preferences(self):
         self._on_configure(self._preferences)
     
-    @pyqtSlot()
-    def setVisability(self):
-        self.setEnabled(not self.isEnabled())
+    @pyqtSlot(bool)
+    def setVisability(self, enable):
+        self.setEnabled(enable)

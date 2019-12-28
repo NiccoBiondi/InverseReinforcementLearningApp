@@ -156,7 +156,7 @@ class HistoryWindowController(QObject):
         for i in range(child_count):
             item = root.child(i)
             if item in self._model.selected_element:
-                self._selected_element.remove(item)
+                self._model.selected_element.remove(item)
             else:
                 if (item.checkState(0) == Qt.Checked):
                     self._model.selected_element = item

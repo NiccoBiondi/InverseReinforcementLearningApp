@@ -35,6 +35,7 @@ class Display(QLabel):
         else:
             self._count = 0
             self._timer.stop()
+            self._model.choiceButton = True
 
     # Funtion to upload the displayImage variable
     @pyqtSlot(list)
