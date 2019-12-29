@@ -42,7 +42,6 @@ class RewardThread(QThread):
             self._model.logBarSxSignal.emit("Train reward model : k-batch " + str(k) + ' of ' + str(self._model.model_parameters['K']) )
             train_clips = data_loader(self._model.annotation_buffer, self._model.reward_batch)
             loss.append(self._model.reward_model.compute_rewards(self._model.reward_model, self._model.optimizer_r, train_clips))
-            print(loss[k])
 
         # Reset ll variable used during the all process (policy work, annotation work and reward model work)
         self._model._iteration = 0
