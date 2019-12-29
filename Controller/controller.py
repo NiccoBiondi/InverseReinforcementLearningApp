@@ -38,6 +38,7 @@ class Controller(QObject):
         # Define threads and connect the policy thread to annotation function.
         self._policy_t = PolicyThread(self._model)
         self._policy_t._signals.startAnnotation.connect(lambda : self.annotation())
+        self._policy_t._signals.finishedSignal.connect(lambda : self._policy_t.terminate())
         self._reward_t = RewardThread(self._model)
         
     # This function connect the SetupDialog model with main model.
@@ -226,8 +227,10 @@ class Controller(QObject):
                 i += 1
 
         self._model.logBarDxSignal.emit('Annotation phase finished')   
-        if self._policy_t.isRunning():        
+        
+        if self._policy_t.isRunning():   
             loop = QEventLoop()
             self._policy_t._signals.finishedSignal.connect(loop.quit)
             loop.exec_()
+
         self._reward_t.start()            

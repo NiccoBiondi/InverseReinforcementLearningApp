@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+import re 
 import numpy as np
 
 from ReinforcementLearning.csvRewardModel import save_reward_weights
@@ -41,7 +42,7 @@ class RewardThread(QThread):
             self._model.logBarSxSignal.emit("Train reward model : k-batch " + str(k) + ' of ' + str(self._model.model_parameters['K']) )
             train_clips = data_loader(self._model.annotation_buffer, self._model.reward_batch)
             loss.append(self._model.reward_model.compute_rewards(self._model.reward_model, self._model.optimizer_r, train_clips))
-
+            print(loss[k])
 
         # Reset ll variable used during the all process (policy work, annotation work and reward model work)
         self._model._iteration = 0
@@ -51,7 +52,8 @@ class RewardThread(QThread):
 
         # Reset all folders used for the entire process
         self._model.annotator.reset_clips_database(self._model.clips_database)
-        shutil.rmtree(self._model.auto_save_folder + '/annotation_buffer')
+        if [self._model.auto_save_folder + '/' + el for el in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in el]:
+            shutil.rmtree([self._model.auto_save_folder + '/' + el for el in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in el][0])
 
         # Auto save policy weight, reward model weight and model parameters.
         save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, self._model.iteration)
