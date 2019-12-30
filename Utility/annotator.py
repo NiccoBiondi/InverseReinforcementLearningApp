@@ -17,9 +17,7 @@ class Annotator():
             if '.png' in figure:
                 tmp = cv2.imread(data_path + '/' + path + '/' + figure)
                 img.append(cv2.resize(tmp, (800, 700)))
-        print(img)
-        print(len(img), 'len img')
-        print(img[0].shape, 'shape img [0]')
+
         return img
 
     # reload clips from csv and images for annotation

@@ -23,6 +23,7 @@ DIR_NAME = os.path.dirname(os.path.abspath('__file__'))
 class Model(QObject):
     preferenceChangedSignal = pyqtSignal()
     processButtonVisiblitySignal = pyqtSignal()
+    resetHistoryWindowSignal = pyqtSignal()
     choiceButtonVisiblitySignal = pyqtSignal(bool)
     updateDisplaySxImageSignal = pyqtSignal(list)
     updateDisplayDxImageSignal = pyqtSignal(list)
@@ -404,21 +405,20 @@ class Model(QObject):
     @pyqtSlot(list)
     def refreshAnnotationBuffer(self, annotation):
         c = 0
-        print(annotation)
+        
         for el in annotation:
 
-            print(len(self._annotation_buffer))
+            
             triple = self._annotation_buffer[int(el[0]) - c]
             self._annotation_buffer.pop(int(el[0]) - c)
             c += 1
             
-            # print(triple, 'QUESTO È TRIPLE'*2)
+            
             self.clips.append({ 'clip' : triple[0], 'path' : el[1]})
             self.clips.append({ 'clip' : triple[1], 'path' : el[2]})
             self.disp_figure.append(self._annotator.reload_figure(self._clips_database, el[1]))
             self.disp_figure.append(self._annotator.reload_figure(self._clips_database, el[2]))
-            print(len(self.clips), len(self.disp_figure))
-            # print('QUESTO È EL '* 2, el)
+            
 
     
         

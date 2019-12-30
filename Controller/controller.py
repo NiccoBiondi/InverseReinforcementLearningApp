@@ -158,7 +158,7 @@ class Controller(QObject):
     # Process button function.
     @pyqtSlot()
     def process(self):
-        # FIXME: delete previous history panel
+        
         self._model.logBarSxSignal.emit('Policy processing...')
         self._policy_t.done = False
         self._policy_t.start()
@@ -211,10 +211,10 @@ class Controller(QObject):
                         
                         # An annotation is a list where the first two elements are the paths of the corresponding clips,
                         # the third element is the preferency made. 
-                        print('len qua controller', len(self._model.annotation_buffer))
+                        
                         annotation = [str(len(self._model.annotation_buffer) - 1), clip_1["path"], clip_2["path"], '[' + str(self._model.preferences[0]) + ',' + str(self._model.preferences[1]) + ']']
                         self._model.annotation = annotation
-                        print('annotation', annotation)
+                        
                     except Exception as e:
 
                         self._model.annotation_buffer = self._model.annotation_buffer[:-1]
