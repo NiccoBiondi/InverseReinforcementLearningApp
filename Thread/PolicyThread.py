@@ -2,6 +2,8 @@ import os
 import sys
 import time
 import cv2
+import copy
+import re
 import numpy as np
 
 from ReinforcementLearning.policy import run_episode, Loss, save_policy_weights
@@ -29,7 +31,7 @@ class PolicyThread(QThread):
         self._model = model
         self._signals = ThreadSignals()
         self._max_len = 50
-        self._train = True if os.listdir(self._model.weigth_path) else False
+        self._train = False
         self._done = False
 
     @property
@@ -39,6 +41,14 @@ class PolicyThread(QThread):
     @done.setter
     def done(self, _bool):
         self._done = _bool
+
+    def trainable(self):
+        pattern = re.compile('csv_reward_weight.*pth$')
+        w_path = list(filter(pattern.match, os.listdir(self._model.auto_save_folder)))
+        if len(w_path) > 0:
+            self._train = True  
+        else:
+            self._train = False
 
     def run(self):
 
@@ -52,8 +62,9 @@ class PolicyThread(QThread):
             self._model.logBarSxSignal.emit('Policy processing :' +  str(self._model.iteration + 1) + '/' + str(self._model.model_parameters['episodes']) + ' episodes')
             
             (states, actions, dones) = run_episode(self._model.env, self._model.policy, int(self._model.model_parameters['episode_len']))
-
-            clips = clips_generator(states, dones, int(self._model.model_parameters['clips_len']))
+            
+            states_copy = copy.deepcopy(states)
+            clips = clips_generator(states_copy, dones, int(self._model.model_parameters['clips_len']))
 
             # Sample the clips generated
             for index in np.random.randint(low = 0, high = len(clips), size= len(clips)//2):
@@ -77,9 +88,12 @@ class PolicyThread(QThread):
 
             # If the reward model is trained one time the policy can be trained.
             # To train the policy are used the rewards computed by the reward model.
-            if not self._train:
+            print(self._train)
+            if self._train:
                 s = [obs['obs'] for obs in states]
                 rewards = self._model.reward_model(s)
+                if len(states) != 81:
+                    print(len(states), len(actions), len(rewards), 'qua qua ')
                 l = Loss(self._model.policy, self._model.optimizer_p, states, actions, rewards)
                 print("Train policy loss: {:.3f}".format((sum(l)/len(l))))
             

@@ -53,7 +53,7 @@ def save_clips(name, clips):
 
 # Generate clips from trajectory, make sure to take the actions to achieve the goal
 def clips_generator(states, dones, clips_len): 
-    total_clisp = []
+    total_clips = []
     clips = []
     clip_num = 0
     clips_goal = []
@@ -77,14 +77,14 @@ def clips_generator(states, dones, clips_len):
             clips.append(states[i])
             
         elif len(clips) == clips_len:
-            total_clisp.append(clips)
+            total_clips.append(clips)
             clip_num += 1
             clips = [states[i]]
     
     if len(clips_goal) != 0:
-        total_clisp.insert(0, clips_goal)
+        total_clips.insert(0, clips_goal)
     
-    return total_clisp
+    return total_clips
 
 # Save model parameters define in initialization or in a loaded checkpoint.
 # Is usefull to restart from the checkpoint

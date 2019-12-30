@@ -93,7 +93,6 @@ def run_episode(env, policy, length):
         rewards.append(reward)
         actions.append(action.item())
         dones.append(done)
-
         if done:
             break
             

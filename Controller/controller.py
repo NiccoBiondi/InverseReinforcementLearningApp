@@ -161,6 +161,7 @@ class Controller(QObject):
         
         self._model.logBarSxSignal.emit('Policy processing...')
         self._policy_t.done = False
+        self._policy_t.trainable()
         self._policy_t.start()
         self._model.processButton = False
 
@@ -216,7 +217,7 @@ class Controller(QObject):
                         self._model.annotation = annotation
                         
                     except Exception as e:
-
+                        print(e)
                         self._model.annotation_buffer = self._model.annotation_buffer[:-1]
                         save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, self._model.clip_point)
                         save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, self._model.iteration)
@@ -236,4 +237,4 @@ class Controller(QObject):
             self._policy_t._signals.finishedSignal.connect(loop.quit)
             loop.exec_()
 
-        self._reward_t.start()            
+        self._reward_t.start()         
