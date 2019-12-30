@@ -1,5 +1,6 @@
 import sys
 import os
+import shutil
 import numpy as np
 from datetime import date
 
@@ -337,8 +338,9 @@ class Model(QObject):
         self._env.reset()
         self._auto_save_folder = self._auto_save_folder + self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
 
-        if not os.path.exists(self._auto_save_folder):
-            os.mkdir(self._auto_save_folder)
+        if os.path.exists(self._auto_save_folder):
+            shutil.rmtree(self._auto_save_folder)
+        os.mkdir(self._auto_save_folder)
 
         # load reward model with saved weight if they exist
         if os.path.exists(self._weigth_path + 'csv_reward_weght.pth'):
@@ -354,7 +356,7 @@ class Model(QObject):
 
         self._annotator.reset_clips_database(self._clips_database)
         self.pathLoadedSignal.emit('MODEL LOADED')
-
+        
 
     @model_parameters.setter
     def model_parameters(self, model_par):
