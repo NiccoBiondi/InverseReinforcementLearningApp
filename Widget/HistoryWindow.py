@@ -62,7 +62,6 @@ class HistoryWindow(QDialog):
         self.ui.annotationList.addTopLevelItem(item)
         self.ui.annotationList.setItemWidget(item, 2, HistoryWindowButton(new_item[1], self.data_path))
         self.ui.annotationList.setItemWidget(item, 3, HistoryWindowButton(new_item[2], self.data_path))
-        
 
     # Refresh the QTreeWidget after it's modified
     @pyqtSlot(dict)
@@ -71,7 +70,6 @@ class HistoryWindow(QDialog):
         i = 0
         items = [el_list[i][1] for i in el_list if el_list[i][0]]
         for it in items:
-
             itemIndex = self.ui.annotationList.indexOfTopLevelItem(it)
             self.ui.annotationList.takeTopLevelItem(itemIndex)
  

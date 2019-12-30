@@ -158,6 +158,7 @@ class Controller(QObject):
     # Process button function.
     @pyqtSlot()
     def process(self):
+        # FIXME: delete previous history panel
         self._model.logBarSxSignal.emit('Policy processing...')
         self._policy_t.done = False
         self._policy_t.start()
@@ -190,6 +191,9 @@ class Controller(QObject):
                     self._model.display_imageLen = len(self._model.disp_figure[0])
                     self._model.display_imageSx = self._model.disp_figure.pop(0)
                     self._model.display_imageDx = self._model.disp_figure.pop(0)
+
+                    clip_1 = self._model.clips.pop(0)
+                    clip_2 = self._model.clips.pop(0)
                     self._model.logBarDxSignal.emit( 'Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(len(self._model.disp_figure)) + ' clips')
 
                     
@@ -200,8 +204,6 @@ class Controller(QObject):
 
                     try:
                         
-                        clip_1 = self._model.clips.pop(0)
-                        clip_2 = self._model.clips.pop(0)
                         self._model.clip_point += 2
 
                         # A triple is a list where the first two elemens are clips (minigrid states list of len clip_len)
@@ -209,9 +211,10 @@ class Controller(QObject):
                         
                         # An annotation is a list where the first two elements are the paths of the corresponding clips,
                         # the third element is the preferency made. 
+                        print('len qua controller', len(self._model.annotation_buffer))
                         annotation = [str(len(self._model.annotation_buffer) - 1), clip_1["path"], clip_2["path"], '[' + str(self._model.preferences[0]) + ',' + str(self._model.preferences[1]) + ']']
                         self._model.annotation = annotation
-
+                        print('annotation', annotation)
                     except Exception as e:
 
                         self._model.annotation_buffer = self._model.annotation_buffer[:-1]
