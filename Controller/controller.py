@@ -62,7 +62,7 @@ class Controller(QObject):
                 os.makedirs(save_path)
             
             save_model(save_path, self._model.policy, self._model.model_parameters, self._model.iteration)
-            save_reward_weights(self._model.reward_model, save_path)
+            save_reward_weights(self._model.reward_model, save_path, self._model.weigth_path, self._model.model_parameters['lr'], self._model.model_parameters['K'])
             if len(self._model.annotation_buffer):
                 save_annotation(save_path, self._model.annotation_buffer, self._model.ann_point, self._model.clip_point)
             
@@ -97,10 +97,14 @@ class Controller(QObject):
                     self._model.clips_database = self._model.clips_database + self._model.model_parameters['minigrid_env']
                     self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = float(self._model.model_parameters['lr']))
                     self._model.optimizer_r = torch.optim.Adam(params=self._model.reward_model.parameters(), lr = float(self._model.model_parameters['lr']), weight_decay=0.01)
+                    self._model.weigth_path = self._model.weigth_path + self._model.model_parameters['minigrid_env']
                     
                 if [path for path in os.listdir(fileName) if 'annotation_buffer' in path]:
                     self._model.annotation_buffer, self._model.ann_point, self._model.clip_point= load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0])
                     self._model.start_ann_disp = len(self._model.annotation_buffer)
+
+                if len([path for path in os.listdir(fileName) if 'csv_reward_weight' in path]) == 0  and 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) :
+                    self._model.reward_model.load_state_dict(torch.load( self._model.weigth_path + '/csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' ))
 
 
                 # Restart from where the user stop the annotation.
@@ -161,7 +165,6 @@ class Controller(QObject):
         
         self._model.logBarSxSignal.emit('Policy processing...')
         self._policy_t.done = False
-        self._policy_t.trainable()
         self._policy_t.start()
         self._model.processButton = False
 

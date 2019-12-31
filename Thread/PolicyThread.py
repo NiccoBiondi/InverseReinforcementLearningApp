@@ -31,13 +31,13 @@ class PolicyThread(QThread):
         self._model = model
         self._signals = ThreadSignals()
         self._max_len = 50
-        self._train = False
+        self._train = False 
         self._done = False
 
     @property
     def done(self):
         return self._done
-    
+  
     @done.setter
     def done(self, _bool):
         self._done = _bool
@@ -51,10 +51,9 @@ class PolicyThread(QThread):
             self._train = False
 
     def run(self):
-
+        self._train = True if 'csv_reward_weight_lr' + self._model.model_parameters['lr'] + '_k' + self._model.model_parameters['K'] + '.pth' in os.listdir(self._model.weigth_path) else False
         clips_generated = []
         if self._model.model_parameters['idx'] == int(self._model.model_parameters['n_annotation']):
-
             self._signals.startAnnotation.emit()
         
         for step in range(self._model.iteration, int(self._model.model_parameters['episodes'])):
@@ -88,7 +87,6 @@ class PolicyThread(QThread):
 
             # If the reward model is trained one time the policy can be trained.
             # To train the policy are used the rewards computed by the reward model.
-            print(self._train)
             if self._train:
                 s = [obs['obs'] for obs in states]
                 rewards = self._model.reward_model(s)

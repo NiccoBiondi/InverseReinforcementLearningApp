@@ -53,7 +53,7 @@ class Model(QObject):
         # thread, the application can make auto save action, and where the
         # reward model initial weight is saved. "_load_path" variable
         # is used to memorize if the user loads a checkpoint model.
-        self._weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight'
+        self._weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight/'
         self._auto_save_folder = DIR_NAME + '/SAVE_FOLDER/'
         self._clips_database = DIR_NAME + '/Clips_Database/'
         self._load_path = ''
@@ -238,6 +238,10 @@ class Model(QObject):
     @property
     def folder(self):
         return self._folder
+
+    @weigth_path.setter
+    def weigth_path(self, path):
+        self._weigth_path = path
     
     @clip_point.setter
     def clip_point(self, slot):
@@ -336,14 +340,14 @@ class Model(QObject):
         # Init env
         self._env = RGBImgObsWrapper(gym.make(self._model_parameters['minigrid_env']))
         self._env.reset()
-        self._auto_save_folder = self._auto_save_folder + self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
 
+        # Create the auto save folder for a specific minigrifd env. If this folder still exists, then i delete it.
+        self._auto_save_folder = self._auto_save_folder + self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
         if not os.path.exists(self._auto_save_folder):
             os.mkdir(self._auto_save_folder)
-
-        # load reward model with saved weight if they exist
-        if os.path.exists(self._weigth_path + 'csv_reward_weght.pth'):
-            self._reward_model.load_state_dict(torch.load( self._weigth_path + 'csv_reward_weght.pth' ))
+        else:
+            shutil.rmtree(self._auto_save_folder)
+            os.mkdir(self._auto_save_folder)
 
         # Use the Adam optimizer.
         self._optimizer_p = torch.optim.Adam(params=self._policy.parameters(), lr = float(self._model_parameters['lr']))
@@ -353,8 +357,27 @@ class Model(QObject):
         if not os.path.exists(self._clips_database):
             os.makedirs(self._clips_database)
 
+        # When a model is initialized I control if a previous reward model
+        # weight is saved in reward_model_init_weight folder. So in the first moment 
+        # is created a folder where inside there are all the reward model weight 
+        # created for that environment. Then is set the reward model weight looking to the
+        # learning rate and the K hyperparameters.
+        self._weigth_path = self._weigth_path + self._model_parameters['minigrid_env'] 
+        
+        if not os.path.exists(self._weigth_path):
+            os.makedirs(self._weigth_path)
+        
+        #if his path still exists, i create check if inside there is a saved weight
+        else:
+            if 'csv_reward_weight_lr' + str(self._model_parameters['lr']) + '_k' + str(self._model_parameters['K']) + '.pth' in os.listdir(self._weigth_path):
+                self.reward_model.load_state_dict(torch.load(self._weigth_path + '/csv_reward_weight_lr' + str(self._model_parameters['lr']) + '_k' + str(self._model_parameters['K']) + '.pth' ))
+
+        #self._weigth_path = self._weigth_path + '/csv_reward_weight_lr' + str(self._model_parameters['lr']) + '_k' + str(self._model_parameters['K']) + '.pth'
+
         self._annotator.reset_clips_database(self._clips_database)
         self.pathLoadedSignal.emit('MODEL LOADED')
+
+        print(self._weigth_path)
         
 
     @model_parameters.setter
