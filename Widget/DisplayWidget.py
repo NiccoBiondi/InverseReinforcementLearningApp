@@ -1,3 +1,5 @@
+import numpy as np
+
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QImage, QPixmap
@@ -26,9 +28,9 @@ class Display(QLabel):
     @pyqtSlot()
     def update_display(self):
         if self._count != len(self._displayImage):
-            h, w, ch = self._displayImage[self._count].shape
+            h, w, ch = np.array(self._displayImage[self._count]).shape
             bytesPerLine = ch * w
-            convertToQtFormat = QImage(self._displayImage[self._count], w, h, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
+            convertToQtFormat = QImage(np.array(self._displayImage[self._count]), w, h, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
             self.setPixmap(QPixmap.fromImage(convertToQtFormat))
             self.resize(1000, 900)
             self._count += 1

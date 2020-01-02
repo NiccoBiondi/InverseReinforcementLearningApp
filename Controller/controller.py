@@ -181,9 +181,7 @@ class Controller(QObject):
     # it starts the reward model thread.
     @pyqtSlot()
     def annotation(self):
-        
-        folders = []
-        index = 0     
+            
         i = self._model.ann_point + 1
         while (len(self._model.folder) > 0):
 

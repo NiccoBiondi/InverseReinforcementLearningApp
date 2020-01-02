@@ -1,6 +1,8 @@
 import os
 import sys
 import cv2
+from PIL import Image
+import matplotlib.pyplot as plt
 
 from Build.Ui_ReplayClipsWindow import Ui_ReplayClipsWindow
 from Widget.DisplayWidget import Display
@@ -51,15 +53,17 @@ class ReplayClipsWindowModel(QObject):
     @property
     def timer(self):
         return self._timer
+
     
     def load_image(self):
-        imgs = []
+        images = []
         for img in sorted(os.listdir(self._path)):
             if '.png' in img:
-                img = cv2.imread(self._path + '/' + img)
-                img = cv2.resize(img, (800, 700))
-                imgs.append(img)
-        return imgs
+                #image = cv2.imread(self._path + '/' + img)
+                image = Image.open(self._path + '/' + img)
+                images.append(image.convert("RGB").resize((800, 700)))
+                #images.append(cv2.resize(image, (800, 700)))
+        return images
 
 
 class ReplayClipsWindowController(QObject):

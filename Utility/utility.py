@@ -1,4 +1,5 @@
 import csv
+import cv2
 import os 
 import re
 import time
@@ -40,14 +41,14 @@ def save_clips(name, clips):
 
         if not os.path.exists(save_path):
             os.makedirs(save_path)
-
         
         with open(save_path + '/clip_' + str(num_clips) + '.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
             for i in range(len(clip)):
                 lines = [clip[i]['obs']]
                 filewriter.writerow(lines)
-                plt.imsave(save_path + '/fig_' + str(i) + '.png', clip[i]['image'])
+                #plt.imsave(save_path + '/fig_' + str(i) + '.png', clip[i]['image'])
+                cv2.imwrite(save_path + '/fig_' + str(i) + '.png', clip[i]['image'])
                 
     return clips_path
 
