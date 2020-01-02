@@ -51,7 +51,7 @@ class PolicyThread(QThread):
             self._train = False
 
     def run(self):
-        self._train = True if 'csv_reward_weight_lr' + self._model.model_parameters['lr'] + '_k' + self._model.model_parameters['K'] + '.pth' in os.listdir(self._model.weigth_path) else False
+        self._train = True if 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) else False
         clips_generated = []
         if self._model.model_parameters['idx'] == int(self._model.model_parameters['n_annotation']):
             self._signals.startAnnotation.emit()
