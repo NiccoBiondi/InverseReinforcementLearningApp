@@ -1,4 +1,6 @@
+import cv2
 import numpy as np
+from PIL import Image
 
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QLabel
@@ -28,9 +30,12 @@ class Display(QLabel):
     @pyqtSlot()
     def update_display(self):
         if self._count != len(self._displayImage):
-            h, w, ch = np.array(self._displayImage[self._count]).shape
+            image = cv2.cvtColor(np.array(self._displayImage[self._count]), cv2.COLOR_RGB2BGR)
+            h, w, ch = image.shape
+            #h, w, ch = np.asarray(self._displayImage[self._count]).shape
+            #h, w = self._displayImage[self._count].size
             bytesPerLine = ch * w
-            convertToQtFormat = QImage(np.array(self._displayImage[self._count]), w, h, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
+            convertToQtFormat = QImage(image, w, h, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
             self.setPixmap(QPixmap.fromImage(convertToQtFormat))
             self.resize(1000, 900)
             self._count += 1
@@ -43,7 +48,8 @@ class Display(QLabel):
     @pyqtSlot(list)
     def updateDisplayImage(self, image):
         self._displayImage = image
-
+        self._displayImage.insert(0, Image.new('RGB', (800, 700), color=(255, 255, 255)))
+        
 
 
 

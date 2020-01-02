@@ -5,6 +5,7 @@ import gym_minigrid
 import torch
 import time
 import shutil
+from PIL import Image
 from datetime import date
 
 from View.AlgView import AlgView
