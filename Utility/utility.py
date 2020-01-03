@@ -47,8 +47,7 @@ def save_clips(name, clips):
             for i in range(len(clip)):
                 lines = [clip[i]['obs']]
                 filewriter.writerow(lines)
-                #plt.imsave(save_path + '/fig_' + str(i) + '.png', clip[i]['image'])
-                cv2.imwrite(save_path + '/fig_' + str(i) + '.png', clip[i]['image'])
+                plt.imsave(save_path + '/fig_' + str(i) + '.png', clip[i]['image'])
                 
     return clips_path
 

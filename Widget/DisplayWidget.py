@@ -30,7 +30,7 @@ class Display(QLabel):
     @pyqtSlot()
     def update_display(self):
         if self._count != len(self._displayImage):
-            image = cv2.cvtColor(np.array(self._displayImage[self._count]), cv2.COLOR_RGBA2RGB)
+            image = cv2.cvtColor(np.array(self._displayImage[self._count]), cv2.COLOR_RGB2BGR)
             h, w, ch = image.shape
             bytesPerLine = ch * w
             convertToQtFormat = QImage(image, w, h, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
@@ -46,7 +46,7 @@ class Display(QLabel):
     @pyqtSlot(list)
     def updateDisplayImage(self, image):
         self._displayImage = image
-        self._displayImage.insert(0, Image.new('RGBA', (800, 700), color=(255, 255, 255)))
+        self._displayImage.insert(0, Image.new('RGB', (800, 700), color=(255, 255, 255)))
         
 
 

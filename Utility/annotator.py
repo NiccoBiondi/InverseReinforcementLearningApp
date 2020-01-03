@@ -18,7 +18,7 @@ class Annotator():
             if '.png' in figure:
                 tmp = Image.open(data_path + '/' + path + '/' + figure)
                 #tmp = cv2.imread(data_path + '/' + path + '/' + figure)
-                img.append(tmp.convert("RGBA").resize((800, 700)))
+                img.append(tmp.convert("RGB").resize((800, 700)))
                 #img.append(cv2.resize(tmp, (800, 700)))
 
         return img

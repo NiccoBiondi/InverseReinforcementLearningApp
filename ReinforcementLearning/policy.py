@@ -73,6 +73,7 @@ def run_episode(env, policy, length):
     # Restart the MiniGrid environment.
     state = env.reset()
 
+
     # We need to keep a record of states, actions, and the
     # instantaneous rewards.
     states = [state]
@@ -82,7 +83,7 @@ def run_episode(env, policy, length):
 
     # Run for desired episode length.
     for step in range(length):
-
+        
         # Get action from policy net based on current state.
         action = select_action(policy, state_filter(state))
 

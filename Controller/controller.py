@@ -1,11 +1,11 @@
-import os 
+import os
+import gc 
 import sys 
 import gym
 import gym_minigrid
 import torch
 import time
 import shutil
-from PIL import Image
 from datetime import date
 
 from View.AlgView import AlgView
@@ -226,6 +226,7 @@ class Controller(QObject):
                         sys.exit()
 
                     self._model.preferences = None
+                    gc.collect()
 
                 self._model.clip_point = 0
                 self._model.ann_point = self._model.ann_point + 1

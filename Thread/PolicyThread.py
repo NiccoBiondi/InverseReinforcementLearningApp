@@ -1,4 +1,5 @@
 import os
+import gc
 import sys
 import time
 import cv2
@@ -90,12 +91,11 @@ class PolicyThread(QThread):
             if self._train:
                 s = [obs['obs'] for obs in states]
                 rewards = self._model.reward_model(s)
-                if len(states) != 81:
-                    print(len(states), len(actions), len(rewards), 'qua qua ')
                 l = Loss(self._model.policy, self._model.optimizer_p, states, actions, rewards)
                 print("Train policy loss: {:.3f}".format((sum(l)/len(l))))
             
-            self._model.iteration += 1 
+            self._model.iteration += 1
+            gc.collect()
         
         self._model.logBarSxSignal.emit('Training of policy finished')
         if int(self._model.model_parameters['idx']) < int(self._model.model_parameters['n_annotation']):
