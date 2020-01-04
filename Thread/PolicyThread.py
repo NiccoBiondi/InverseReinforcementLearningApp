@@ -52,32 +52,62 @@ class PolicyThread(QThread):
             self._train = False
 
     def run(self):
-        self._train = True if 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) else False
+
         clips_generated = []
+
+        # Check if in weigth_init path there is the reward model weigth. In the positive case, the policy
+        # can be trained, else the policy has to create the clips.
+        self._train = True if 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) else False
+
+        # If the policy finish to ceate the clips, it emit the signal to allow the user to annotate the clips.
         if self._model.model_parameters['idx'] == int(self._model.model_parameters['n_annotation']):
             self._signals.startAnnotation.emit()
-        
+           
         for step in range(self._model.iteration, int(self._model.model_parameters['episodes'])):
             
             self._model.logBarSxSignal.emit('Policy processing :' +  str(self._model.iteration + 1) + '/' + str(self._model.model_parameters['episodes']) + ' episodes')
             
             (states, actions, dones) = run_episode(self._model.env, self._model.policy, int(self._model.model_parameters['episode_len']))
-            
-            states_copy = copy.deepcopy(states)
-            clips = clips_generator(states_copy, dones, int(self._model.model_parameters['clips_len']))
 
-            # Sample the clips generated
-            for index in np.random.randint(low = 0, high = len(clips), size= len(clips)//2):
-                if len(clips_generated) == self._max_len and self._model.model_parameters['idx']  < int(self._model.model_parameters['n_annotation']):
-                    clips_path = save_clips(self._model.clips_database + '/clipsToAnnotate_' + str(self._model.model_parameters['idx']), clips_generated)
-                    self._model.folder = '/clipsToAnnotate_' + str(self._model.model_parameters['idx'])
-                    clips_generated = [clips[index]]
-                    self._model.model_parameters = ['idx', self._model.model_parameters['idx'] + 1]
-                    if not self.done:
-                        self._signals.startAnnotation.emit()
-                        self.done = True
 
-                clips_generated.append(clips[index])
+            # If the policy finish to create the clips folder but find a goal, We save the clips.
+            if True in dones and self._model.model_parameters['idx'] >=  int(self._model.model_parameters['n_annotation']):
+                states_copy = copy.deepcopy(states)
+                clips = clips_generator(states_copy, dones, int(self._model.model_parameters['clips_len']))
+                save_clips(self._model.clips_database + '/goal_clips_' + str(step), [clips[0], clips[0]])
+             
+            # Now is checked if the policy model has to create clips to annotate or not.
+            # To see al possible clips created during the policy train, the sampling is made
+            # throughout the training period.
+            if self._model.model_parameters['idx']  < int(self._model.model_parameters['n_annotation']):
+                
+                states_copy = copy.deepcopy(states)
+                clips = clips_generator(states_copy, dones, int(self._model.model_parameters['clips_len']))
+    
+                indecies =  list(np.random.randint(low = 0, high = len(clips), size= len(clips)//2))
+                
+                # If in clips there is the clip where the agent arrive to the goal,
+                # the index 0, the index of this clip, is selected, so it is sure
+                # that the reward model sees that clip.
+                if True in dones:
+                    indecies.append(0)
+                                        
+                # Sample the clips generated
+                for index in indecies:
+                    
+                    if len(clips_generated) == self._max_len:
+                        
+                        clips_path = save_clips(self._model.clips_database + '/clipsToAnnotate_' + str(self._model.model_parameters['idx']), clips_generated)
+                        self._model.folder = '/clipsToAnnotate_' + str(self._model.model_parameters['idx'])
+                        clips_generated = [clips[index]]
+                        self._model.model_parameters = ['idx', self._model.model_parameters['idx'] + 1]
+                        if not self.done:
+                            self._signals.startAnnotation.emit()
+                            self.done = True
+                            
+                    else:
+                        
+                        clips_generated.append(clips[index])
 
             # Auto save controll.
             if step > 0 and step % self._model.auto_save_clock_policy == 0:
@@ -103,5 +133,5 @@ class PolicyThread(QThread):
 
         # When the policy makes all episodes save the weight and model parameters
         save_model(self._model.auto_save_folder, self._model.policy, self._model.model_parameters, self._model.iteration)
-
+        
         self._signals.finishedSignal.emit()

@@ -107,7 +107,19 @@ class Controller(QObject):
                 if len([path for path in os.listdir(fileName) if 'csv_reward_weight' in path]) == 0  and 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) :
                     self._model.reward_model.load_state_dict(torch.load( self._model.weigth_path + '/csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' ))
 
-
+                
+                # Create the auto_save path. If the load path used to restore the previous work is the same of
+                # the autosave_path variable, the folder is not reset.
+                # Create the auto save folder for a specific minigrifd env. If this folder still exists, then i delete it.
+                self._model.auto_save_folder = self._model.auto_save_folder + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
+                
+                if not os.path.exists(self._model.auto_save_folder):
+                    os.mkdir(self._model.auto_save_folder)
+                    
+                elif self._model.auto_save_folder != fileName:
+                    shutil.rmtree(self._model.auto_save_folder)
+                    os.mkdir(self._model.auto_save_folder)
+                
                 # Restart from where the user stop the annotation.
                 # From the clips2annotate folder we take the folder index where the user stop the annotation.
                 # The we initialize the model.folder with the clipsToannotate folder from index onwards.

@@ -367,7 +367,7 @@ class Model(QObject):
         if not os.path.exists(self._weigth_path):
             os.makedirs(self._weigth_path)
         
-        #if his path still exists, i create check if inside there is a saved weight
+        #if this path still exists, It is checked if inside there is a saved weight inside the folder.
         else:
             if 'csv_reward_weight_lr' + str(self._model_parameters['lr']) + '_k' + str(self._model_parameters['K']) + '.pth' in os.listdir(self._weigth_path):
                 self.reward_model.load_state_dict(torch.load(self._weigth_path + '/csv_reward_weight_lr' + str(self._model_parameters['lr']) + '_k' + str(self._model_parameters['K']) + '.pth' ))
