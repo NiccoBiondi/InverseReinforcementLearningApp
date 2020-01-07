@@ -39,7 +39,7 @@ class Controller(QObject):
         # Define threads and connect the policy thread to annotation function.
         self._policy_t = PolicyThread(self._model)
         self._policy_t._signals.startAnnotation.connect(lambda : self.annotation())
-        self._policy_t._signals.finishedSignal.connect(lambda : self._policy_t.terminate())
+        self._policy_t._signals.finishedSignal.connect(lambda : self._policy_t.quit())
         self._reward_t = RewardThread(self._model)
         
     # This function connect the SetupDialog model with main model.
@@ -85,7 +85,6 @@ class Controller(QObject):
                 if [path for path in os.listdir(fileName) if 'csv_reward_weight' in path]:
                     self._model.reward_model.load_state_dict(torch.load( fileName + [ '/' + path for path in os.listdir(fileName) if 'csv_reward_weight' in path][0] ))
 
-                
                 if [path for path in os.listdir(fileName) if 'policy_weight' in path]:
                     self._model.policy.load_state_dict(torch.load( fileName + [ '/' + path for path in os.listdir(fileName) if 'policy_weight' in path][0] ))
                 
@@ -94,7 +93,6 @@ class Controller(QObject):
                     self._model.model_parameters, self._model.iteration = load_values(fileName + [ '/' + path for path in os.listdir(fileName) if 'values' in path][0])
                     self._model.env = RGBImgObsWrapper(gym.make(self._model.model_parameters['minigrid_env']))
                     self._model.env.reset() 
-                    self._model.auto_save_folder = self._model.auto_save_folder + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
                     self._model.clips_database = self._model.clips_database + self._model.model_parameters['minigrid_env']
                     self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = float(self._model.model_parameters['lr']))
                     self._model.optimizer_r = torch.optim.Adam(params=self._model.reward_model.parameters(), lr = float(self._model.model_parameters['lr']), weight_decay=0.01)
@@ -203,6 +201,7 @@ class Controller(QObject):
                 
                 while(len(self._model.disp_figure) > 0):
                     
+
                     self._model.display_imageLen = len(self._model.disp_figure[0])
                     self._model.display_imageSx = self._model.disp_figure.pop(0)
                     self._model.display_imageDx = self._model.disp_figure.pop(0)

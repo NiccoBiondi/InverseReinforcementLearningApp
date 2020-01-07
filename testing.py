@@ -99,18 +99,13 @@ if __name__ == '__main__':
     lr = 0.001        # Adam learning rate
     avg_reward = 0.0  # For tracking average regard per episode.
 
+    env_name = 'MiniGrid-Empty-6x6-v0' # 'MiniGrid-Empty-6x6-v0'
     # Setup OpenAI Gym environment for guessing game.
-    env = gym.make('MiniGrid-Empty-6x6-v0')
+    env = gym.make(env_name)
 
     # Instantiate a policy network.
     policy = Policy(obs_size=obs_size, act_size=act_size, inner_size=inner_size)
-    policy.load_state_dict(torch.load('/home/bazza/Scrivania/RL/InverseReinforcementLearningApp/SAVE_FOLDER/MiniGrid-Empty-6x6-v0_(02-01-2020)/policy_weight_18:22.pth'))
-
-    reward_model = csvRewardModel(obs_size = obs_size, inner_size = inner_size)
-    #reward_model.load_state_dict(torch.load('ReinforcementLearning/reward_model_init_weight/MiniGrid-Empty-6x6-v0/csv_reward_weight_lr0.001_k100.pth'))
-
-    # Use the Adam optimizer.
-    optimizer = torch.optim.Adam(params=policy.parameters(), lr=lr)
+    policy.load_state_dict(torch.load('/home/bazza/Scrivania/RL/InverseReinforcementLearningApp/SAVE_FOLDER/MiniGrid-Empty-6x6-v0_(06-01-2020)MiniGrid-Empty-6x6-v0_(06-01-2020)/policy_weight_12:16.pth'))
 
     # Run for a while.
     episodes = 2000
@@ -121,12 +116,5 @@ if __name__ == '__main__':
 
         # Run an episode.
         (states, actions, discounted_rewards) = run_episode(env, policy, episode_len)
-        avg_reward += np.mean(discounted_rewards) # con i reward veri
-        if step % 100 == 0:
-            print('Average reward @ episode {}: {}'.format(step, avg_reward / 100))
-            avg_reward = 0.0
-        
-        # Repeat each action, and backpropagate discounted
-        # rewards. This can probably be batched for efficiency with a
-        # memoryless agent...
+
 	

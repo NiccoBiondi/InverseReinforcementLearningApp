@@ -37,11 +37,10 @@ class RewardThread(QThread):
     @pyqtSlot()
     def run(self):
         loss = []
-        annotation_buffer = [triple for triple in self._model.annotation_buffer if triple[2] != [0, 0]]
         
         for k in range(int(self._model.model_parameters['K'])):
             self._model.logBarSxSignal.emit("Train reward model : k-batch " + str(k) + ' of ' + str(self._model.model_parameters['K']) )
-            train_clips = data_loader(annotation_buffer, self._model.reward_batch)
+            train_clips = data_loader(self._model.annotation_buffer, self._model.reward_batch)
             loss.append(self._model.reward_model.compute_rewards(self._model.reward_model, self._model.optimizer_r, train_clips))
 
         # Reset ll variable used during the all process (policy work, annotation work and reward model work)

@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.autograd as autograd
+import cv2
 
 from PyQt5.QtWidgets import QApplication
 
@@ -23,20 +24,46 @@ class csvRewardModel(nn.Module):
     def __init__(self, obs_size, inner_size):
         super(csvRewardModel, self).__init__()
 
-        self.affine1 = nn.Linear(obs_size, inner_size)
-        self.affine2 = nn.Linear(inner_size, 1)
+        self.conv1 = nn.Conv2d(3, 8, (3, 3), stride=1)
+        self.conv2 = nn.Conv2d(8, 16, (3, 3), stride=1)
+
+        self.fc1 = nn.Linear(144, inner_size)
+        self.fc2 = nn.Linear(inner_size, 1)
+
+        #self.affine1 = nn.Linear(obs_size, inner_size)
+        #self.affine2 = nn.Linear(inner_size, 1)
 
         self.clips_loss = []
 
     def forward(self, clip):
         rewads = []
-        
+
+        # (batch, dim_ch, width, height)
         for obs in clip:
-            x_1 = state_filter(obs).cuda().view(-1, 7*7)
-            x_1 = F.relu(self.affine1(x_1))
-            rewads.append(self.affine2(x_1))
+            
+            x = torch.from_numpy(obs).cuda().transpose(0, -1).float()
+            x_1 = x.unsqueeze(0)
+
+            x_1 = F.relu(self.conv1(x_1))   
+            x_1 = F.relu(self.conv2(x_1))
+            
+            x_1 = x_1.view(-1, self.num_flat_features(x_1))
+            
+            x_1 = F.relu(self.fc1(x_1))
+            rewads.append(self.fc2(x_1))
+
+            # x_1 = state_filter(obs).cuda().view(-1, 7*7)
+            # x_1 = F.relu(self.affine1(x_1))
+            #rewads.append(self.affine2(F.relu(x_1)))
         
         return rewads
+
+    def num_flat_features(self, x):
+        size = x.size()[1:]  # all dimensions except the batch dimension
+        num_features = 1
+        for s in size:
+            num_features *= s
+        return num_features
 
     # The primary function. It takes the annotation buffer and process the triples.
     # A triple is a list composed by [first clip, second clip, preferency]. Thre preferency
@@ -46,17 +73,17 @@ class csvRewardModel(nn.Module):
     def compute_rewards(self, reward_model, optimizer, train_clips):
 
         probs = []
-        reward_model.train()
+        #reward_model.train()
         optimizer.zero_grad()
 
         for idx, triple in enumerate(train_clips):
-
-            QApplication.processEvents()
+            
             
             reward_1 = reward_model.forward(triple[0])
             reward_2 = reward_model.forward(triple[1])
             
-            den = (torch.exp(sum(reward_1)) + torch.exp(sum(reward_2)))
+            den = (torch.exp(sum(reward_1)) + torch.exp(sum(reward_2))) + 1e-7
+
             p_sigma_1 = torch.exp(sum(reward_1)) / den
             p_sigma_2 = torch.exp(sum(reward_2)) / den
 
@@ -71,7 +98,7 @@ class csvRewardModel(nn.Module):
         nn.utils.clip_grad_norm(reward_model.parameters(), 5)
         optimizer.step()
 
-        reward_model.eval()
+        #reward_model.eval()
         return loss.item()
 
 # Simple utility function to save the reward model weights

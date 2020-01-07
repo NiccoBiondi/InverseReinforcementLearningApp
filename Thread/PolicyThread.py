@@ -119,6 +119,7 @@ class PolicyThread(QThread):
             # If the reward model is trained one time the policy can be trained.
             # To train the policy are used the rewards computed by the reward model.
             if self._train:
+                #s = [obs['obs'] for obs in states]
                 s = [obs['obs'] for obs in states]
                 rewards = self._model.reward_model(s)
                 l = Loss(self._model.policy, self._model.optimizer_p, states, actions, rewards)
