@@ -105,7 +105,7 @@ if __name__ == '__main__':
 
     # Instantiate a policy network.
     policy = Policy(obs_size=obs_size, act_size=act_size, inner_size=inner_size)
-    policy.load_state_dict(torch.load('/home/bazza/Scrivania/RL/InverseReinforcementLearningApp/SAVE_FOLDER/MiniGrid-Empty-6x6-v0_(06-01-2020)MiniGrid-Empty-6x6-v0_(06-01-2020)/policy_weight_12:16.pth'))
+    policy.load_state_dict(torch.load('/home/bazza/Scrivania/RL/InverseReinforcementLearningApp/SAVE_FOLDER/MiniGrid-Empty-6x6-v0_(07-01-2020)/policy_weight_10:24.pth'))
 
     # Run for a while.
     episodes = 2000
