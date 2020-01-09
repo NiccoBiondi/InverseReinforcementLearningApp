@@ -42,8 +42,7 @@ def createOracleMatrix(env):
                     m = 0
                 oracle_rewards[row][col] = m / 2
     
-    print(oracle_rewards)
-    return oracle_rewards, wrapper
+    return oracle_rewards.T, wrapper
 
 class Oracle:
     def __init__(self, env):
