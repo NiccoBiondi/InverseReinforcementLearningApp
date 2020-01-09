@@ -51,8 +51,8 @@ class Controller(QObject):
     # like the oracle predict..(frase a caso)
     def setOraclePreferencies(self):
         self._timer.stop()
-        #TODO: vai in ReinforcementLearning/Oracle.py e scrivere la funzione takeReward()
-        self._model.preferences = self._model.oracle.takeReward()
+        #TODO: vai in ReinforcementLearning/Oracle.py e scrivere la funzione takeReward(self, clip_1, clip_2)
+        self._model.preferences = self._model.oracle.takeReward(self._model.clips[0], self._model.clips[1])
         
     # This function connect the SetupDialog model with main model.
     # Transfer the parameters setted in setup  window.
@@ -225,7 +225,7 @@ class Controller(QObject):
                     self.wait_signal()
 
                 if self._model.preferences == None and (self._model.oracle_active or not self._model.oracle_active):
-                    self._model.preferences = self._model.oracle.takeReward()
+                    self._model.preferences = self._model.oracle.takeReward(self._model.clips[0], self._model.clips[1])
                 
 
                 clip_1 = self._model.clips.pop(0)

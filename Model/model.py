@@ -379,10 +379,7 @@ class Model(QObject):
             if 'csv_reward_weight_lr' + str(self._model_parameters['lr']) + '_k' + str(self._model_parameters['K']) + '.pth' in os.listdir(self._weigth_path):
                 self.reward_model.load_state_dict(torch.load(self._weigth_path + '/csv_reward_weight_lr' + str(self._model_parameters['lr']) + '_k' + str(self._model_parameters['K']) + '.pth' ))
 
-        self.pathLoadedSignal.emit('MODEL LOADED')
-
-        print(self._weigth_path)
-        
+        self.pathLoadedSignal.emit('MODEL LOADED')        
 
     @model_parameters.setter
     def model_parameters(self, model_par):

@@ -50,9 +50,9 @@ class Oracle:
         
         self._matrix, self._wrapper = createOracleMatrix(env)
 
-    def takeReward(self):
+    def takeReward(self, clip_1, clip_2):
         #TODO: creare sta funzione
-
+        
         # Vedi come fare, io penso che sarebbe bellino passargli le clips e 
         # lui ritorna la preferenza [1,0], [0,1], [0,0] in base al reward poi vedi te
 
