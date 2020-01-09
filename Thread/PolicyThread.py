@@ -17,7 +17,6 @@ class ThreadSignals(QObject):
     '''
     Defines the signals available from a running worker thread.
     '''
-    startAnnotation = pyqtSignal()
     finishedSignal = pyqtSignal()
 
 # Simple thread that make the policy function.
@@ -69,57 +68,20 @@ class PolicyThread(QThread):
             
             (states, actions, dones) = run_episode(self._model.env, self._model.policy, int(self._model.model_parameters['episode_len']))
 
-
-            # If the policy finish to create the clips folder but find a goal, We save the clips.
-            if True in dones and self._model.model_parameters['idx'] >=  int(self._model.model_parameters['n_annotation']):
-                states_copy = copy.deepcopy(states)
-                clips = clips_generator(states_copy, dones, int(self._model.model_parameters['clips_len']))
-                save_clips(self._model.clips_database + '/goal_clips_' + str(step), [clips[0], clips[0]])
-             
-            # Now is checked if the policy model has to create clips to annotate or not.
-            # To see al possible clips created during the policy train, the sampling is made
-            # throughout the training period.
-            if self._model.model_parameters['idx']  < int(self._model.model_parameters['n_annotation']):
-                
-                states_copy = copy.deepcopy(states)
-                clips = clips_generator(states_copy, dones, int(self._model.model_parameters['clips_len']))
-    
-                indecies =  list(np.random.randint(low = 0, high = len(clips), size= len(clips)//2))
-                
-                # If in clips there is the clip where the agent arrive to the goal,
-                # the index 0, the index of this clip, is selected, so it is sure
-                # that the reward model sees that clip.
-                if True in dones:
-                    indecies.append(0)
-                                        
-                # Sample the clips generated
-                for index in indecies:
-                    
-                    if len(clips_generated) == self._max_len:
+            states_copy = copy.deepcopy(states)
+            clips = clips_generator(states_copy, dones, int(self._model.model_parameters['clips_len']))
+            idx = save_clips(self._model.clips_database, clips, self._model.model_parameters['idx'])
+            self._model.model_parameters = ['idx', idx + 1]
                         
-                        clips_path = save_clips(self._model.clips_database + '/clipsToAnnotate_' + str(self._model.model_parameters['idx']), clips_generated)
-                        self._model.folder = '/clipsToAnnotate_' + str(self._model.model_parameters['idx'])
-                        clips_generated = [clips[index]]
-                        self._model.model_parameters = ['idx', self._model.model_parameters['idx'] + 1]
-                        if not self.done:
-                            self._signals.startAnnotation.emit()
-                            self.done = True
-                            
-                    else:
-                        
-                        clips_generated.append(clips[index])
-
             # Auto save controll.
             if step > 0 and step % self._model.auto_save_clock_policy == 0:
                     save_model(self._model.auto_save_folder, self._model.policy, self._model.model_parameters, self._model.iteration)
                     self._model.logBarSxSignal.emit('Auto-save in :' +  self._model.auto_save_folder)
                     self._model.annoatate = True
-                    time.sleep(0.5) 
 
             # If the reward model is trained one time the policy can be trained.
             # To train the policy are used the rewards computed by the reward model.
             if self._train:
-                #s = [obs['obs'] for obs in states]
                 s = [obs['obs'] for obs in states]
                 rewards = self._model.reward_model(s)
                 l = Loss(self._model.policy, self._model.optimizer_p, states, actions, rewards)

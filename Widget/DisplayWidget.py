@@ -35,7 +35,6 @@ class Display(QLabel):
             bytesPerLine = ch * w
             convertToQtFormat = QImage(image, w, h, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
             self.setPixmap(QPixmap.fromImage(convertToQtFormat))
-            self.resize(1000, 900)
             self._count += 1
         else:
             self._count = 0
@@ -46,7 +45,7 @@ class Display(QLabel):
     @pyqtSlot(list)
     def updateDisplayImage(self, image):
         self._displayImage = image
-        self._displayImage.insert(0, Image.new('RGB', (800, 700), color=(255, 255, 255)))
+        self._displayImage.insert(0, Image.new('RGB', (800, 800), color=(255, 255, 255)))
         
 
 

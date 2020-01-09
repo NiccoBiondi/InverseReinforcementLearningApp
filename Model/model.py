@@ -56,6 +56,7 @@ class Model(QObject):
         self._weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight/'
         self._auto_save_folder = DIR_NAME + '/SAVE_FOLDER/'
         self._clips_database = DIR_NAME + '/Clips_Database/'
+        self._history_database = DIR_NAME + '/History_Database/'
         self._load_path = ''
 
         # Define variable to train policy and reward model.
@@ -66,7 +67,6 @@ class Model(QObject):
         # Define util variable.
         self._iteration = 0                # Memorize the episodes where the policy arrived.
         self._ann_point = 0                # Memorize the folder where the annotator arrive.
-        self._clip_point = 0               # Memorize the clips in the folder where the annotator arrive.
         self._auto_save_clock_policy = 100 # Define auto save cock period for the policy thread.
         self._annotator = Annotator()      # Utility class to reload the csv and the image which represent clips to annotate.
         self._model_parameters = {}        # Define model initial parameters like learning rate, environment name, trajectory length etc.
@@ -76,7 +76,6 @@ class Model(QObject):
         # Define variable used to the annotation phase.
         self._clips = []       # Contain clips to annotate
         self._disp_figure = [] # Contain clips images to annotate
-        self._folder = []      # Define the set of clips folders to annotate
 
         # Define Inverse Reinforcement Learning element
         self._obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
@@ -99,13 +98,9 @@ class Model(QObject):
         self._speed = 1
         self._display_imageDx = []
         self._display_imageSx = []
-        self._display_imageLen = 0
+        #self._display_imageLen = 0
 
     # Define a collection of property and property.setter.
-
-    @property
-    def clip_point(self):
-        return self._clip_point
 
     @property
     def start_ann_disp(self):
@@ -126,6 +121,10 @@ class Model(QObject):
     @property
     def clips_database(self):
         return self._clips_database
+
+    @property
+    def history_database(self):
+        return self._history_database
     
     @property
     def auto_save_clock_policy(self):
@@ -167,9 +166,9 @@ class Model(QObject):
     def annotation(self):
         return self._annotation
 
-    @property
-    def display_imageLen(self):
-        return self._display_imageLen
+    #@property
+    #def display_imageLen(self):
+    #    return self._display_imageLen
 
     @property
     def display_imageDx(self):
@@ -235,25 +234,13 @@ class Model(QObject):
     def ann_point(self):
         return self._ann_point
 
-    @property
-    def folder(self):
-        return self._folder
-
     @weigth_path.setter
     def weigth_path(self, path):
         self._weigth_path = path
-    
-    @clip_point.setter
-    def clip_point(self, slot):
-        self._clip_point = slot
 
     @start_ann_disp.setter
     def start_ann_disp(self, slot):
         self._start_ann_disp = slot
-
-    @folder.setter
-    def folder(self, folder):
-        self._folder.append(folder)
 
     @optimizer_p.setter
     def optimizer_p(self, slot):
@@ -266,6 +253,10 @@ class Model(QObject):
     @clips_database.setter
     def clips_database(self, slot):
         self._clips_database = slot
+    
+    @history_database.setter
+    def history_database(self, slot):
+        self._history_database = slot
 
     @env.setter
     def env(self, slot):
@@ -296,9 +287,9 @@ class Model(QObject):
         self._annotation = slot
         self.setClipsHistorySignal.emit(slot)
     
-    @display_imageLen.setter
-    def display_imageLen(self, slot):
-        self._display_imageLen = slot
+    #@display_imageLen.setter
+    #def display_imageLen(self, slot):
+    #    self._display_imageLen = slot
 
     @display_imageDx.setter
     def display_imageDx(self, images):
@@ -354,8 +345,19 @@ class Model(QObject):
         self._optimizer_r = torch.optim.Adam(params=self._reward_model.parameters(), lr = float(self._model_parameters['lr']), weight_decay=0.01)
         
         self._clips_database = self._clips_database + self._model_parameters['minigrid_env']
+        self._history_database = self._history_database + self._model_parameters['minigrid_env']
+
         if not os.path.exists(self._clips_database):
             os.makedirs(self._clips_database)
+
+        else:
+            self._annotator.reset_clips_database(self._clips_database)
+
+        if not os.path.exists(self._history_database):
+            os.makedirs(self._history_database)
+            
+        else:
+            self._annotator.reset_clips_database(self._history_database)
 
         # When a model is initialized I control if a previous reward model
         # weight is saved in reward_model_init_weight folder. So in the first moment 
@@ -372,7 +374,6 @@ class Model(QObject):
             if 'csv_reward_weight_lr' + str(self._model_parameters['lr']) + '_k' + str(self._model_parameters['K']) + '.pth' in os.listdir(self._weigth_path):
                 self.reward_model.load_state_dict(torch.load(self._weigth_path + '/csv_reward_weight_lr' + str(self._model_parameters['lr']) + '_k' + str(self._model_parameters['K']) + '.pth' ))
 
-        self._annotator.reset_clips_database(self._clips_database)
         self.pathLoadedSignal.emit('MODEL LOADED')
 
         print(self._weigth_path)
@@ -438,8 +439,8 @@ class Model(QObject):
             
             self.clips.append({ 'clip' : triple[0], 'path' : el[1]})
             self.clips.append({ 'clip' : triple[1], 'path' : el[2]})
-            self.disp_figure.append(self._annotator.reload_figure(self._clips_database, el[1]))
-            self.disp_figure.append(self._annotator.reload_figure(self._clips_database, el[2]))
+            self.disp_figure.append(self._annotator.reload_figure(self._history_database, el[1]))
+            self.disp_figure.append(self._annotator.reload_figure(self._history_database, el[2]))
             
 
     

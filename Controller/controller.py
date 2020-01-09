@@ -38,8 +38,7 @@ class Controller(QObject):
 
         # Define threads and connect the policy thread to annotation function.
         self._policy_t = PolicyThread(self._model)
-        self._policy_t._signals.startAnnotation.connect(lambda : self.annotation())
-        self._policy_t._signals.finishedSignal.connect(lambda : self._policy_t.quit())
+        self._policy_t._signals.finishedSignal.connect(lambda : self.annotation())
         self._reward_t = RewardThread(self._model)
         
     # This function connect the SetupDialog model with main model.
@@ -65,7 +64,7 @@ class Controller(QObject):
             save_model(save_path, self._model.policy, self._model.model_parameters, self._model.iteration)
             save_reward_weights(self._model.reward_model, save_path, self._model.weigth_path, self._model.model_parameters['lr'], self._model.model_parameters['K'])
             if len(self._model.annotation_buffer):
-                save_annotation(save_path, self._model.annotation_buffer, self._model.ann_point, self._model.clip_point)
+                save_annotation(save_path, self._model.annotation_buffer, self._model.ann_point)
             
     # Simple function connect to 'Load checkpoint' button.
     # Give the possibility to the user to select a checkpoint work folder and
@@ -99,7 +98,7 @@ class Controller(QObject):
                     self._model.weigth_path = self._model.weigth_path + self._model.model_parameters['minigrid_env']
                     
                 if [path for path in os.listdir(fileName) if 'annotation_buffer' in path]:
-                    self._model.annotation_buffer, self._model.ann_point, self._model.clip_point= load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0])
+                    self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0])
                     self._model.start_ann_disp = len(self._model.annotation_buffer)
 
                 if len([path for path in os.listdir(fileName) if 'csv_reward_weight' in path]) == 0  and 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) :
@@ -192,57 +191,54 @@ class Controller(QObject):
     # it starts the reward model thread.
     @pyqtSlot()
     def annotation(self):
+        self._policy_t.quit()
+        
+        
+        for i in range(self._model.ann_point, int(self._model.model_parameters['n_annotation'])):
+
+            self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database)
+            self._model.logBarDxSignal.emit( 'Annotation: ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) )
             
-        i = self._model.ann_point + 1
-        while (len(self._model.folder) > 0):
-
-            if len(self._model.folder) > 0:
-                self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database, self._model.folder.pop(0), self._model.clip_point)
+            while(len(self._model.disp_figure) > 0):
                 
-                while(len(self._model.disp_figure) > 0):
+                self._model.display_imageSx = self._model.disp_figure.pop(0)
+                self._model.display_imageDx = self._model.disp_figure.pop(0)
+
+                self.wait_signal()
+                self._model.choiceButton = False
+
+                clip_1 = self._model.clips.pop(0)
+                clip_2 = self._model.clips.pop(0)
+                try:
+
+                    # A triple is a list where the first two elemens are clips (minigrid states list of len clip_len)
+                    self._model.annotation_buffer.append([clip_1['clip'], clip_2['clip'], self._model.preferences])
                     
-
-                    self._model.display_imageLen = len(self._model.disp_figure[0])
-                    self._model.display_imageSx = self._model.disp_figure.pop(0)
-                    self._model.display_imageDx = self._model.disp_figure.pop(0)
-
-                    clip_1 = self._model.clips.pop(0)
-                    clip_2 = self._model.clips.pop(0)
-                    self._model.logBarDxSignal.emit( 'Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(len(self._model.disp_figure)) + ' clips')
-
+                    # An annotation is a list where the first two elements are the paths of the corresponding clips,
+                    # the third element is the preferency made. 
                     
-                    self._model.logBarDxSignal.emit('Folder ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) + ': remain ' + str(len(self._model.disp_figure)) + ' clips.. Waiting annotation...')
-                    self.wait_signal()
+                    annotation = [str(len(self._model.annotation_buffer) - 1), clip_1["path"], clip_2["path"], '[' + str(self._model.preferences[0]) + ',' + str(self._model.preferences[1]) + ']']
 
-                    self._model.choiceButton = False
+                    if not os.path.exists(self._model.history_database + '/' + clip_1["path"]):
+                        shutil.move(self._model.clips_database + '/' + clip_1["path"], self._model.history_database)
 
-                    try:
-                        
-                        self._model.clip_point += 2
+                    if not os.path.exists(self._model.history_database + '/' + clip_2["path"]):
+                        shutil.move(self._model.clips_database + '/' + clip_2["path"], self._model.history_database)
 
-                        # A triple is a list where the first two elemens are clips (minigrid states list of len clip_len)
-                        self._model.annotation_buffer.append([clip_1['clip'], clip_2['clip'], self._model.preferences])
-                        
-                        # An annotation is a list where the first two elements are the paths of the corresponding clips,
-                        # the third element is the preferency made. 
-                        
-                        annotation = [str(len(self._model.annotation_buffer) - 1), clip_1["path"], clip_2["path"], '[' + str(self._model.preferences[0]) + ',' + str(self._model.preferences[1]) + ']']
-                        self._model.annotation = annotation
-                        
-                    except Exception as e:
-                        print(e)
-                        self._model.annotation_buffer = self._model.annotation_buffer[:-1]
-                        save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, self._model.clip_point)
-                        save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, self._model.iteration)
-                        sys.exit()
+                    self._model.annotation = annotation
+                    
+                except Exception as e:
+                    print(e)
+                    self._model.annotation_buffer = self._model.annotation_buffer[:-1]
+                    save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, i)
+                    save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, i)
+                    sys.exit()
 
-                    self._model.preferences = None
-                    gc.collect()
+                self._model.preferences = None
+                gc.collect()
 
-                self._model.clip_point = 0
-                self._model.ann_point = self._model.ann_point + 1
-                save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, self._model.clip_point)
-                i += 1
+            self._model.ann_point = self._model.ann_point + 1
+            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, i)
 
         self._model.logBarDxSignal.emit('Annotation phase finished')   
         
@@ -252,3 +248,4 @@ class Controller(QObject):
             loop.exec_()
 
         self._reward_t.start()         
+        

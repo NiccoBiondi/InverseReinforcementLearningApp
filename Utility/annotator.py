@@ -1,7 +1,8 @@
 import os
 import sys
-import cv2
 import shutil
+import random
+import numpy as np
 from PIL import Image
 
 sys.path.insert(1, os.path.dirname(os.path.abspath('__file__')))
@@ -17,32 +18,29 @@ class Annotator():
         for figure in sorted(os.listdir(data_path + '/' + path)):
             if '.png' in figure:
                 tmp = Image.open(data_path + '/' + path + '/' + figure)
-                #tmp = cv2.imread(data_path + '/' + path + '/' + figure)
-                img.append(tmp.convert("RGB").resize((800, 700)))
-                #img.append(cv2.resize(tmp, (800, 700)))
+                img.append(tmp.convert("RGB").resize((800, 800)))
 
         return img
 
     # reload clips from csv and images for annotation
-    def load_clips_figure(self, data_path, folder, point):
+    def load_clips_figure(self, data_path):
 
         clips = []
         disp_figure = []
+        folders = random.choices(os.listdir(data_path), k=2)
 
-        for fig in os.listdir(data_path + '/' + folder):
+        for folder in folders:
             tmp = []
-            for idx, figure in enumerate(sorted(os.listdir(data_path + '/' + folder + '/' + fig))):
+            for idx, figure in enumerate(sorted(os.listdir(data_path + '/' + folder))):
                 if '.png' in figure:
-                    f = Image.open(data_path + '/' + folder + '/' + fig + '/' + figure)
-                    #f = cv2.imread(data_path + '/' + folder + '/' + fig + '/' + figure)
-                    #tmp.append(cv2.resize(f, (800, 700)))
-                    tmp.append(f.convert("RGB").resize((800, 700)))
+                    f = Image.open(data_path + '/' + folder + '/' + figure)
+                    tmp.append(f.convert("RGB").resize((800, 800)))
                 elif '.csv' in figure:
-                    clips.append({ 'clip' : read_csv_clips(data_path + '/' + folder + '/' + fig + '/' + figure), 'path' : folder + '/' + fig})
+                    clips.append({ 'clip' : read_csv_clips(data_path + '/' + folder + '/' + figure), 'path' : folder})
 
             disp_figure.append(tmp)
 
-        return clips[point:], disp_figure[point:]
+        return clips, disp_figure
 
     # Reset the Clips Database folder  
     def reset_clips_database(self, data_path):

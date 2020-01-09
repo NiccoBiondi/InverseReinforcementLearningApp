@@ -71,6 +71,8 @@ def run_episode(env, policy, length, gamma=0.99):
 
     # Run for desired episode length.
     for step in range(length):
+        env.render('human')
+        time.sleep(0.5)
         # Get action from policy net based on current state.
         action = select_action(policy, state)
 
@@ -105,14 +107,14 @@ if __name__ == '__main__':
 
     # Instantiate a policy network.
     policy = Policy(obs_size=obs_size, act_size=act_size, inner_size=inner_size)
-    policy.load_state_dict(torch.load('/home/bazza/Scrivania/RL/InverseReinforcementLearningApp/SAVE_FOLDER/MiniGrid-Empty-6x6-v0_(07-01-2020)/policy_weight_10:24.pth'))
+    policy.load_state_dict(torch.load('/home/bazza/Scrivania/RL/InverseReinforcementLearningApp/SAVE_FOLDER/MiniGrid-Empty-6x6-v0_(07-01-2020)/policy_weight_15:46.pth'))
 
     # Run for a while.
     episodes = 2000
     for step in range(episodes):
         # MiniGrid has a QT5 renderer which is pretty cool.
         env.render('human')
-        time.sleep(0.1)
+        time.sleep(0.5)
 
         # Run an episode.
         (states, actions, discounted_rewards) = run_episode(env, policy, episode_len)

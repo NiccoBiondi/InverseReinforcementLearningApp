@@ -31,25 +31,24 @@ def read_csv_clips(dir_path):
     return states
 
 # Create the csv file  containing the clips generated
-def save_clips(name, clips):
-
-    clips_path = []
+def save_clips(name, clips, idx):
 
     for num_clips, clip in enumerate(clips):
-        clips_path.append(name.split('/')[-1] + '/clip_' + str(num_clips))
-        save_path = name + '/clip_' + str(num_clips)
+        save_path = name + '/clip_' + str(idx)
 
         if not os.path.exists(save_path):
             os.makedirs(save_path)
         
-        with open(save_path + '/clip_' + str(num_clips) + '.csv', 'w') as csvfile:
+        with open(save_path + '/clip_' + str(idx) + '.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
             for i in range(len(clip)):
                 lines = [clip[i]['obs']]
                 filewriter.writerow(lines)
                 plt.imsave(save_path + '/fig_' + str(i) + '.png', clip[i]['image'])
-                
-    return clips_path
+        
+        idx += 1
+
+    return idx
 
 # Generate clips from trajectory, make sure to take the actions to achieve the goal
 def clips_generator(states, dones, clips_len): 
@@ -121,7 +120,7 @@ def save_model_parameters(path, model_parameters, iteration):
 
 # Function to save annotation buffer. It is used to restart annotation
 #  and reload what the user do in previous work.
-def save_annotation(save_path, annotation_buffer, iteration, clip_point):
+def save_annotation(save_path, annotation_buffer, iteration):
 
     current_time = time.strftime("%H:%M", time.localtime())
     if [save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el]:
@@ -138,7 +137,7 @@ def save_annotation(save_path, annotation_buffer, iteration, clip_point):
             # a second clip state, the preferency, the folder where the annotation
             # arrived and the clip in the folder that are annoted. 
             for idx, clip in enumerate(triple[0]):
-                filewriter.writerow([clip, triple[1][idx], triple[2], iteration, clip_point])
+                filewriter.writerow([clip, triple[1][idx], triple[2], iteration])
 
 
 # Simple function to convert str matrix or list in integer matrix or list
@@ -171,21 +170,18 @@ def load_annotation_buffer(load_path):
     shape = (7, 7, 3)
     annotation_buffer = []
     iteration = None
-    clip_point = None
     
     if len(os.listdir(load_path)) > 0:
 
         for triple in os.listdir(load_path):
-            data_df = pd.read_csv(load_path + triple , error_bad_lines=False, names=["clip_1", "clip_2", "pref", "iteration", "clip_point"])
+            data_df = pd.read_csv(load_path + triple , error_bad_lines=False, names=["clip_1", "clip_2", "pref", "iteration"])
 
             clip_1 = []
             clip_2 = []
-            #pref = list(data_df['pref'][0])
             pref = [int(x) for x in re.findall('\d+', data_df['pref'][0])]
 
-            if iteration == None and clip_point == None:
+            if iteration == None:
                 iteration = int(data_df["iteration"][0])
-                clip_point = int(data_df["clip_point"][0])
         
             for idx, element in enumerate(data_df["clip_1"].values):
                 img_1 = convert_string(element)
@@ -198,9 +194,8 @@ def load_annotation_buffer(load_path):
     else:
 
         iteration = 0
-        clip_point = 0
     
-    return annotation_buffer, iteration, clip_point
+    return annotation_buffer, iteration
         
 
 

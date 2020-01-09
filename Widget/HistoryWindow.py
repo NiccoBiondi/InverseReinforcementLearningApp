@@ -31,7 +31,7 @@ class HistoryWindow(QDialog):
         self.ui.setupUi(self)
 
         # Define path of minigrid environment
-        self.data_path = model._clips_database
+        self.data_path = model._history_database
 
         # Define model and controller 
         self._model = HistoryWindowModel()

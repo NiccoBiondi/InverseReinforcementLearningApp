@@ -59,10 +59,8 @@ class ReplayClipsWindowModel(QObject):
         images = []
         for img in sorted(os.listdir(self._path)):
             if '.png' in img:
-                #image = cv2.imread(self._path + '/' + img)
                 image = Image.open(self._path + '/' + img)
-                images.append(image.convert("RGB").resize((800, 700)))
-                #images.append(cv2.resize(image, (800, 700)))
+                images.append(image.convert("RGB").resize((800, 800)))
         return images
 
 
