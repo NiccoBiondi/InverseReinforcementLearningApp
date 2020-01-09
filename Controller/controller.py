@@ -108,6 +108,7 @@ class Controller(QObject):
                     self._model.oracle = Oracle(env)
                     self._model.env.reset() 
                     self._model.clips_database = self._model.clips_database + self._model.model_parameters['minigrid_env']
+                    self._model.history_database = self._model.history_database + self._model.model_parameters['minigrid_env']
                     self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = float(self._model.model_parameters['lr']))
                     self._model.optimizer_r = torch.optim.Adam(params=self._model.reward_model.parameters(), lr = float(self._model.model_parameters['lr']), weight_decay=0.01)
                     self._model.weigth_path = self._model.weigth_path + self._model.model_parameters['minigrid_env']
@@ -132,14 +133,6 @@ class Controller(QObject):
                     shutil.rmtree(self._model.auto_save_folder)
                     os.mkdir(self._model.auto_save_folder)
                 
-                # Restart from where the user stop the annotation.
-                # From the clips2annotate folder we take the folder index where the user stop the annotation.
-                # The we initialize the model.folder with the clipsToannotate folder from index onwards.
-                if len(os.listdir(self._model.clips_database)) > 0:
-                    folders = sorted(os.listdir(self._model.clips_database))
-                    #index = folders.index([f for f in sorted(folders) if str(self._model.ann_point) in f][0])                    
-                    for f in folders[self._model.ann_point:]:
-                        self._model.folder = f
                 self._model.load_path = fileName
                 
     # This function define oracle button functionality.
