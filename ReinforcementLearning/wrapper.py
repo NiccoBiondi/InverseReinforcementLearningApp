@@ -1,6 +1,6 @@
-from gym import spaces
-import gym 
+import gym
 import gym_minigrid
+from gym import spaces
 
 CELL_PIXELS = 32
 
@@ -25,16 +25,3 @@ class RGBImgObsWrapper(gym.core.ObservationWrapper):
     def observation(self, obs):
         env = self.unwrapped
         return {'obs': obs['image'], 'image': env.render(mode = 'rgb_array', highlight = False)}
-
-
-class ImgObsWrapper(gym.core.ObservationWrapper):
-    """
-    Use the image as the only observation output, no language/mission.
-    """
-
-    def __init__(self, env):
-        super().__init__(env)
-        self.observation_space = env.observation_space.spaces['image']
-
-    def observation(self, obs):
-        return obs['image']

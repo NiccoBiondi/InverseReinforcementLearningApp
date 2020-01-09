@@ -13,6 +13,7 @@ from View.AlgView import AlgView
 from Thread.PolicyThread import PolicyThread
 from Thread.RewardThread import RewardThread
 
+from ReinforcementLearning.Oracle import Oracle
 from ReinforcementLearning.csvRewardModel import save_reward_weights
 from ReinforcementLearning.wrapper import RGBImgObsWrapper
 
@@ -23,7 +24,7 @@ from Utility.utility import save_model_parameters
 from Utility.utility import load_values
 from Utility.utility import load_annotation_buffer
 
-from PyQt5.QtCore import QObject, pyqtSlot, QEventLoop
+from PyQt5.QtCore import QObject, pyqtSlot, QEventLoop, QTimer
 from PyQt5.QtWidgets import QFileDialog, QDialog, QMessageBox
 
 
@@ -40,6 +41,18 @@ class Controller(QObject):
         self._policy_t = PolicyThread(self._model)
         self._policy_t._signals.finishedSignal.connect(lambda : self.annotation())
         self._reward_t = RewardThread(self._model)
+
+        # Define oralce timer
+        self._timer = QTimer()
+        self._timer.setInterval(300)
+        self._timer.timeout.connect(lambda : self.setOraclePreferencies())
+
+    # Simple function that when the timer end set the preferencies
+    # like the oracle predict..(frase a caso)
+    def setOraclePreferencies(self):
+        self._timer.stop()
+        #TODO: vai in ReinforcementLearning/Oracle.py e scrivere la funzione takeReward()
+        self._model.preferences = self._model.oracle.takeReward()
         
     # This function connect the SetupDialog model with main model.
     # Transfer the parameters setted in setup  window.
@@ -90,7 +103,9 @@ class Controller(QObject):
                 if [path for path in os.listdir(fileName) if 'values' in path]:
 
                     self._model.model_parameters, self._model.iteration = load_values(fileName + [ '/' + path for path in os.listdir(fileName) if 'values' in path][0])
-                    self._model.env = RGBImgObsWrapper(gym.make(self._model.model_parameters['minigrid_env']))
+                    env = gym.make(self._model.model_parameters['minigrid_env'])
+                    self._model.env = RGBImgObsWrapper(env)
+                    self._model.oracle = Oracle(env)
                     self._model.env.reset() 
                     self._model.clips_database = self._model.clips_database + self._model.model_parameters['minigrid_env']
                     self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = float(self._model.model_parameters['lr']))
@@ -130,7 +145,7 @@ class Controller(QObject):
     # This function define oracle button functionality.
     @pyqtSlot(bool)
     def change_oracle(self, slot):
-        self._model.oracle = slot
+        self._model.oracle_active = slot
 
     # Reset checkpoint button function.
     @pyqtSlot()
@@ -182,6 +197,7 @@ class Controller(QObject):
     def wait_signal(self):
         loop = QEventLoop()
         self._model.preferenceChangedSignal.connect(loop.quit)
+        self._model.oracleChangeSignal.connect(loop.quit)
         loop.exec_()
 
     # Funtion that give to the user the possibility
@@ -204,11 +220,24 @@ class Controller(QObject):
                 self._model.display_imageSx = self._model.disp_figure.pop(0)
                 self._model.display_imageDx = self._model.disp_figure.pop(0)
 
-                self.wait_signal()
-                self._model.choiceButton = False
+                # If the oracle is not active then the user 
+                # has to decide the best clip
+                if not self._model.oracle_active:
+                    self.wait_signal()
+                    self._model.choiceButton = False
+
+                #the oracle make the decision
+                else:
+                    self._timer.start()
+                    self.wait_signal()
+
+                if self._model.preferences == None and (self._model.oracle_active or not self._model.oracle_active):
+                    self._model.preferences = self._model.oracle.takeReward()
+                
 
                 clip_1 = self._model.clips.pop(0)
                 clip_2 = self._model.clips.pop(0)
+
                 try:
 
                     # A triple is a list where the first two elemens are clips (minigrid states list of len clip_len)

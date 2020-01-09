@@ -1,5 +1,6 @@
 import sys
 import os
+import re 
 import shutil
 import numpy as np
 from datetime import date
@@ -8,7 +9,7 @@ import torch
 import gym
 import gym_minigrid
 
-
+from ReinforcementLearning.Oracle import Oracle
 from ReinforcementLearning.csvRewardModel import csvRewardModel
 from ReinforcementLearning.policy import Policy
 from ReinforcementLearning.wrapper import RGBImgObsWrapper
@@ -25,6 +26,7 @@ class Model(QObject):
     preferenceChangedSignal = pyqtSignal()
     processButtonVisiblitySignal = pyqtSignal()
     resetHistoryWindowSignal = pyqtSignal()
+    oracleChangeSignal = pyqtSignal()
     choiceButtonVisiblitySignal = pyqtSignal(bool)
     updateDisplaySxImageSignal = pyqtSignal(list)
     updateDisplayDxImageSignal = pyqtSignal(list)
@@ -62,7 +64,7 @@ class Model(QObject):
         # Define variable to train policy and reward model.
         self._annotation = None      # Is used to update the history window widget with the current annotation made
         self._annotation_buffer = [] # Memorize the clips annotate and the preference
-        self._oracle = False         # Boolean variable used to understand if the oracle is used or not
+        self._oracle_active = False         # Boolean variable used to understand if the oracle is used or not
 
         # Define util variable.
         self._iteration = 0                # Memorize the episodes where the policy arrived.
@@ -83,7 +85,8 @@ class Model(QObject):
         self._inner_size = 64   # Number of neurons in two hidden layers.
         self._reward_batch = 16 # Reward model batch size
 
-        self._env = None          
+        self._env = None    
+        self._oracle = None   
         self._reward_model = csvRewardModel(obs_size = self._obs_size, inner_size = self._inner_size).cuda()
         self._policy = Policy(obs_size = self._obs_size, act_size = self._act_size, inner_size = self._inner_size).cuda()
         self._optimizer_p = None
@@ -98,7 +101,6 @@ class Model(QObject):
         self._speed = 1
         self._display_imageDx = []
         self._display_imageSx = []
-        #self._display_imageLen = 0
 
     # Define a collection of property and property.setter.
 
@@ -166,10 +168,6 @@ class Model(QObject):
     def annotation(self):
         return self._annotation
 
-    #@property
-    #def display_imageLen(self):
-    #    return self._display_imageLen
-
     @property
     def display_imageDx(self):
         return self._display_imageDx
@@ -187,8 +185,8 @@ class Model(QObject):
         return self._choiceButton
 
     @property
-    def oracle(self):
-        return self._oracle
+    def oracle_active(self):
+        return self._oracle_active
     
     @property
     def timer_dx(self):
@@ -233,6 +231,10 @@ class Model(QObject):
     @property
     def ann_point(self):
         return self._ann_point
+
+    @property
+    def oracle(self):
+        return self._oracle
 
     @weigth_path.setter
     def weigth_path(self, path):
@@ -286,10 +288,6 @@ class Model(QObject):
     def annotation(self, slot):
         self._annotation = slot
         self.setClipsHistorySignal.emit(slot)
-    
-    #@display_imageLen.setter
-    #def display_imageLen(self, slot):
-    #    self._display_imageLen = slot
 
     @display_imageDx.setter
     def display_imageDx(self, images):
@@ -313,13 +311,18 @@ class Model(QObject):
         self._choiceButton = val
         self.choiceButtonVisiblitySignal.emit(val)
 
-    @oracle.setter
-    def oracle(self, slot):
-        self._oracle = slot
+    @oracle_active.setter
+    def oracle_active(self, slot):
+        self._oracle_active = slot
+        self.oracleChangeSignal.emit()
     
     @iteration.setter
     def iteration(self, slot):
         self._iteration = slot
+
+    @oracle.setter
+    def oracle(self, slot):
+        self._oracle = slot
         
     @model_init.setter
     def model_init(self, value):
@@ -328,8 +331,10 @@ class Model(QObject):
         self._model_load = not value
         self.load_path = ''
 
-        # Init env
-        self._env = RGBImgObsWrapper(gym.make(self._model_parameters['minigrid_env']))
+        # Init env and oracle matrix
+        env = gym.make(self._model_parameters['minigrid_env'])
+        self._env = RGBImgObsWrapper(env)
+        self._oracle = Oracle(env)
         self._env.reset()
 
         # Create the auto save folder for a specific minigrifd env. If this folder still exists, then i delete it.
