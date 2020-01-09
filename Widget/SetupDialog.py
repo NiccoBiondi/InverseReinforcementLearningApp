@@ -26,7 +26,6 @@ class SetupDialog(QDialog):
         self.ui.defaultButton.clicked.connect(lambda : self._controller.set_default())
 
         # Connect view with model
-        self._model.changeNumberAnnotationSignal.connect(self.setAnnotationNumber)
         self._model.changeSettingSignal.connect(self.set_default)
         self._model.doneSignal.connect(self.close_Window)
 
@@ -37,7 +36,7 @@ class SetupDialog(QDialog):
         self.ui.clips_len_line.textChanged.connect(self._controller.change_clips_len)
         self.ui.episodes_line.textChanged.connect(self._controller.change_episodes)
         self.ui.K_line.textChanged.connect(self._controller.change_K)
-        self.ui.n_annotation_line.textChanged.connect(self._controller.change_n_annotation)
+        self.ui.annotation.currentTextChanged.connect(self._controller.change_n_annotation)
 
         # Set Qline edit to accept only number
         self.ui.episode_len_line.setValidator(QIntValidator(0, 10000))
@@ -45,7 +44,6 @@ class SetupDialog(QDialog):
         self.ui.clips_len_line.setValidator(QIntValidator(0, 50))
         self.ui.episodes_line.setValidator(QIntValidator(0, 1000000000))
         self.ui.K_line.setValidator(QIntValidator(0, 1000000))
-        self.ui.n_annotation_line.setValidator(QIntValidator(0, 1000000))
 
 
     # Set default parameters
@@ -57,21 +55,13 @@ class SetupDialog(QDialog):
         self.ui.clips_len_line.setText(default_param['clips_len'])
         self.ui.episodes_line.setText(default_param['episodes'])
         self.ui.K_line.setText(default_param['K'])
-        self.ui.n_annotation_line.setText(default_param['n_annotation'])
-        self.ui.n_annotation_line.setValidator(QIntValidator(0, int(int(default_param['episode_len']) / int(default_param['clips_len'])) * int(default_param['episodes'])))
-
-    # Change annotation number
-    @pyqtSlot(list)
-    def setAnnotationNumber(self, slot):
-        self.ui.n_annotation_line.setText(slot[0])
-        self.ui.n_annotation_line.setValidator(QIntValidator(0, int(int(slot[1]['episode_len']) / int(slot[1]['clips_len'])) * int(slot[1]['episodes'])))
+        self.ui.annotation.setCurrentIndex(4)
     
     def close_Window(self):
         self.close
 
 
 class SetupDialogModel(QObject):
-    changeNumberAnnotationSignal = pyqtSignal(list)
     changeSettingSignal = pyqtSignal(dict)
     doneSignal = pyqtSignal()
 
@@ -146,7 +136,6 @@ class SetupDialogModel(QObject):
     @n_annotation.setter
     def n_annotation(self, n_annotation):
         self._model.model_parameters = ['n_annotation', n_annotation]
-        self.changeNumberAnnotationSignal.emit([n_annotation, self._default_parameters])
 
     
     @default_parameters.setter
@@ -178,7 +167,7 @@ class SetupDialogController(QObject):
         default_param['clips_len'] = str(5)
         default_param['episodes'] = str(200)
         default_param['K'] = str(100)
-        default_param['n_annotation'] = str(int(((80 / 5) * 200) * 0.8))
+        default_param['n_annotation'] = str(80)
         self._model.default_parameters = default_param
 
     @pyqtSlot(str)
@@ -188,7 +177,6 @@ class SetupDialogController(QObject):
     @pyqtSlot(str)
     def change_episode(self, value):
         self._model.episode_len = value
-        self._model.n_annotation = str(int(((int(value) / int(self._model.clips_len)) * int(self._model.episodes)) * 0.8))
 
     @pyqtSlot(str)
     def change_lr(self, value):
@@ -197,12 +185,10 @@ class SetupDialogController(QObject):
     @pyqtSlot(str)
     def change_clips_len(self, value):
         self.clips_len = value
-        self._model.n_annotation = str(int(((int(self._model.episode_len) / int(value)) * int(self._model.episodes)) * 0.8))
     
     @pyqtSlot(str)
     def change_episodes(self, value):
         self._model.episodes = value
-        self._model.n_annotation = str(int(((int(self._model.episode_len) / int(self._model.clips_len)) * int(value)) * 0.8))
     
     @pyqtSlot(str)
     def change_K(self, value):

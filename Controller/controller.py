@@ -202,8 +202,10 @@ class Controller(QObject):
     def annotation(self):
         self._policy_t.quit()
         
-        
-        for i in range(self._model.ann_point, int(self._model.model_parameters['n_annotation'])):
+        # Define the number of clips to annotate
+        clips_number = int( ((len(os.listdir(self._model.clips_database)) + len(self._model.history_database)) * (int(self._model.model_parameters['n_annotation']) / 100)) / 2 )
+
+        for i in range(self._model.ann_point, clips_number):
 
             self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database)
             self._model.logBarDxSignal.emit( 'Annotation: ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) )
