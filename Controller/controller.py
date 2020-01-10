@@ -219,32 +219,7 @@ class Controller(QObject):
 
                 self.wait_signal()
                 self._model.choiceButton = False
-
-                '''
-                # If the oracle is not active then the user 
-                # has to decide the best clip
-                if not self._model.oracle_active:
-                    self.wait_signal()
-                    self._model.choiceButton = False
-
-                #the oracle make the decision
-                else:
-                    self._timer.start()
-                    self.wait_signal()
-
                 
-                # If the user actives the oracle and there is no preferencies, i make it
-                if self._model.preferences == None and self._model.oracle_active:
-                    self._model.preferences = self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
-
-                # If the user disables the oracle and there is no preferencies, then the user
-                # has to choose the clip
-                elif self._model.preferences == None and not self._model.oracle_active:
-                    self._model.choiceButton = True
-                    self.wait_signal()
-                '''
-                
-
                 clip_1 = self._model.clips.pop(0)
                 clip_2 = self._model.clips.pop(0)
 
