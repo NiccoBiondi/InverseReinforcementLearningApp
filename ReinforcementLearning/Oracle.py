@@ -116,7 +116,8 @@ class Oracle:
         reward_2 = count_reward(states_2, self._matrix)
         preference = None
 
-        print(count_1, count_2)
+        print(count_1, count_2, 'count')
+        print(reward_1, reward_2, 'reward')
 
         # In the two clips the agent mooves at least twice
         if count_1 <= 3 and count_2 <= 3:
@@ -142,6 +143,6 @@ class Oracle:
         else: 
             preference = [0, 0]
 
-        print(preference)
+        print(preference, 'pref')
 
         return preference
