@@ -32,11 +32,26 @@ class ReplayClipsWindow(QDialog):
 
         self.ui.startReplay.clicked.connect(lambda : self._controller.display_figure())
 
+        # Connect model
+        self._model.changeVisibilityButton.connect(self.changeVisibility)
+
+    @pyqtSlot(bool)
+    def changeVisibility(self, slot):
+        self.ui.startReplay.setEnabled(slot)
+
 
 class ReplayClipsWindowModel(QObject):
     replayModelImageSignal = pyqtSignal(list)
+    changeVisibilityButton = pyqtSignal(bool)
+
     def __init__(self, path):
         super().__init__()
+
+        # Oracle variable 
+        self.oracle_active = False
+
+        # Replay button variable
+        self._choiceButton = True
         
         # Define Timer and interval period
         self._timer = QTimer()
@@ -53,6 +68,15 @@ class ReplayClipsWindowModel(QObject):
     @property
     def timer(self):
         return self._timer
+
+    @property
+    def choiceButton(self):
+        return self._choiceButton
+
+    @choiceButton.setter
+    def choiceButton(self, slot):
+        self._choiceButton = slot
+        self.changeVisibilityButton.emit(slot)
 
     
     def load_image(self):
@@ -74,6 +98,7 @@ class ReplayClipsWindowController(QObject):
     @pyqtSlot()
     def display_figure(self):
         self._model.replayModelImageSignal.emit(self._model.display_image)
+        self._model.choiceButton = False
         for i in range(len(self._model.display_image)):
             self._model.timer.start()
         
