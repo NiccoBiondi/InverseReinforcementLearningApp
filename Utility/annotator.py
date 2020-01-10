@@ -29,6 +29,9 @@ class Annotator():
         disp_figure = []
         folders = random.choices(os.listdir(data_path), k=2)
 
+        while folders[0] == folders[1]:
+            folders[1] = random.choice(os.listdir(data_path))
+
         for folder in folders:
             tmp = []
             for idx, figure in enumerate(sorted(os.listdir(data_path + '/' + folder))):

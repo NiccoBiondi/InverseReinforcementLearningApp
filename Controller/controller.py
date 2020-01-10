@@ -265,11 +265,6 @@ class Controller(QObject):
             save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, i)
 
         self._model.logBarDxSignal.emit('Annotation phase finished')   
-        
-        if self._policy_t.isRunning():   
-            loop = QEventLoop()
-            self._policy_t._signals.finishedSignal.connect(loop.quit)
-            loop.exec_()
 
         self._reward_t.start()         
         
