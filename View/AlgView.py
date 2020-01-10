@@ -67,7 +67,7 @@ class AlgView(QWidget):
         mid_widget.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
 
         buttom_widget = QWidget()
-        b = [ProcessButton(self._controller.process, self._model), OracleButton(self._controller.change_oracle), HistoryButton(self._model), 
+        b = [ProcessButton(self._controller.process, self._model), OracleButton(self._model, self._controller.change_oracle), HistoryButton(self._model), 
             SpeedButton(self._controller.change_speed, self._model), LogWidget(self._model.logBarSxSignal), LogWidget(self._model.logBarDxSignal, text='')]
 
         buttom_widget.setLayout(ButtonPane(b, cols = 4))

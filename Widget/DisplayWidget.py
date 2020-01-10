@@ -41,6 +41,8 @@ class Display(QLabel):
             self._timer.stop()
             if not self._model.oracle_active:
                 self._model.choiceButton = True
+            else:
+                self._model.oracle_timer.start()
 
     # Funtion to upload the displayImage variable
     @pyqtSlot(list)

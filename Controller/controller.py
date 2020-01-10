@@ -43,16 +43,13 @@ class Controller(QObject):
         self._policy_t._signals.finishedSignal.connect(lambda : self.annotation())
         self._reward_t = RewardThread(self._model)
 
-        # Define oralce timer
-        self._timer = QTimer()
-        self._timer.setInterval(300)
-        self._timer.timeout.connect(lambda : self.setOraclePreferencies())
+        
 
     # Simple function that when the timer end set the preferencies
     # like the oracle predict..(frase a caso)
     def setOraclePreferencies(self):
-        self._timer.stop()
-        self._model.preferencies = self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
+        self._model.oracle_timer.stop()
+        self._model.preferences = self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
         
     # This function connect the SetupDialog model with main model.
     # Transfer the parameters setted in setup  window.
@@ -191,7 +188,6 @@ class Controller(QObject):
     def wait_signal(self):
         loop = QEventLoop()
         self._model.preferenceChangedSignal.connect(loop.quit)
-        self._model.oracleChangeSignal.connect(loop.quit)
         loop.exec_()
 
     # Funtion that give to the user the possibility
@@ -203,6 +199,9 @@ class Controller(QObject):
     def annotation(self):
         self._policy_t.quit()
         
+        # Connect the oracle timer with a function
+        self._model.oracle_timer.timeout.connect(lambda : self.setOraclePreferencies())
+
         # Define the number of clips to annotate
         clips_number = int( ( ( len(os.listdir(self._model.clips_database)) + len(os.listdir(self._model.history_database)) ) * ( int( self._model.model_parameters['n_annotation'] ) / 100  ) )  / 2 )
 
@@ -217,6 +216,11 @@ class Controller(QObject):
                 self._model.display_imageSx = self._model.disp_figure.pop(0)
                 self._model.display_imageDx = self._model.disp_figure.pop(0)
 
+
+                self.wait_signal()
+                self._model.choiceButton = False
+
+                '''
                 # If the oracle is not active then the user 
                 # has to decide the best clip
                 if not self._model.oracle_active:
@@ -228,6 +232,7 @@ class Controller(QObject):
                     self._timer.start()
                     self.wait_signal()
 
+                
                 # If the user actives the oracle and there is no preferencies, i make it
                 if self._model.preferences == None and self._model.oracle_active:
                     self._model.preferences = self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
@@ -237,7 +242,7 @@ class Controller(QObject):
                 elif self._model.preferences == None and not self._model.oracle_active:
                     self._model.choiceButton = True
                     self.wait_signal()
-                
+                '''
                 
 
                 clip_1 = self._model.clips.pop(0)

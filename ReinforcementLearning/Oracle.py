@@ -100,7 +100,6 @@ class Oracle:
 
 
     def takeReward(self, data_path, clip_1, clip_2, env):
-        #TODO: creare sta funzione
 
         file_1 = [file_ for file_ in os.listdir(data_path + '/' + clip_1['path']) if 'grid_' in file_]
         file_2 = [file_ for file_ in os.listdir(data_path + '/' + clip_2['path']) if 'grid_' in file_]

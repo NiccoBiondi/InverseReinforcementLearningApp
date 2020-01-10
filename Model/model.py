@@ -26,7 +26,6 @@ class Model(QObject):
     preferenceChangedSignal = pyqtSignal()
     processButtonVisiblitySignal = pyqtSignal()
     resetHistoryWindowSignal = pyqtSignal()
-    oracleChangeSignal = pyqtSignal()
     choiceButtonVisiblitySignal = pyqtSignal(bool)
     updateDisplaySxImageSignal = pyqtSignal(list)
     updateDisplayDxImageSignal = pyqtSignal(list)
@@ -85,13 +84,17 @@ class Model(QObject):
         self._inner_size = 64   # Number of neurons in two hidden layers.
         self._reward_batch = 16 # Reward model batch size
 
-        self._env = None    
-        self._oracle = None  
-        self._grid_wrapper = None 
+        self._env = None           
         self._reward_model = csvRewardModel(obs_size = self._obs_size, inner_size = self._inner_size).cuda()
         self._policy = Policy(obs_size = self._obs_size, act_size = self._act_size, inner_size = self._inner_size).cuda()
         self._optimizer_p = None
         self._optimizer_r = None 
+
+        # Define oracle variable
+        self._oracle = None       
+        self._grid_wrapper = None  
+        self._oracle_timer = QTimer()
+        self._oracle_timer.setInterval(500)
 
         # Define the two Display and replay buttons timers
         self._timer_dx = QTimer()
@@ -105,6 +108,10 @@ class Model(QObject):
         self._display_imageSx = []
 
     # Define a collection of property and property.setter.
+
+    @property
+    def oracle_timer(self):
+        return self._oracle_timer
 
     @property
     def grid_wrapper(self):
@@ -332,7 +339,6 @@ class Model(QObject):
     @oracle_active.setter
     def oracle_active(self, slot):
         self._oracle_active = slot
-        self.oracleChangeSignal.emit()
     
     @iteration.setter
     def iteration(self, slot):
