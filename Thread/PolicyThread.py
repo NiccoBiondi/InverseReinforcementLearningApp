@@ -57,10 +57,6 @@ class PolicyThread(QThread):
         # Check if in weigth_init path there is the reward model weigth. In the positive case, the policy
         # can be trained, else the policy has to create the clips.
         self._train = True if 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) else False
-
-        # If the policy finish to ceate the clips, it emit the signal to allow the user to annotate the clips.
-        if self._model.model_parameters['idx'] == int(self._model.model_parameters['n_annotation']):
-            self._signals.startAnnotation.emit()
            
         for step in range(self._model.iteration, int(self._model.model_parameters['episodes'])):
             
@@ -91,8 +87,6 @@ class PolicyThread(QThread):
             gc.collect()
         
         self._model.logBarSxSignal.emit('Training of policy finished')
-        if int(self._model.model_parameters['idx']) < int(self._model.model_parameters['n_annotation']):
-            self._model.model_parameters = ['n_annotation', self._model.model_parameters['idx']]
 
         # When the policy makes all episodes save the weight and model parameters
         save_model(self._model.auto_save_folder, self._model.policy, self._model.model_parameters, self._model.iteration)

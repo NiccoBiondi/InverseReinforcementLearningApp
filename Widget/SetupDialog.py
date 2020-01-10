@@ -135,6 +135,7 @@ class SetupDialogModel(QObject):
     
     @n_annotation.setter
     def n_annotation(self, n_annotation):
+        self._default_parameters['n_annotation'] = n_annotation
         self._model.model_parameters = ['n_annotation', n_annotation]
 
     

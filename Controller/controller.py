@@ -52,7 +52,8 @@ class Controller(QObject):
     # like the oracle predict..(frase a caso)
     def setOraclePreferencies(self):
         self._timer.stop()
-        self._model.preferences = self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
+        self._model.choiceButton = True
+        self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
         
     # This function connect the SetupDialog model with main model.
     # Transfer the parameters setted in setup  window.
@@ -191,7 +192,7 @@ class Controller(QObject):
     def wait_signal(self):
         loop = QEventLoop()
         self._model.preferenceChangedSignal.connect(loop.quit)
-        self._model.oracleChangeSignal.connect(loop.quit)
+        #self._model.oracleChangeSignal.connect(loop.quit)
         loop.exec_()
 
     # Funtion that give to the user the possibility
@@ -204,12 +205,12 @@ class Controller(QObject):
         self._policy_t.quit()
         
         # Define the number of clips to annotate
-        clips_number = int( ((len(os.listdir(self._model.clips_database)) + len(self._model.history_database)) * (int(self._model.model_parameters['n_annotation']) / 100)) / 2 )
+        clips_number = int( ( ( len(os.listdir(self._model.clips_database)) + len(os.listdir(self._model.history_database)) ) * ( int( self._model.model_parameters['n_annotation'] ) / 100  ) )  / 2 )
 
         for i in range(self._model.ann_point, clips_number):
 
             self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database)
-            self._model.logBarDxSignal.emit( 'Annotation: ' + str(i) + '/' + str(self._model.model_parameters['n_annotation']) )
+            self._model.logBarDxSignal.emit( 'Annotation: ' + str(i) + '/' + str(clips_number) )
             
             while(len(self._model.disp_figure) > 0):
                 
@@ -228,8 +229,17 @@ class Controller(QObject):
                     self._timer.start()
                     self.wait_signal()
 
-                if self._model.preferences == None and (self._model.oracle_active or not self._model.oracle_active):
+                # If the user actives the oracle and there is no preferencies, i make it
+                if self._model.preferences == None and self._model.oracle_active:
                     self._model.preferences = self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
+
+                # If the user disables the oracle and there is no preferencies, then the user
+                # has to choose the clip
+                elif self._model.preferences == None and not self._model.oracle_active:
+                    self._model.choiceButton = True
+                    self.wait_signal()
+                
+                self._model.choiceButton = False
                 
 
                 clip_1 = self._model.clips.pop(0)
@@ -245,11 +255,12 @@ class Controller(QObject):
                     
                     annotation = [str(len(self._model.annotation_buffer) - 1), clip_1["path"], clip_2["path"], '[' + str(self._model.preferences[0]) + ',' + str(self._model.preferences[1]) + ']']
 
-                    if not os.path.exists(self._model.history_database + '/' + clip_1["path"]):
-                        shutil.move(self._model.clips_database + '/' + clip_1["path"], self._model.history_database)
+                    if self._model.preferences != None:
+                        if not os.path.exists(self._model.history_database + '/' + clip_1["path"]):
+                            shutil.move(self._model.clips_database + '/' + clip_1["path"], self._model.history_database)
 
-                    if not os.path.exists(self._model.history_database + '/' + clip_2["path"]):
-                        shutil.move(self._model.clips_database + '/' + clip_2["path"], self._model.history_database)
+                        if not os.path.exists(self._model.history_database + '/' + clip_2["path"]):
+                            shutil.move(self._model.clips_database + '/' + clip_2["path"], self._model.history_database)
 
                     self._model.annotation = annotation
                     

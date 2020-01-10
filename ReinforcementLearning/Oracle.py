@@ -13,10 +13,46 @@ def no_move_count(grid):
 
     for i in range(len(grid)):
         for j in range(i, len(grid)):
-            if np.array_equal(grid[i][:,:,0], grid[j][:,:,0]):
+            if np.array_equal(grid[i], grid[j]):
                 counts[i] += 1
             
     return int(max(counts))
+
+def count_reward(grid, matrix):
+
+    x_old, y_old = 1, 1
+    reward = 0
+
+    for i in range(len(grid)):
+        x, y = np.where(grid[i] == 10)
+        if (x >= x_old or y >= y_old) and (matrix[x, y] != 0):
+            reward += matrix[x, y]
+            x_old = x
+            y_old = y
+        else:
+            reward = 0
+            break
+    
+    return reward
+
+
+def give_pref(reward_1, reward_2):
+    preference = None
+
+    if reward_1 > 1.5 and reward_2 > 1.5:
+        preference = [0.5, 0.5]
+
+    elif reward_1 > 1.5:
+        preference = [1, 0]
+
+    elif reward_2 > 1.5:
+        preference = [0, 1]
+
+    else:
+        preference = [0, 0]
+    
+    return preference
+
 
 def createOracleMatrix(wrapper, env):
 
@@ -55,7 +91,7 @@ def createOracleMatrix(wrapper, env):
                     m = 0
                 oracle_rewards[row][col] = m / 2
     
-    return oracle_rewards.T
+    return oracle_rewards
 
 class Oracle:
     def __init__(self, wrapper, env):
@@ -72,17 +108,41 @@ class Oracle:
         states_1 = read_csv_grids(data_path + '/' + clip_1['path'] + '/' + file_1[0], env)
         states_2 = read_csv_grids(data_path + '/' + clip_2['path'] + '/' + file_2[0], env)
 
-        #for i in range(len(clip_1)):
-
         # conta quante volte consegutivamente sono rimasto fermo
         # da 3 in su si scarta altrimenti lo tengo
         count_1 = no_move_count(states_1)
         count_2 = no_move_count(states_2)
 
-        print(count_1, count_2)
-        
-        # Vedi come fare, io penso che sarebbe bellino passargli le clips e 
-        # lui ritorna la preferenza [1,0], [0,1], [0,0] in base al reward poi vedi te
-        sys.exit()
+        reward_1 = count_reward(states_1, self._matrix)
+        reward_2 = count_reward(states_2, self._matrix)
+        preference = None
 
-        return [1, 0]
+        print(count_1, count_2)
+
+        # In the two clips the agent mooves at least twice
+        if count_1 <= 3 and count_2 <= 3:
+            preference = give_pref(reward_1, reward_2)
+        
+        # In one clips make at least 3 moves and in the another clips no
+        elif count_1 <= 3:
+            preference = give_pref(reward_1, 0)
+
+        # In one clips make at least 3 moves and in the another clips no
+        elif count_2 <= 3:
+            preference = give_pref(0, reward_2)
+
+        elif (count_1 == 4 and reward_1 >= 5) and (count_2 == 4 and reward_2 >= 5):
+            preference = [0.5, 0.5]
+        
+        elif count_1 == 4 and reward_1 >= 5:
+            preference = [1, 0]
+        
+        elif count_2 == 4 and reward_2 >= 5:
+            preference = [0, 1]
+        
+        else: 
+            preference = [0, 0]
+
+        print(preference)
+
+        return preference

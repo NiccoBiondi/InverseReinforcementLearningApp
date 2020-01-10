@@ -37,7 +37,7 @@ def read_csv_grids(dir_path, env):
     states = []
     for element in data_df['grid'].values:
         result = convert_string(element)
-        result = np.reshape(result, (env.width, env.height, 3))
+        result = np.reshape(result, (env.width, env.height))
         states.append(result)
     return states
 
@@ -53,7 +53,7 @@ def save_clips(name, idx, clips, clips_grid):
         with open(save_path + '/grid_' + str(idx) + '.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
             for i in range(len(clips_grid[num_clips])):
-                lines = [clips_grid[num_clips][i]]
+                lines = [clips_grid[num_clips][i][:,:,0].T]
                 filewriter.writerow(lines)
         
         with open(save_path + '/clip_' + str(idx) + '.csv', 'w') as csvfile:
