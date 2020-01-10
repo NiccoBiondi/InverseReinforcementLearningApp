@@ -52,8 +52,7 @@ class Controller(QObject):
     # like the oracle predict..(frase a caso)
     def setOraclePreferencies(self):
         self._timer.stop()
-        self._model.choiceButton = True
-        self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
+        self._model.preferencies = self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
         
     # This function connect the SetupDialog model with main model.
     # Transfer the parameters setted in setup  window.
@@ -192,7 +191,7 @@ class Controller(QObject):
     def wait_signal(self):
         loop = QEventLoop()
         self._model.preferenceChangedSignal.connect(loop.quit)
-        #self._model.oracleChangeSignal.connect(loop.quit)
+        self._model.oracleChangeSignal.connect(loop.quit)
         loop.exec_()
 
     # Funtion that give to the user the possibility
@@ -239,7 +238,6 @@ class Controller(QObject):
                     self._model.choiceButton = True
                     self.wait_signal()
                 
-                self._model.choiceButton = False
                 
 
                 clip_1 = self._model.clips.pop(0)
