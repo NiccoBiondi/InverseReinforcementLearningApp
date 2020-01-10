@@ -2,3 +2,4 @@
 *.vscode/
 *__pycache__
 Clips_Database/
+History_Database/
