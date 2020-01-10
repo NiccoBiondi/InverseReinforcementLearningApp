@@ -66,11 +66,11 @@ class PolicyThread(QThread):
             
             self._model.logBarSxSignal.emit('Policy processing :' +  str(self._model.iteration + 1) + '/' + str(self._model.model_parameters['episodes']) + ' episodes')
             
-            (states, actions, dones) = run_episode(self._model.env, self._model.policy, int(self._model.model_parameters['episode_len']))
+            (states, actions, dones, grids) = run_episode(self._model.env, self._model.policy, int(self._model.model_parameters['episode_len']), self._model.grid_wrapper)
 
             states_copy = copy.deepcopy(states)
-            clips = clips_generator(states_copy, dones, int(self._model.model_parameters['clips_len']))
-            idx = save_clips(self._model.clips_database, clips, self._model.model_parameters['idx'])
+            clips, clips_grid = clips_generator(states_copy, dones, int(self._model.model_parameters['clips_len']), grids)
+            idx = save_clips(self._model.clips_database, self._model.model_parameters['idx'], clips, clips_grid)
             self._model.model_parameters = ['idx', idx + 1]
                         
             # Auto save controll.

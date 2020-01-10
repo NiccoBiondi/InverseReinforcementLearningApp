@@ -30,14 +30,31 @@ def read_csv_clips(dir_path):
         states.append(result)
     return states
 
+# Simple utility function to read states saved in csv file
+def read_csv_grids(dir_path, env):
+    data_df = pd.read_csv(dir_path , error_bad_lines=False, names=["grid"])
+
+    states = []
+    for element in data_df['grid'].values:
+        result = convert_string(element)
+        result = np.reshape(result, (env.width, env.height, 3))
+        states.append(result)
+    return states
+
 # Create the csv file  containing the clips generated
-def save_clips(name, clips, idx):
+def save_clips(name, idx, clips, clips_grid):
 
     for num_clips, clip in enumerate(clips):
         save_path = name + '/clip_' + str(idx)
 
         if not os.path.exists(save_path):
             os.makedirs(save_path)
+        
+        with open(save_path + '/grid_' + str(idx) + '.csv', 'w') as csvfile:
+            filewriter = csv.writer(csvfile)
+            for i in range(len(clips_grid[num_clips])):
+                lines = [clips_grid[num_clips][i]]
+                filewriter.writerow(lines)
         
         with open(save_path + '/clip_' + str(idx) + '.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
@@ -51,39 +68,65 @@ def save_clips(name, clips, idx):
     return idx
 
 # Generate clips from trajectory, make sure to take the actions to achieve the goal
-def clips_generator(states, dones, clips_len): 
+def clips_generator(states, dones, clips_len, grids):
+
+    # define the clips grid partition
+    total_clips_grid = []
+    clips_grid = []
+
+    # define the trajectory partition
     total_clips = []
     clips = []
-    clip_num = 0
+
+    # save the movement to achieve the goal
     clips_goal = []
+    clips_grid_goal = []
+
+    # If the trajectory is not divisible for length clips, then 
+    # it is sure that the agent achieve the goal
     diff = len(states) % clips_len
 
     if (diff == 1) and (True in dones):
         clips_goal.append(states[len(states) - 2])
+        clips_grid_goal.append(grids[len(grids) - 2])
+
         goal = states.pop()
+        grid_goal = grids.pop()
+
         for i in range(clips_len - 1):
             clips_goal.append(goal)
+            clips_grid_goal.append(grid_goal)
 
     elif (diff >  1) and (True in dones):
+
         clips_goal = [states.pop() for i in range(diff)]
+        clips_grid_goal = [grids.pop() for i in range(diff)]
+
         clips_goal = clips_goal[::-1]
+        clips_grid_goal = clips_grid_goal[::-1]
+
         for i in range(clips_len - len(clips_goal)):
             clips_goal.append(clips_goal[-1])
+            clips_grid_goal.append(clips_grid_goal[-1])
 
     for i in range(0, len(states)): 
 
         if len(clips) != clips_len:
             clips.append(states[i])
+            clips_grid.append(grids[i])
             
         elif len(clips) == clips_len:
             total_clips.append(clips)
-            clip_num += 1
+            total_clips_grid.append(clips_grid)
+
             clips = [states[i]]
+            clips_grid = [grids[i]]
     
     if len(clips_goal) != 0:
         total_clips.insert(0, clips_goal)
+        total_clips_grid.insert(0, clips_grid_goal)
     
-    return total_clips
+    return total_clips, total_clips_grid
 
 # Save model parameters define in initialization or in a loaded checkpoint.
 # Is usefull to restart from the checkpoint

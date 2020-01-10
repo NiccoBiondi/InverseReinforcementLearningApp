@@ -35,10 +35,10 @@ class Annotator():
         for folder in folders:
             tmp = []
             for idx, figure in enumerate(sorted(os.listdir(data_path + '/' + folder))):
-                if '.png' in figure:
+                if 'fig_' in figure:
                     f = Image.open(data_path + '/' + folder + '/' + figure)
                     tmp.append(f.convert("RGB").resize((800, 800)))
-                elif '.csv' in figure:
+                elif 'clip_' in figure:
                     clips.append({ 'clip' : read_csv_clips(data_path + '/' + folder + '/' + figure), 'path' : folder})
 
             disp_figure.append(tmp)

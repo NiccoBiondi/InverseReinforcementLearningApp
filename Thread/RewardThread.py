@@ -54,6 +54,7 @@ class RewardThread(QThread):
 
         # Reset all folders used for the entire process
         self._model.annotator.reset_clips_database(self._model.clips_database)
+        self._model.annotator.reset_clips_database(self._model.history_database)
         if [self._model.auto_save_folder + '/' + el for el in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in el]:
             shutil.rmtree([self._model.auto_save_folder + '/' + el for el in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in el][0])
 

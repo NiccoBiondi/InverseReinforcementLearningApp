@@ -1,8 +1,9 @@
+import gym
+import gym_minigrid
+
 import os
 import gc 
 import sys 
-import gym
-import gym_minigrid
 import torch
 import time
 import shutil
@@ -15,7 +16,7 @@ from Thread.RewardThread import RewardThread
 
 from ReinforcementLearning.Oracle import Oracle
 from ReinforcementLearning.csvRewardModel import save_reward_weights
-from ReinforcementLearning.wrapper import RGBImgObsWrapper
+from ReinforcementLearning.wrapper import RGBImgObsWrapper, FullyObsWrapper
 
 from Utility.utility import save_annotation
 from Utility.utility import save_model
@@ -51,8 +52,7 @@ class Controller(QObject):
     # like the oracle predict..(frase a caso)
     def setOraclePreferencies(self):
         self._timer.stop()
-        #TODO: vai in ReinforcementLearning/Oracle.py e scrivere la funzione takeReward(self, clip_1, clip_2)
-        self._model.preferences = self._model.oracle.takeReward(self._model.clips[0], self._model.clips[1])
+        self._model.preferences = self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
         
     # This function connect the SetupDialog model with main model.
     # Transfer the parameters setted in setup  window.
@@ -105,7 +105,8 @@ class Controller(QObject):
                     self._model.model_parameters, self._model.iteration = load_values(fileName + [ '/' + path for path in os.listdir(fileName) if 'values' in path][0])
                     env = gym.make(self._model.model_parameters['minigrid_env'])
                     self._model.env = RGBImgObsWrapper(env)
-                    self._model.oracle = Oracle(env)
+                    self._model.grid_wrapper = FullyObsWrapper(env)
+                    self._model.oracle = Oracle(self._model.grid_wrapper, env)
                     self._model.env.reset() 
                     self._model.clips_database = self._model.clips_database + self._model.model_parameters['minigrid_env']
                     self._model.history_database = self._model.history_database + self._model.model_parameters['minigrid_env']
@@ -212,6 +213,7 @@ class Controller(QObject):
             
             while(len(self._model.disp_figure) > 0):
                 
+                self._model.display_imageLen = len(self._model.disp_figure[0])
                 self._model.display_imageSx = self._model.disp_figure.pop(0)
                 self._model.display_imageDx = self._model.disp_figure.pop(0)
 
@@ -227,7 +229,7 @@ class Controller(QObject):
                     self.wait_signal()
 
                 if self._model.preferences == None and (self._model.oracle_active or not self._model.oracle_active):
-                    self._model.preferences = self._model.oracle.takeReward(self._model.clips[0], self._model.clips[1])
+                    self._model.preferences = self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
                 
 
                 clip_1 = self._model.clips.pop(0)

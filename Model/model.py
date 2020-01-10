@@ -12,7 +12,7 @@ import gym_minigrid
 from ReinforcementLearning.Oracle import Oracle
 from ReinforcementLearning.csvRewardModel import csvRewardModel
 from ReinforcementLearning.policy import Policy
-from ReinforcementLearning.wrapper import RGBImgObsWrapper
+from ReinforcementLearning.wrapper import RGBImgObsWrapper, FullyObsWrapper
 from ReinforcementLearning.policy import run_episode, Loss, save_policy_weights
 
 from Utility.annotator import Annotator
@@ -86,7 +86,8 @@ class Model(QObject):
         self._reward_batch = 16 # Reward model batch size
 
         self._env = None    
-        self._oracle = None   
+        self._oracle = None  
+        self._grid_wrapper = None 
         self._reward_model = csvRewardModel(obs_size = self._obs_size, inner_size = self._inner_size).cuda()
         self._policy = Policy(obs_size = self._obs_size, act_size = self._act_size, inner_size = self._inner_size).cuda()
         self._optimizer_p = None
@@ -99,10 +100,15 @@ class Model(QObject):
         self._timer_sx.setInterval(350)
         self._currentInterval = 350
         self._speed = 1
+        self._display_imageLen = 0
         self._display_imageDx = []
         self._display_imageSx = []
 
     # Define a collection of property and property.setter.
+
+    @property
+    def grid_wrapper(self):
+        return self._grid_wrapper
 
     @property
     def start_ann_disp(self):
@@ -167,6 +173,10 @@ class Model(QObject):
     @property
     def annotation(self):
         return self._annotation
+
+    @property
+    def display_imageLen(self):
+        return self._display_imageLen
 
     @property
     def display_imageDx(self):
@@ -236,6 +246,10 @@ class Model(QObject):
     def oracle(self):
         return self._oracle
 
+    @grid_wrapper.setter
+    def grid_wrapper(self, slot):
+        self._grid_wrapper = slot
+
     @weigth_path.setter
     def weigth_path(self, path):
         self._weigth_path = path
@@ -288,6 +302,10 @@ class Model(QObject):
     def annotation(self, slot):
         self._annotation = slot
         self.setClipsHistorySignal.emit(slot)
+    
+    @display_imageLen.setter
+    def display_imageLen(self, slot):
+        self._display_imageLen = slot
 
     @display_imageDx.setter
     def display_imageDx(self, images):
@@ -334,7 +352,8 @@ class Model(QObject):
         # Init env and oracle matrix
         env = gym.make(self._model_parameters['minigrid_env'])
         self._env = RGBImgObsWrapper(env)
-        self._oracle = Oracle(env)
+        self._grid_wrapper = FullyObsWrapper(env)
+        self._oracle = Oracle(self._grid_wrapper, env)
         self._env.reset()
 
         # Create the auto save folder for a specific minigrifd env. If this folder still exists, then i delete it.

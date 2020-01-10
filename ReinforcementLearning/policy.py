@@ -69,7 +69,7 @@ def compute_discounted_rewards(rewards, gamma=0.99):
 # ends. After achieving the goal, the game resets. Kind of like
 # Sisyphus...
 
-def run_episode(env, policy, length):
+def run_episode(env, policy, length, grid_wrapper):
     # Restart the MiniGrid environment.
     state = env.reset()
 
@@ -77,6 +77,7 @@ def run_episode(env, policy, length):
     # We need to keep a record of states, actions, and the
     # instantaneous rewards.
     states = [state]
+    grids = [grid_wrapper.observation(state['obs'])]
     actions = []
     rewards = []
     dones = []
@@ -91,6 +92,7 @@ def run_episode(env, policy, length):
         state, reward, done, _ = env.step(action.item())
 
         states.append(state)
+        grids.append(grid_wrapper.observation(state['obs']))
         rewards.append(reward)
         actions.append(action.item())
         dones.append(done)
@@ -99,7 +101,7 @@ def run_episode(env, policy, length):
             
     # Return the sequence of states, actions, and the a list contain boolean variables
     # that is used to understand if in this sequence the agent achieves the goal.
-    return (states, actions, dones)
+    return (states, actions, dones, grids)
 
 # Simple utility function to save the policy weights
 def save_policy_weights(model, save_weights_path):
