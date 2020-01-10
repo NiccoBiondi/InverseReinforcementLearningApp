@@ -131,16 +131,22 @@ class Oracle:
         elif count_2 <= 3:
             preference = give_pref(0, reward_2)
 
-        elif (count_1 == 4 and reward_1 >= 5) and (count_2 == 4 and reward_2 >= 5):
+        if (count_1 == 4 and reward_1 >= 5) and (count_2 == 4 and reward_2 >= 5):
             preference = [0.5, 0.5]
         
-        elif count_1 == 4 and reward_1 >= 5:
+        elif count_1 == 4 and reward_1 >= 5 and preference == None:
             preference = [1, 0]
         
-        elif count_2 == 4 and reward_2 >= 5:
+        elif count_1 == 4 and reward_1 >= 5 and preference != None:
+            preference = [0.5, 0.5]
+
+        elif count_2 == 4 and reward_2 >= 5 and preference == None:
             preference = [0, 1]
+
+        elif count_2 == 4 and reward_2 >= 5 and preference != None:
+            preference = [0.5, 0.5]
         
-        else: 
+        if preference == None: 
             preference = [0, 0]
 
         print(preference, 'pref')

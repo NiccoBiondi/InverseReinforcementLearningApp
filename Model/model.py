@@ -94,7 +94,7 @@ class Model(QObject):
         self._oracle = None       
         self._grid_wrapper = None  
         self._oracle_timer = QTimer()
-        self._oracle_timer.setInterval(200)
+        self._oracle_timer.setInterval(50)
 
         # Define the two Display and replay buttons timers
         self._timer_dx = QTimer()
