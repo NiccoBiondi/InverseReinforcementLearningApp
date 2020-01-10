@@ -30,7 +30,6 @@ class PolicyThread(QThread):
 
         self._model = model
         self._signals = ThreadSignals()
-        self._max_len = 50
         self._train = False 
         self._done = False
 

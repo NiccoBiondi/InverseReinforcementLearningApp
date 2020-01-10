@@ -25,10 +25,10 @@ def count_reward(grid, matrix):
 
     for i in range(len(grid)):
         x, y = np.where(grid[i] == 10)
-        if (x >= x_old or y >= y_old) and (matrix[x, y] != 0):
-            reward += matrix[x, y]
-            x_old = x
-            y_old = y
+        if (not x[0] < x_old) and (not y[0] < y_old) and (not matrix[x, y][0] == 0):
+            reward += matrix[x, y][0]
+            x_old = x[0]
+            y_old = y[0]
         else:
             reward = 0
             break
