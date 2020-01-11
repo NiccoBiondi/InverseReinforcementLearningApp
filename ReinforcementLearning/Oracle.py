@@ -134,13 +134,13 @@ class Oracle:
         if (count_1 == 4 and reward_1 >= 5) and (count_2 == 4 and reward_2 >= 5):
             preference = [0.5, 0.5]
         
-        elif count_1 == 4 and reward_1 >= 5 and preference == None and preference == [0,0]:
+        elif count_1 == 4 and reward_1 >= 5 and (preference == None or preference == [0,0]):
             preference = [1, 0]
         
         elif count_1 == 4 and reward_1 >= 5 and preference != None:
             preference = [0.5, 0.5]
 
-        elif count_2 == 4 and reward_2 >= 5 and preference == None and preference == [0,0]:
+        elif count_2 == 4 and reward_2 >= 5 and (preference == None or preference == [0,0]):
             preference = [0, 1]
 
         elif count_2 == 4 and reward_2 >= 5 and preference != None:
