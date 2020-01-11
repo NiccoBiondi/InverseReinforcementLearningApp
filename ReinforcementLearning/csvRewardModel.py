@@ -71,7 +71,7 @@ class csvRewardModel(nn.Module):
             
         loss.backward() 
     
-        nn.utils.clip_grad_norm(reward_model.parameters(), 5)
+        # nn.utils.clip_grad_norm_(reward_model.parameters(), 5)
         optimizer.step()
 
         #reward_model.eval()
