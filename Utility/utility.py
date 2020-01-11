@@ -233,9 +233,8 @@ def load_annotation_buffer(load_path):
                 clip_2.append(np.reshape(img_2, shape))
 
             annotation_buffer.append([clip_1, clip_2, pref])
-    
-    else:
 
+    if iteration == None:
         iteration = 0
     
     return annotation_buffer, iteration

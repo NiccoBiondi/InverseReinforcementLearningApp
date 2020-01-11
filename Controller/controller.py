@@ -105,11 +105,8 @@ class Controller(QObject):
                     self._model.grid_wrapper = FullyObsWrapper(env)
                     self._model.oracle = Oracle(self._model.grid_wrapper, env)
                     self._model.env.reset() 
-                    self._model.clips_database = self._model.clips_database + self._model.model_parameters['minigrid_env']
-                    self._model.history_database = self._model.history_database + self._model.model_parameters['minigrid_env']
                     self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = float(self._model.model_parameters['lr']))
                     self._model.optimizer_r = torch.optim.Adam(params=self._model.reward_model.parameters(), lr = float(self._model.model_parameters['lr']), weight_decay=0.01)
-                    self._model.weigth_path = self._model.weigth_path + self._model.model_parameters['minigrid_env']
                     
                 if [path for path in os.listdir(fileName) if 'annotation_buffer' in path]:
                     self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0])
@@ -118,6 +115,17 @@ class Controller(QObject):
                 if len([path for path in os.listdir(fileName) if 'csv_reward_weight' in path]) == 0  and 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) :
                     self._model.reward_model.load_state_dict(torch.load( self._model.weigth_path + '/csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' ))
 
+                if not (self._model.model_parameters['minigrid_env'] in self._model.clips_database):
+
+                    self._model.clips_database = self._model.clips_database + self._model.model_parameters['minigrid_env']
+                    self._model.history_database = self._model.history_database + self._model.model_parameters['minigrid_env']
+                    self._model.weigth_path = self._model.weigth_path + self._model.model_parameters['minigrid_env']
+
+                else:
+
+                    self._model.clips_database = DIR_NAME + '/Clips_Database/' + self._model.model_parameters['minigrid_env'] 
+                    self._model.history_database = DIR_NAME + '/History_Database/' + self._model.model_parameters['minigrid_env'] 
+                    self._model.weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight/' + self._model.model_parameters['minigrid_env']
                 
                 # Create the auto_save path. If the load path used to restore the previous work is the same of
                 # the autosave_path variable, the folder is not reset.
@@ -205,6 +213,7 @@ class Controller(QObject):
         # Define the number of clips to annotate
         clips_number = int( ( ( len(os.listdir(self._model.clips_database)) + len(os.listdir(self._model.history_database)) ) * ( int( self._model.model_parameters['n_annotation'] ) / 100  ) )  / 2 )
 
+        print(self._model.ann_point)
         for i in range(self._model.ann_point, clips_number):
 
             self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database)
