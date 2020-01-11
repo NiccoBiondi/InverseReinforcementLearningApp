@@ -1,19 +1,18 @@
 import numpy as np 
 import os, sys
 import seaborn as sns
-
-import gym
-import gym_minigrid
-
-import torch
-
-from ReinforcementLearning.csvRewardModel import csvRewardModel
-from ReinforcementLearning.wrapper import FullyObsWrapper
-
 import matplotlib.pyplot as plt
 import curses
 import time
 from optparse import OptionParser
+
+import gym
+import gym_minigrid
+import torch
+
+sys.path.insert(1, os.path.dirname(os.path.abspath('__file__')))
+from ReinforcementLearning.csvRewardModel import csvRewardModel
+from ReinforcementLearning.wrapper import FullyObsWrapper
 
 
 KEY_NUMBER = {
