@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'ReplayClipsWindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_ReplayClipsWindow(object):
     def setupUi(self, ReplayClipsWindow):
@@ -25,4 +27,3 @@ class Ui_ReplayClipsWindow(object):
         _translate = QtCore.QCoreApplication.translate
         ReplayClipsWindow.setWindowTitle(_translate("ReplayClipsWindow", "Replay Clips Window"))
         self.startReplay.setText(_translate("ReplayClipsWindow", "PushButton"))
-

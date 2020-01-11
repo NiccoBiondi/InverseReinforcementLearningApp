@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'AnnotationHistory.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_historyWindow(object):
     def setupUi(self, historyWindow):
@@ -41,4 +43,3 @@ class Ui_historyWindow(object):
         self.annotationList.headerItem().setText(2, _translate("historyWindow", "Clip 1"))
         self.annotationList.headerItem().setText(3, _translate("historyWindow", "Clip 2"))
         self.annotationList.headerItem().setText(4, _translate("historyWindow", "Preferencies"))
-
