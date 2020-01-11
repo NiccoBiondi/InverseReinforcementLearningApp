@@ -245,15 +245,14 @@ class Controller(QObject):
                 except Exception as e:
                     print(e)
                     self._model.annotation_buffer = self._model.annotation_buffer[:-1]
-                    save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, i)
-                    save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, i)
+                    save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
                     sys.exit()
 
                 self._model.preferences = None
                 gc.collect()
 
             self._model.ann_point = self._model.ann_point + 1
-            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, i)
+            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
 
         self._model.logBarDxSignal.emit('Annotation phase finished')   
 

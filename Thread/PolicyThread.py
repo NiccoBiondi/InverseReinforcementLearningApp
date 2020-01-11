@@ -83,8 +83,9 @@ class PolicyThread(QThread):
                 print("Train policy loss: {:.3f}".format((sum(l)/len(l))))
             
             self._model.iteration += 1
+            print(self._model.iteration)
             gc.collect()
-        
+            
         self._model.logBarSxSignal.emit('Training of policy finished')
 
         # When the policy makes all episodes save the weight and model parameters
