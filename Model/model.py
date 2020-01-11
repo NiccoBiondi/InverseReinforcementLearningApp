@@ -380,7 +380,7 @@ class Model(QObject):
         # is created a folder where inside there are all the reward model weight 
         # created for that environment. Then is set the reward model weight looking to the
         # learning rate and the K hyperparameters.
-        if not (self._model.model_parameters['minigrid_env'] in self._model.clips_database):
+        if not (self._model_parameters['minigrid_env'] in self._clips_database):
 
             self._clips_database = self._clips_database + self._model_parameters['minigrid_env']
             self._history_database = self._history_database + self._model_parameters['minigrid_env']
