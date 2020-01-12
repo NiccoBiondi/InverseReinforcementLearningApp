@@ -29,23 +29,27 @@ class Display(QLabel):
     # Simple function t upload the displayed image
     @pyqtSlot()
     def update_display(self):
-        
-        if not self._model.oracle_active:
 
-            if self._count != len(self._displayImage):
-                image = cv2.cvtColor(np.array(self._displayImage[self._count]), cv2.COLOR_RGB2BGR)
-                h, w, ch = image.shape
-                bytesPerLine = ch * w
-                convertToQtFormat = QImage(image, w, h, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
-                self.setPixmap(QPixmap.fromImage(convertToQtFormat))
-                self._count += 1
-            else:
-                self._count = 0
-                self._timer.stop()
-                self._model.choiceButton = True
+        if len(self._displayImage) == 0:
+            self._timer.stop()
 
         else:
-            self._model.oracle_timer.start()
+            if not self._model.oracle_active:
+
+                if self._count != len(self._displayImage) :
+                    image = cv2.cvtColor(np.array(self._displayImage[self._count]), cv2.COLOR_RGB2BGR)
+                    h, w, ch = image.shape
+                    bytesPerLine = ch * w
+                    convertToQtFormat = QImage(image, w, h, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
+                    self.setPixmap(QPixmap.fromImage(convertToQtFormat))
+                    self._count += 1
+                else:
+                    self._count = 0
+                    self._timer.stop()
+                    self._model.choiceButton = True
+
+            else:
+                self._model.oracle_timer.start()
 
     # Funtion to upload the displayImage variable
     @pyqtSlot(list)
