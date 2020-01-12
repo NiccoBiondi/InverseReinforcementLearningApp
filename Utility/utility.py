@@ -1,5 +1,6 @@
 import csv
 import cv2
+import sys
 import os 
 import re
 import time
@@ -164,16 +165,22 @@ def save_model_parameters(path, model_parameters, iteration):
 # Function to save annotation buffer. It is used to restart annotation
 #  and reload what the user do in previous work.
 def save_annotation(save_path, annotation_buffer, iteration):
+    triple_number = 0
+    path = ''
 
-    current_time = time.strftime("%H:%M", time.localtime())
-    if [save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el]:
-        shutil.rmtree([save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el][0])
-
-    if not os.path.exists(save_path + '/annotation_buffer_' + current_time):
-            os.makedirs(save_path + '/annotation_buffer_' + current_time)
+    if not [save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el]:
+        current_time = time.strftime("%H:%M", time.localtime())
+        os.makedirs(save_path + '/annotation_buffer_' + current_time)
+        path = save_path + '/annotation_buffer_' + current_time
+    
+    else:
+        path =  [save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el][0]
+        triple = os.listdir([save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el][0])
+        triple_number = [int(re.findall('\d+', t)[0]) for t in triple]
+        triple_number = max(triple_number) + 1
 
     for i, triple in enumerate(annotation_buffer):
-        with open(save_path + '/annotation_buffer_' + current_time + '/triple_' + str(i) + '.csv', 'w') as csvfile:
+        with open(path + '/triple_' + str(triple_number) + '.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
 
             # In a triple.csv file in each row is set a first clip stete,
@@ -181,6 +188,10 @@ def save_annotation(save_path, annotation_buffer, iteration):
             # arrived and the clip in the folder that are annoted. 
             for idx, clip in enumerate(triple[0]):
                 filewriter.writerow([clip, triple[1][idx], triple[2], iteration])
+
+        triple_number += 1
+
+
 
 
 # Simple function to convert str matrix or list in integer matrix or list
@@ -212,10 +223,10 @@ def load_annotation_buffer(load_path):
 
     shape = (7, 7, 3)
     annotation_buffer = []
-    iteration = None
+    iteration = []
     
     if len(os.listdir(load_path)) > 0:
-
+        
         for triple in os.listdir(load_path):
             data_df = pd.read_csv(load_path + triple , error_bad_lines=False, names=["clip_1", "clip_2", "pref", "iteration"])
 
@@ -223,9 +234,8 @@ def load_annotation_buffer(load_path):
             clip_2 = []
             pref = [int(x) for x in re.findall('\d+', data_df['pref'][0])]
 
-            if iteration == None:
-                iteration = int(data_df["iteration"][0])
-        
+            iteration.append(data_df["iteration"].values[0])
+
             for idx, element in enumerate(data_df["clip_1"].values):
                 img_1 = convert_string(element)
                 img_2 = convert_string(data_df["clip_1"].values[idx])
@@ -234,8 +244,10 @@ def load_annotation_buffer(load_path):
 
             annotation_buffer.append([clip_1, clip_2, pref])
 
-    if iteration == None:
+    if iteration == []:
         iteration = 0
+    else:
+        iteration = max(iteration)
     
     return annotation_buffer, iteration
         

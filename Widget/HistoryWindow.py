@@ -43,6 +43,7 @@ class HistoryWindow(QDialog):
 
         # Connect window to principal model update
         model.setClipsHistorySignal.connect(self.add_annotation)
+        model.clearHistoryListSignal.connect(lambda : self.ui.annotationList.clear())
 
         # Connect qtree list to update of key-value hash element
         self.ui.annotationList.itemChanged.connect(self._controller.upload_selected_element)

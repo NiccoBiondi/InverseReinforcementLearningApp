@@ -26,6 +26,7 @@ class Model(QObject):
     preferenceChangedSignal = pyqtSignal()
     processButtonVisiblitySignal = pyqtSignal()
     resetHistoryWindowSignal = pyqtSignal()
+    clearHistoryListSignal = pyqtSignal()
     choiceButtonVisiblitySignal = pyqtSignal(bool)
     updateDisplaySxImageSignal = pyqtSignal(list)
     updateDisplayDxImageSignal = pyqtSignal(list)
@@ -72,7 +73,6 @@ class Model(QObject):
         self._annotator = Annotator()      # Utility class to reload the csv and the image which represent clips to annotate.
         self._model_parameters = {}        # Define model initial parameters like learning rate, environment name, trajectory length etc.
         self._preferences = None           # Utility function used to take the preferences of the user during annotation
-        self._start_ann_disp = 0           # Variable used only for graphic aim : take updated the history window 'List pos' column in correct way
 
         # Define variable used to the annotation phase.
         self._clips = []       # Contain clips to annotate
@@ -116,10 +116,6 @@ class Model(QObject):
     @property
     def grid_wrapper(self):
         return self._grid_wrapper
-
-    @property
-    def start_ann_disp(self):
-        return self._start_ann_disp
 
     @property
     def annotator(self):
@@ -261,10 +257,6 @@ class Model(QObject):
     def weigth_path(self, path):
         self._weigth_path = path
 
-    @start_ann_disp.setter
-    def start_ann_disp(self, slot):
-        self._start_ann_disp = slot
-
     @optimizer_p.setter
     def optimizer_p(self, slot):
         self._optimizer_p = slot
@@ -292,6 +284,8 @@ class Model(QObject):
     @annotation_buffer.setter
     def annotation_buffer(self, slot):
         self._annotation_buffer = slot
+        if len(self._annotation_buffer) == 0:
+            self.clearHistoryListSignal.emit()
 
     @auto_save_folder.setter
     def auto_save_folder(self, path):
