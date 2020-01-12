@@ -276,5 +276,8 @@ class Controller(QObject):
             save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
             self._model.annotation_buffer, _  = load_annotation_buffer(self._model.auto_save_folder + [ '/' + path + '/' for path in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in path][0])
 
+        self._model.display_imageSx = []
+        self._model.display_imageDx = []
+        
         self._reward_t.start()         
         
