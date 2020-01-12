@@ -359,7 +359,7 @@ class Model(QObject):
         env = gym.make(self._model_parameters['minigrid_env'])
         self._env = RGBImgObsWrapper(env)
         self._grid_wrapper = FullyObsWrapper(env)
-        self._oracle = Oracle(self._grid_wrapper, env)
+        self._oracle = Oracle(self._grid_wrapper, env, self)
         self._env.reset()
 
         # Create the auto save folder for a specific minigrifd env. If this folder still exists, then i delete it.

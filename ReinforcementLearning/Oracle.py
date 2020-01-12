@@ -94,9 +94,13 @@ def createOracleMatrix(wrapper, env):
     return oracle_rewards
 
 class Oracle:
-    def __init__(self, wrapper, env):
+    def __init__(self, wrapper, env, model):
         
+        # Define matrix oracle reward
         self._matrix = createOracleMatrix(wrapper, env)
+        
+        # Take a log bar singnal to print the oracle preferecies
+        self._model = model
 
 
     def takeReward(self, data_path, clip_1, clip_2, env):
@@ -115,9 +119,6 @@ class Oracle:
         reward_1 = count_reward(states_1, self._matrix)
         reward_2 = count_reward(states_2, self._matrix)
         preference = None
-
-        print(count_1, count_2, 'count')
-        print(reward_1, reward_2, 'reward')
 
         # In the two clips the agent mooves at least twice
         if count_1 <= 3 and count_2 <= 3:
@@ -149,6 +150,16 @@ class Oracle:
         if preference == None: 
             preference = [0, 0]
 
-        print(preference, 'pref')
+        if preference == [1, 0]:
+            self._model.logBarDxSignal.emit('Oracle decision : prefer right clip')
+
+        elif preference == [0, 1]:
+            self._model.logBarDxSignal.emit('Oracle decision : prefer left clip')
+
+        elif preference == [0.5, 0.5]:
+            self._model.logBarDxSignal.emit('Oracle decision : prefer both clips')
+
+        else:
+            self._model.logBarDxSignal.emit('Oracle decision : discard clips')
 
         return preference

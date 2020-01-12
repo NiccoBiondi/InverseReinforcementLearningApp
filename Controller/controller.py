@@ -103,7 +103,7 @@ class Controller(QObject):
                     env = gym.make(self._model.model_parameters['minigrid_env'])
                     self._model.env = RGBImgObsWrapper(env)
                     self._model.grid_wrapper = FullyObsWrapper(env)
-                    self._model.oracle = Oracle(self._model.grid_wrapper, env)
+                    self._model.oracle = Oracle(self._model.grid_wrapper, env, self._model)
                     self._model.env.reset() 
                     self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = float(self._model.model_parameters['lr']))
                     self._model.optimizer_r = torch.optim.Adam(params=self._model.reward_model.parameters(), lr = float(self._model.model_parameters['lr']), weight_decay=0.01)
@@ -216,7 +216,7 @@ class Controller(QObject):
         for i in range(self._model.ann_point, clips_number):
 
             self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database)
-            self._model.logBarDxSignal.emit( 'Annotation: ' + str(i) + '/' + str(clips_number) )
+            self._model.logBarSxSignal.emit( 'Annotation: ' + str(i) + '/' + str(clips_number) )
             
             while(len(self._model.disp_figure) > 0):
                 
@@ -260,7 +260,8 @@ class Controller(QObject):
                 gc.collect()
 
             self._model.ann_point = self._model.ann_point + 1
-            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
+            if i > 0 and i % 80 == 0:
+                save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
 
         self._model.logBarDxSignal.emit('Annotation phase finished')   
 
