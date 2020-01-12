@@ -49,7 +49,8 @@ class Controller(QObject):
     # like the oracle predict..(frase a caso)
     def setOraclePreferencies(self):
         self._model.oracle_timer.stop()
-        self._model.preferences = self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
+        if len(self._model.clips) > 0:
+            self._model.preferences = self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
         
     # This function connect the SetupDialog model with main model.
     # Transfer the parameters setted in setup  window.
