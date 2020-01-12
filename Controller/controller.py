@@ -111,8 +111,13 @@ class Controller(QObject):
                     
                 if [path for path in os.listdir(fileName) if 'annotation_buffer' in path]:
                     self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0])
+
                     if self._model.ann_point % 80 == 0:
                         self._model.annotation_buffer = []
+
+                    elif len(self._model.annotation_buffer) > 80:
+                        idx = (int(len(self._model.annotation_buffer) / 80) * 80) + 2
+                        self._model.annotation_buffer = self._model.annotation_buffer[idx:]
 
                 if len([path for path in os.listdir(fileName) if 'csv_reward_weight' in path]) == 0  and 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) :
                     self._model.reward_model.load_state_dict(torch.load( self._model.weigth_path + '/csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' ))
@@ -214,6 +219,7 @@ class Controller(QObject):
 
         # Define the number of clips to annotate
         clips_number = int( ( ( len(os.listdir(self._model.clips_database)) + len(os.listdir(self._model.history_database)) ) * ( int( self._model.model_parameters['n_annotation'] ) / 100  ) )  / 2 )
+        start_point = 0 if len(self._model.annotation_buffer) == 0 else len(self._model.annotation_buffer) - 1
 
         for i in range(self._model.ann_point, clips_number):
 
@@ -255,15 +261,16 @@ class Controller(QObject):
                 except Exception as e:
                     print(e)
                     self._model.annotation_buffer = self._model.annotation_buffer[:-1]
-                    save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
+                    save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, start_point)
                     sys.exit()
 
                 self._model.preferences = None
                 gc.collect()
 
             if self._model.ann_point > 0 and self._model.ann_point % 80 == 0:
-                save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
+                save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, start_point)
                 self._model.annotation_buffer = []
+                start_point = 0
 
             self._model.ann_point = self._model.ann_point + 1
 
@@ -278,6 +285,6 @@ class Controller(QObject):
 
         self._model.display_imageSx = []
         self._model.display_imageDx = []
-        
+
         self._reward_t.start()         
         

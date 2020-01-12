@@ -164,7 +164,7 @@ def save_model_parameters(path, model_parameters, iteration):
 
 # Function to save annotation buffer. It is used to restart annotation
 #  and reload what the user do in previous work.
-def save_annotation(save_path, annotation_buffer, iteration):
+def save_annotation(save_path, annotation_buffer, iteration, start_point):
     triple_number = 0
     path = ''
 
@@ -179,6 +179,7 @@ def save_annotation(save_path, annotation_buffer, iteration):
         triple_number = [int(re.findall('\d+', t)[0]) for t in triple]
         triple_number = max(triple_number) + 1
 
+    annotation_buffer = annotation_buffer[start_point:]
     for i, triple in enumerate(annotation_buffer):
         with open(path + '/triple_' + str(triple_number) + '.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
