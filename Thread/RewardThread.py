@@ -50,6 +50,8 @@ class RewardThread(QThread):
         self._model.clip_point = 0
         self._model.annotation_buffer = []
         self._model._annotation = None
+        self._model._display_imageDx = []
+        self._model._display_imageSx = []
         self._model.resetHistoryWindowSignal.emit()
 
         # Reset all folders used for the entire process
