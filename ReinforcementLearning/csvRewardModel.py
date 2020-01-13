@@ -1,15 +1,10 @@
 import os
 import time
-import numpy as np
+import psutil
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
-import torch.autograd as autograd
-import cv2
-
-from PyQt5.QtWidgets import QApplication
 
 # Utility function. The MiniGrid gym environment uses 3 channels as
 # state, but for this we only use the first channel: represents all
@@ -21,25 +16,22 @@ def state_filter(state):
 # Simple class to calculate states rewards. It takes a clip, collection of states, and process them
 # giving back a list of reward, of for each state.
 class csvRewardModel(nn.Module):
-    def __init__(self, obs_size, inner_size):
-        super(csvRewardModel, self).__init__()
-
+    def __init__(self, obs_size, inner_size, **kwargs):
+        super(csvRewardModel, self).__init__(**kwargs)
         self.affine1 = nn.Linear(obs_size, inner_size)
         self.affine2 = nn.Linear(inner_size, 1)
 
-        self.clips_loss = []
-
     def forward(self, clip):
-        rewads = []
+        rewards = []
 
         # (batch, dim_ch, width, height)
         for obs in clip:
 
             x_1 = state_filter(obs).cuda().view(-1, 7*7)
             x_1 = F.relu(self.affine1(x_1))
-            rewads.append(self.affine2(x_1))
+            rewards.append(self.affine2(x_1))
         
-        return rewads
+        return rewards
 
     # The primary function. It takes the annotation buffer and process the triples.
     # A triple is a list composed by [first clip, second clip, preferency]. Thre preferency
@@ -70,7 +62,7 @@ class csvRewardModel(nn.Module):
             loss -= ( (element[2][0] * torch.log(element[0])) + (element[2][1] * torch.log(element[1])) )
             
         loss.backward() 
-    
+
         # nn.utils.clip_grad_norm_(reward_model.parameters(), 5)
         optimizer.step()
 
