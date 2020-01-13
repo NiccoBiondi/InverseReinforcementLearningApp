@@ -80,7 +80,6 @@ class PolicyThread(QThread):
             if self._train:
                 s = [obs['obs'] for obs in states]
                 reward = self._model.reward_model(s)
-
             self._model.iteration += 1
             gc.collect()
             
