@@ -1,15 +1,9 @@
 import os
 import time
-import numpy as np
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
-import torch.autograd as autograd
-import cv2
-
-from PyQt5.QtWidgets import QApplication
 
 # Utility function. The MiniGrid gym environment uses 3 channels as
 # state, but for this we only use the first channel: represents all
@@ -21,13 +15,10 @@ def state_filter(state):
 # Simple class to calculate states rewards. It takes a clip, collection of states, and process them
 # giving back a list of reward, of for each state.
 class csvRewardModel(nn.Module):
-    def __init__(self, obs_size, inner_size):
-        super(csvRewardModel, self).__init__()
-
+    def __init__(self, obs_size, inner_size, **kwargs):
+        super(csvRewardModel, self).__init__(**kwargs)
         self.affine1 = nn.Linear(obs_size, inner_size)
         self.affine2 = nn.Linear(inner_size, 1)
-
-        self.clips_loss = []
 
     def forward(self, clip):
         rewads = []
