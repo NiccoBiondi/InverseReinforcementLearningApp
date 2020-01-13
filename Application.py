@@ -1,7 +1,6 @@
 import os 
 import sys
 
-
 from View.MainWindow import MainWindow
 
 from Controller.controller import Controller

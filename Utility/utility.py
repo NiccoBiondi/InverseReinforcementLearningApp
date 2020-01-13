@@ -193,8 +193,6 @@ def save_annotation(save_path, annotation_buffer, iteration, start_point):
         triple_number += 1
 
 
-
-
 # Simple function to convert str matrix or list in integer matrix or list
 def convert_string(image):
     num = []
@@ -220,7 +218,10 @@ def load_values(path):
     return values, int(data_df["iteration"].values[0])
 
 # Function to load the previous annotation made in previous work
-def load_annotation_buffer(load_path):
+def load_annotation_buffer(load_path, annotation_path=None):
+
+    if load_path != annotation_path and annotation_path != None:
+        shutil.copytree(load_path, annotation_path)
 
     shape = (7, 7, 3)
     annotation_buffer = []
@@ -229,6 +230,7 @@ def load_annotation_buffer(load_path):
     if len(os.listdir(load_path)) > 0:
         
         for triple in os.listdir(load_path):
+
             data_df = pd.read_csv(load_path + triple , error_bad_lines=False, names=["clip_1", "clip_2", "pref", "iteration"])
 
             clip_1 = []
@@ -236,7 +238,7 @@ def load_annotation_buffer(load_path):
             pref = [int(x) for x in re.findall('\d+', data_df['pref'][0])]
 
             iteration.append(data_df["iteration"].values[0])
-
+            
             for idx, element in enumerate(data_df["clip_1"].values):
                 img_1 = convert_string(element)
                 img_2 = convert_string(data_df["clip_1"].values[idx])
@@ -244,7 +246,7 @@ def load_annotation_buffer(load_path):
                 clip_2.append(np.reshape(img_2, shape))
 
             annotation_buffer.append([clip_1, clip_2, pref])
-
+    
     if iteration == []:
         iteration = 0
     else:

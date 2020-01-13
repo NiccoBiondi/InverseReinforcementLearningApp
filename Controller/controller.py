@@ -8,6 +8,7 @@ import torch
 import time
 import shutil
 from datetime import date
+import psutil
 
 from View.AlgView import AlgView
 
@@ -91,7 +92,7 @@ class Controller(QObject):
 
         if fileName:
             if fileName != self._model.load_path:
-                
+
                 if [path for path in os.listdir(fileName) if 'csv_reward_weight' in path]:
                     self._model.reward_model.load_state_dict(torch.load( fileName + [ '/' + path for path in os.listdir(fileName) if 'csv_reward_weight' in path][0] ))
 
@@ -108,9 +109,22 @@ class Controller(QObject):
                     self._model.env.reset() 
                     self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = float(self._model.model_parameters['lr']))
                     self._model.optimizer_r = torch.optim.Adam(params=self._model.reward_model.parameters(), lr = float(self._model.model_parameters['lr']), weight_decay=0.01)
+
+                # Create the auto_save path. If the load path used to restore the previous work is the same of
+                # the autosave_path variable, the folder is not reset.
+                # Create the auto save folder for a specific minigrifd env. If this folder still exists, then i delete it.
+                self._model.auto_save_folder = self._model.auto_save_folder + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
+                
+                if not os.path.exists(self._model.auto_save_folder):
+                    os.makedirs(self._model.auto_save_folder)
                     
+                elif self._model.auto_save_folder != fileName:
+                    shutil.rmtree(self._model.auto_save_folder)
+                    os.makedirs(self._model.auto_save_folder)
+
                 if [path for path in os.listdir(fileName) if 'annotation_buffer' in path]:
-                    self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0])
+                    current_time = time.strftime("%H:%M", time.localtime())
+                    self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0], self._model.auto_save_folder + '/annotation_buffer_' + current_time + '/')
 
                     if self._model.ann_point % 80 == 0:
                         self._model.annotation_buffer = []
@@ -133,18 +147,6 @@ class Controller(QObject):
                     self._model.clips_database = DIR_NAME + '/Clips_Database/' + self._model.model_parameters['minigrid_env'] 
                     self._model.history_database = DIR_NAME + '/History_Database/' + self._model.model_parameters['minigrid_env'] 
                     self._model.weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight/' + self._model.model_parameters['minigrid_env']
-                
-                # Create the auto_save path. If the load path used to restore the previous work is the same of
-                # the autosave_path variable, the folder is not reset.
-                # Create the auto save folder for a specific minigrifd env. If this folder still exists, then i delete it.
-                self._model.auto_save_folder = self._model.auto_save_folder + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
-                
-                if not os.path.exists(self._model.auto_save_folder):
-                    os.mkdir(self._model.auto_save_folder)
-                    
-                elif self._model.auto_save_folder != fileName:
-                    shutil.rmtree(self._model.auto_save_folder)
-                    os.mkdir(self._model.auto_save_folder)
                 
                 self._model.load_path = fileName
                 
@@ -225,14 +227,13 @@ class Controller(QObject):
 
             self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database)
             self._model.logBarSxSignal.emit( 'Annotation: ' + str(i) + '/' + str(clips_number) )
-            
+
             while(len(self._model.disp_figure) > 0):
                 
                 self._model.display_imageLen = len(self._model.disp_figure[0])
                 self._model.display_imageSx = self._model.disp_figure.pop(0)
                 self._model.display_imageDx = self._model.disp_figure.pop(0)
-
-
+                
                 self.wait_signal()
                 self._model.choiceButton = False
                 

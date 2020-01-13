@@ -15,7 +15,7 @@ class Display(QLabel):
 
         # Deifine variable to display clips
         self._count = 0
-        self._displayImage = []
+        self._displayImage = None
 
         # Define timer and connect it to display function
         self._timer = timer
@@ -54,8 +54,11 @@ class Display(QLabel):
     # Funtion to upload the displayImage variable
     @pyqtSlot(list)
     def updateDisplayImage(self, image):
+        if self._displayImage != None:
+            del self._displayImage
         self._displayImage = image
         self._displayImage.insert(0, Image.new('RGB', (800, 800), color=(255, 255, 255)))
+        
         
 
 

@@ -1,6 +1,7 @@
 import os
 import sys
 import cv2
+from time import time 
 from PIL import Image
 import matplotlib.pyplot as plt
 
@@ -21,10 +22,8 @@ class ReplayClipsWindow(QDialog):
         self._model = ReplayClipsWindowModel(path)
         self._controller = ReplayClipsWindowController(self._model) 
 
-
         # Define 
         self._display = Display(self._model.timer, self._model, self._model.replayModelImageSignal)
-
 
         self.ui = Ui_ReplayClipsWindow()
         self.ui.setupUi(self)
@@ -58,13 +57,6 @@ class ReplayClipsWindowModel(QObject):
         self._timer.setInterval(400)
         self._path = path
 
-        # Define variable for diplay clips
-        self._display_image = self.load_image()
-
-    @property
-    def display_image(self):
-        return self._display_image
-    
     @property
     def timer(self):
         return self._timer
@@ -78,7 +70,6 @@ class ReplayClipsWindowModel(QObject):
         self._choiceButton = slot
         self.changeVisibilityButton.emit(slot)
 
-    
     def load_image(self):
         images = []
         for img in sorted(os.listdir(self._path)):
@@ -97,8 +88,9 @@ class ReplayClipsWindowController(QObject):
 
     @pyqtSlot()
     def display_figure(self):
-        self._model.replayModelImageSignal.emit(self._model.display_image)
+        
+        self._model.replayModelImageSignal.emit(self._model.load_image())
         self._model.choiceButton = False
-        for i in range(len(self._model.display_image)):
+        for i in range(5):
             self._model.timer.start()
         

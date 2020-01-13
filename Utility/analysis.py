@@ -104,7 +104,7 @@ def main():
     obs_size = 7*7
 
     reward_model = csvRewardModel(obs_size, inner_size)
-    reward_model.load_state_dict( torch.load('/home/bazza/Scrivania/RL/InverseReinforcementLearningApp/SAVE_FOLDER/MiniGrid-Empty-6x6-v0_(12-01-2020)/csv_reward_weight_lr0.001_k100_18:58.pth') )
+    reward_model.load_state_dict( torch.load('ReinforcementLearning/reward_model_init_weight/MiniGrid-Empty-6x6-v0/csv_reward_weight_lr0.001_k100.pth') )
 
     reward_model.cuda()
 
@@ -146,7 +146,7 @@ def main():
             states.append([x_ag[0],y_ag[0]])
             reward = reward_model([obs['image']])
 
-            print('step=%s, reward=%.2f' % (env.step_count, reward[0]))
+            print('step=%s, reward=%.6f' % (env.step_count, reward[0]))
 
             rewards[x_ag[0], y_ag[0]] += reward[0]
             counts[x_ag[0], y_ag[0]] += 1

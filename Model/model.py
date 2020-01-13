@@ -84,7 +84,7 @@ class Model(QObject):
         self._inner_size = 64   # Number of neurons in two hidden layers.
         self._reward_batch = 16 # Reward model batch size
 
-        self._env = None           
+        self._env = None
         self._reward_model = csvRewardModel(obs_size = self._obs_size, inner_size = self._inner_size).cuda()
         self._policy = Policy(obs_size = self._obs_size, act_size = self._act_size, inner_size = self._inner_size).cuda()
         self._optimizer_p = None
@@ -375,13 +375,11 @@ class Model(QObject):
         # created for that environment. Then is set the reward model weight looking to the
         # learning rate and the K hyperparameters.
         if not (self._model_parameters['minigrid_env'] in self._clips_database):
-
             self._clips_database = self._clips_database + self._model_parameters['minigrid_env']
             self._history_database = self._history_database + self._model_parameters['minigrid_env']
             self._weigth_path = self._weigth_path + self._model_parameters['minigrid_env']
 
         else:
-
             self._clips_database = DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env'] 
             self._history_database = DIR_NAME + '/History_Database/' + self._model_parameters['minigrid_env'] 
             self._weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight/' + self._model_parameters['minigrid_env']
@@ -396,10 +394,11 @@ class Model(QObject):
 
         
         # When a model is initialized I control if a previous reward model
-        # weight is saved in reward_model_init_weight folder. So in the first moment 
-        # is created a folder where inside there are all the reward model weight 
-        # created for that environment. Then is set the reward model weight looking to the
-        # learning rate and the K hyperparameters.
+        # weight is saved in reward_model_init_weight folder. So firstly
+        # a folder is created with all the reward model weight for that environment.
+        # Then the reward model weights are loaded checking if there exist weights 
+        # with same learning rate and K mini-batch values.
+        
         if not os.path.exists(self._weigth_path):
             os.makedirs(self._weigth_path)
         

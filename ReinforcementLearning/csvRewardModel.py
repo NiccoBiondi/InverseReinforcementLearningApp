@@ -21,16 +21,16 @@ class csvRewardModel(nn.Module):
         self.affine2 = nn.Linear(inner_size, 1)
 
     def forward(self, clip):
-        rewads = []
+        rewards = []
 
         # (batch, dim_ch, width, height)
         for obs in clip:
 
             x_1 = state_filter(obs).cuda().view(-1, 7*7)
             x_1 = F.relu(self.affine1(x_1))
-            rewads.append(self.affine2(x_1))
+            rewards.append(self.affine2(x_1))
         
-        return rewads
+        return rewards
 
     # The primary function. It takes the annotation buffer and process the triples.
     # A triple is a list composed by [first clip, second clip, preferency]. Thre preferency
@@ -61,7 +61,7 @@ class csvRewardModel(nn.Module):
             loss -= ( (element[2][0] * torch.log(element[0])) + (element[2][1] * torch.log(element[1])) )
             
         loss.backward() 
-    
+
         # nn.utils.clip_grad_norm_(reward_model.parameters(), 5)
         optimizer.step()
 

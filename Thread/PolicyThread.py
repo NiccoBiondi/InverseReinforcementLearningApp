@@ -52,6 +52,7 @@ class PolicyThread(QThread):
     def run(self):
 
         clips_generated = []
+        rewards = []
 
         # Check if in weigth_init path there is the reward model weigth. In the positive case, the policy
         # can be trained, else the policy has to create the clips.
@@ -78,10 +79,8 @@ class PolicyThread(QThread):
             # To train the policy are used the rewards computed by the reward model.
             if self._train:
                 s = [obs['obs'] for obs in states]
-                rewards = self._model.reward_model(s)
-                l = Loss(self._model.policy, self._model.optimizer_p, states, actions, rewards)
-                print("Train policy loss: {:.3f}".format((sum(l)/len(l))))
-            
+                reward = self._model.reward_model(s)
+
             self._model.iteration += 1
             gc.collect()
             
