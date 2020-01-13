@@ -225,9 +225,6 @@ class Controller(QObject):
 
         for i in range(self._model.ann_point, clips_number):
 
-            print(psutil.virtual_memory().percent, 'before cicle')          
-            print(torch.cuda.memory_allocated(device=None)) 
-
             self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database)
             self._model.logBarSxSignal.emit( 'Annotation: ' + str(i) + '/' + str(clips_number) )
 
@@ -270,9 +267,6 @@ class Controller(QObject):
 
                 self._model.preferences = None
                 gc.collect()
-
-            print(psutil.virtual_memory().percent, 'after while')          
-            print(torch.cuda.memory_allocated(device=None)) 
 
             if self._model.ann_point > 0 and self._model.ann_point % 80 == 0:
                 save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, start_point)

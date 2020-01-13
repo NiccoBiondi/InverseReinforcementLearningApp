@@ -1,7 +1,7 @@
 import sys
 import os
 import re 
-import shutil, psutil
+import shutil
 import numpy as np
 from datetime import date
 

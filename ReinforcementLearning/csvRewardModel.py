@@ -1,6 +1,5 @@
 import os
 import time
-import psutil
 
 import torch
 import torch.nn as nn
