@@ -17,7 +17,8 @@ class OracleButton(QCheckBox):
             self._model.choiceButton = False
             self._model.oracle_timer.start()
         else:
-            self._model.timer_dx.start()
-            self._model.timer_sx.start()
+            if len(self._model.display_imageDx) > 0:
+                self._model.timer_dx.start()
+                self._model.timer_sx.start()
 
         self._func(self.isChecked())

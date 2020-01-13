@@ -104,7 +104,7 @@ def main():
     obs_size = 7*7
 
     reward_model = csvRewardModel(obs_size, inner_size)
-    reward_model.load_state_dict( torch.load('ReinforcementLearning/reward_model_init_weight/MiniGrid-Empty-6x6-v0/csv_reward_weight_lr0.001_k100.pth') )
+    reward_model.load_state_dict( torch.load('/home/bazza/Scrivania/RL/InverseReinforcementLearningApp/SAVE_FOLDER/MiniGrid-Empty-6x6-v0_(12-01-2020)/csv_reward_weight_lr0.001_k100_15:59.pth') )
 
     reward_model.cuda()
 
