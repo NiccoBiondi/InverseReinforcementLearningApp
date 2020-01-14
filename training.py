@@ -37,8 +37,8 @@ inner_size = 64   # Number of neurons in two hidden layers.
 reward_batch = 16 
 K = 1000
 
-lr_reward = 1e-4
-lr_policy = 1e-4
+lr_reward = 1e-3
+lr_policy = 5e-3
 
 env = gym.make(env_name)
 grid_wrapper = FullyObsWrapper(env)
