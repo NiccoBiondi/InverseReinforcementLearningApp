@@ -21,9 +21,11 @@ def data_loader(annotation_buffer, batch):
 
 # hyperparameters
 
+DIR_NAME = os.path.dirname(os.path.abspath('__file__'))
+
 epochs = 20
 
-save_path = 'zz_saving'
+save_path = DIR_NAME + '/zz_saving'
 clips_database = save_path +'/clips_db'
 weigth_path = save_path +'/weigths'
 episodes = 500
@@ -53,12 +55,14 @@ rewards = []
 
 trainable = False
 
+
 # MAIN LOOP 
 
 for epoch in range(epochs):
 
     shutil.rmtree(clips_database)
     os.makedirs(clips_database)
+    os.makedirs(weigth_path)
 
     # POLICY
 
