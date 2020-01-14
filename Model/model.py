@@ -356,33 +356,22 @@ class Model(QObject):
         self._oracle = Oracle(self._grid_wrapper, env, self)
         self._env.reset()
 
-        # Create the auto save folder for a specific minigrifd env. If this folder still exists, then i delete it.
-        self._auto_save_folder = self._auto_save_folder + self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
-
-        if not os.path.exists(self._auto_save_folder):
-            os.makedirs(self._auto_save_folder)
-        else:
-            shutil.rmtree(self._auto_save_folder)
-            os.makedirs(self._auto_save_folder)
-
         # Use the Adam optimizer.
         self._optimizer_p = torch.optim.Adam(params=self._policy.parameters(), lr = 1e-4)
         self._optimizer_r = torch.optim.Adam(params=self._reward_model.parameters(), lr = float(self._model_parameters['lr']), weight_decay=0.01)
         
         # When a model is initialized I control if a previous reward model
-        # weight is saved in reward_model_init_weight folder. So in the first moment 
-        # is created a folder where inside there are all the reward model weight 
-        # created for that environment. Then is set the reward model weight looking to the
-        # learning rate and the K hyperparameters.
-        if not (self._model_parameters['minigrid_env'] in self._clips_database):
-            self._clips_database = self._clips_database + self._model_parameters['minigrid_env']
-            self._history_database = self._history_database + self._model_parameters['minigrid_env']
-            self._weigth_path = self._weigth_path + self._model_parameters['minigrid_env']
-
-        else:
-            self._clips_database = DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env'] 
-            self._history_database = DIR_NAME + '/History_Database/' + self._model_parameters['minigrid_env'] 
-            self._weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight/' + self._model_parameters['minigrid_env']
+        # weight is saved in reward_model_init_weight folder. So firstly
+        # a folder is created with all the reward model weight for that environment.
+        # Then the reward model weights are loaded checking if there exist weights 
+        # with same learning rate and K mini-batch values.
+        self._model.auto_save_folder = DIR_NAME + '/SAVE_FOLDER/' + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
+        self._model.clips_database = DIR_NAME + '/Clips_Database/' + self._model.model_parameters['minigrid_env'] 
+        self._model.history_database = DIR_NAME + '/History_Database/' + self._model.model_parameters['minigrid_env'] 
+        self._model.weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight/' + self._model.model_parameters['minigrid_env']
+        
+        if not os.path.exists(self._model.auto_save_folder):
+            os.makedirs(self._model.auto_save_folder)
 
         if not os.path.exists(self._clips_database):
             os.makedirs(self._clips_database)
@@ -390,14 +379,7 @@ class Model(QObject):
 
         else:
             self._annotator.reset_clips_database(self._clips_database)
-            self._annotator.reset_clips_database(self._history_database)
-
-        
-        # When a model is initialized I control if a previous reward model
-        # weight is saved in reward_model_init_weight folder. So firstly
-        # a folder is created with all the reward model weight for that environment.
-        # Then the reward model weights are loaded checking if there exist weights 
-        # with same learning rate and K mini-batch values.
+            self._annotator.reset_clips_database(self._history_database)     
         
         if not os.path.exists(self._weigth_path):
             os.makedirs(self._weigth_path)

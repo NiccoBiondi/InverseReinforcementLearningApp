@@ -44,7 +44,7 @@ class Controller(QObject):
         self._policy_t._signals.finishedSignal.connect(lambda : self.annotation())
         self._reward_t = RewardThread(self._model)
 
-        
+        self._start_point = 0
 
     # Simple function that when the timer end set the preferencies
     # like the oracle predict..(frase a caso)
@@ -75,8 +75,10 @@ class Controller(QObject):
             
             save_model(save_path, self._model.policy, self._model.model_parameters, self._model.iteration)
             save_reward_weights(self._model.reward_model, save_path, self._model.weigth_path, self._model.model_parameters['lr'], self._model.model_parameters['K'])
+            if os.path.exists(self._model.auto_save_folder + '/annotation_buffer/'):
+                shutil.copytree(self._model.auto_save_folder + '/annotation_buffer/', save_path + '/annotation_buffer/')
             if len(self._model.annotation_buffer):
-                save_annotation(save_path, self._model.annotation_buffer, self._model.ann_point)
+                save_annotation(save_path, self._model.annotation_buffer, self._model.ann_point, self._start_point)
             
     # Simple function connect to 'Load checkpoint' button.
     # Give the possibility to the user to select a checkpoint work folder and
@@ -91,6 +93,7 @@ class Controller(QObject):
         fileName = QFileDialog.getExistingDirectory(caption="Choose checkpoint to load", directory=DIR_NAME + "/SAVE_FOLDER/", options=options)
 
         if fileName:
+            print(fileName)
             if fileName != self._model.load_path:
 
                 if [path for path in os.listdir(fileName) if 'csv_reward_weight' in path]:
@@ -107,24 +110,31 @@ class Controller(QObject):
                     self._model.grid_wrapper = FullyObsWrapper(env)
                     self._model.oracle = Oracle(self._model.grid_wrapper, env, self._model)
                     self._model.env.reset() 
-                    self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = float(self._model.model_parameters['lr']))
+                    self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = 1e-4)
                     self._model.optimizer_r = torch.optim.Adam(params=self._model.reward_model.parameters(), lr = float(self._model.model_parameters['lr']), weight_decay=0.01)
 
-                # Create the auto_save path. If the load path used to restore the previous work is the same of
-                # the autosave_path variable, the folder is not reset.
-                # Create the auto save folder for a specific minigrifd env. If this folder still exists, then i delete it.
-                self._model.auto_save_folder = self._model.auto_save_folder + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
+                self._model.auto_save_folder = DIR_NAME + '/SAVE_FOLDER/' + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
+                self._model.clips_database = DIR_NAME + '/Clips_Database/' + self._model.model_parameters['minigrid_env'] 
+                self._model.history_database = DIR_NAME + '/History_Database/' + self._model.model_parameters['minigrid_env'] 
+                self._model.weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight/' + self._model.model_parameters['minigrid_env']
                 
                 if not os.path.exists(self._model.auto_save_folder):
                     os.makedirs(self._model.auto_save_folder)
-                    
-                elif self._model.auto_save_folder != fileName:
-                    shutil.rmtree(self._model.auto_save_folder)
-                    os.makedirs(self._model.auto_save_folder)
 
+                if not os.path.exists(self._model.clips_database):
+                    os.makedirs(self._model.clips_database)
+                
+                if not os.path.exists(self._model.history_database):
+                    os.makedirs(self._model.history_database)
+
+                if not os.path.exists(self._model.weigth_path):
+                    os.makedirs(self._model.weigth_path)
+                
+                if len([path for path in os.listdir(fileName) if 'csv_reward_weight' in path]) == 0  and 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) :
+                    self._model.reward_model.load_state_dict(torch.load( self._model.weigth_path + '/csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' ))
+                                
                 if [path for path in os.listdir(fileName) if 'annotation_buffer' in path]:
-                    current_time = time.strftime("%H:%M", time.localtime())
-                    self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0], self._model.auto_save_folder + '/annotation_buffer_' + current_time + '/')
+                    self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0], self._model.auto_save_folder + '/annotation_buffer/')
 
                     if self._model.ann_point % 80 == 0:
                         self._model.annotation_buffer = []
@@ -132,21 +142,6 @@ class Controller(QObject):
                     elif len(self._model.annotation_buffer) > 80:
                         idx = (int(len(self._model.annotation_buffer) / 80) * 80) + 2
                         self._model.annotation_buffer = self._model.annotation_buffer[idx:]
-
-                if len([path for path in os.listdir(fileName) if 'csv_reward_weight' in path]) == 0  and 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) :
-                    self._model.reward_model.load_state_dict(torch.load( self._model.weigth_path + '/csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' ))
-
-                if not (self._model.model_parameters['minigrid_env'] in self._model.clips_database):
-
-                    self._model.clips_database = self._model.clips_database + self._model.model_parameters['minigrid_env']
-                    self._model.history_database = self._model.history_database + self._model.model_parameters['minigrid_env']
-                    self._model.weigth_path = self._model.weigth_path + self._model.model_parameters['minigrid_env']
-
-                else:
-
-                    self._model.clips_database = DIR_NAME + '/Clips_Database/' + self._model.model_parameters['minigrid_env'] 
-                    self._model.history_database = DIR_NAME + '/History_Database/' + self._model.model_parameters['minigrid_env'] 
-                    self._model.weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight/' + self._model.model_parameters['minigrid_env']
                 
                 self._model.load_path = fileName
                 
@@ -221,7 +216,7 @@ class Controller(QObject):
 
         # Define the number of clips to annotate
         clips_number = int( ( ( len(os.listdir(self._model.clips_database)) + len(os.listdir(self._model.history_database)) ) * ( int( self._model.model_parameters['n_annotation'] ) / 100  ) )  / 2 )
-        start_point = 0 if len(self._model.annotation_buffer) == 0 else len(self._model.annotation_buffer) - 1
+        self._start_point = 0 if len(self._model.annotation_buffer) == 0 else len(self._model.annotation_buffer) - 1
 
         for i in range(self._model.ann_point, clips_number):
 
@@ -262,16 +257,16 @@ class Controller(QObject):
                 except Exception as e:
                     print(e)
                     self._model.annotation_buffer = self._model.annotation_buffer[:-1]
-                    save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, start_point)
+                    save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, self._start_point)
                     sys.exit()
 
                 self._model.preferences = None
                 gc.collect()
 
             if self._model.ann_point > 0 and self._model.ann_point % 80 == 0:
-                save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, start_point)
+                save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, self._start_point)
                 self._model.annotation_buffer = []
-                start_point = 0
+                self._start_point = 0
 
             self._model.ann_point = self._model.ann_point + 1
 
@@ -281,7 +276,7 @@ class Controller(QObject):
         # the reward model start. If othrewise the annotation phase is finished
         # is saved the remain annotation buffer and it is loaded for the reward model training.
         if len(self._model.annotation_buffer) !=  clips_number:
-            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, start_point)
+            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, self._start_point)
             self._model.annotation_buffer, _  = load_annotation_buffer(self._model.auto_save_folder + [ '/' + path + '/' for path in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in path][0])
 
         self._model.display_imageSx = []

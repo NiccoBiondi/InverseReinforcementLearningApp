@@ -169,9 +169,8 @@ def save_annotation(save_path, annotation_buffer, iteration, start_point):
     path = ''
 
     if not [save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el]:
-        current_time = time.strftime("%H:%M", time.localtime())
-        os.makedirs(save_path + '/annotation_buffer_' + current_time)
-        path = save_path + '/annotation_buffer_' + current_time
+        os.makedirs(save_path + '/annotation_buffer')
+        path = save_path + '/annotation_buffer'
     
     else:
         path =  [save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el][0]
