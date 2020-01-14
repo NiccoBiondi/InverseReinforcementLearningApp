@@ -49,10 +49,11 @@ optimizer_r = torch.optim.Adam(params=reward_model.parameters(), lr = lr_reward,
 
 annotator = Annotator()
 annotation_buffer = []
-
-
+rewards = []
 
 trainable = False
+
+# MAIN LOOP 
 
 for epoch in range(epochs):
 
@@ -86,8 +87,9 @@ for epoch in range(epochs):
             l.append(Loss(policy, optimizer_p, states, actions, reward))
 
         save_policy_weights(policy, weigth_path)
-    
-    print("End train policy at epoch {}, the loss is : {:.3f}".format(epoch, (sum(l)/len(l))))
+
+    if trainable:
+        print("End train policy at epoch {}, the loss is : {:.3f}".format(epoch, (sum(l)/len(l))))
 
     # ORACLE 
 
