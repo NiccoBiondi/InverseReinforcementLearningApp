@@ -365,13 +365,13 @@ class Model(QObject):
         # a folder is created with all the reward model weight for that environment.
         # Then the reward model weights are loaded checking if there exist weights 
         # with same learning rate and K mini-batch values.
-        self._model.auto_save_folder = DIR_NAME + '/SAVE_FOLDER/' + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
-        self._model.clips_database = DIR_NAME + '/Clips_Database/' + self._model.model_parameters['minigrid_env'] 
-        self._model.history_database = DIR_NAME + '/History_Database/' + self._model.model_parameters['minigrid_env'] 
-        self._model.weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight/' + self._model.model_parameters['minigrid_env']
+        self._auto_save_folder = DIR_NAME + '/SAVE_FOLDER/' + self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
+        self._clips_database = DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env'] 
+        self._history_database = DIR_NAME + '/History_Database/' + self._model_parameters['minigrid_env'] 
+        self._weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight/' + self._model_parameters['minigrid_env']
         
-        if not os.path.exists(self._model.auto_save_folder):
-            os.makedirs(self._model.auto_save_folder)
+        if not os.path.exists(self._auto_save_folder):
+            os.makedirs(self._auto_save_folder)
 
         if not os.path.exists(self._clips_database):
             os.makedirs(self._clips_database)
