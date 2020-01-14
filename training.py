@@ -109,7 +109,6 @@ for epoch in range(epochs):
         annotation_buffer.append([clip_1['clip'], clip_2['clip'], preferences])
         shutil.rmtree(clips_database+'/'+clip_1['path'])
         shutil.rmtree(clips_database+'/'+clip_2['path'])
-        gc.collect()
 
     # REWARD MODEL
 
