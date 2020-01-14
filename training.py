@@ -6,6 +6,7 @@ from Utility.annotator import Annotator
 from Utility.utility import clips_generator, save_clips
 
 import gym, gym_minigrid, torch, copy, tqdm, shutil, os
+import numpy as np
 
 # Simple contructor function.
 def data_loader(annotation_buffer, batch):
