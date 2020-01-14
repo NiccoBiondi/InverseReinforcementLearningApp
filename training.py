@@ -3,9 +3,9 @@ from ReinforcementLearning.csvRewardModel import csvRewardModel, save_reward_wei
 from ReinforcementLearning.Oracle import Oracle
 from ReinforcementLearning.wrapper import FullyObsWrapper, RGBImgObsWrapper
 from Utility.annotator import Annotator
-from Utility.utility import clips_generator
+from Utility.utility import clips_generator, save_clips
 
-import gym, gym_minigrid, torch
+import gym, gym_minigrid, torch, copy, tqdm, shutil, os
 
 # Simple contructor function.
 def data_loader(annotation_buffer, batch):
@@ -38,10 +38,12 @@ K = 1000
 lr_reward = 1e-4
 lr_policy = 1e-4
 
+env = gym.make(env_name)
 grid_wrapper = FullyObsWrapper(env)
+oracle = Oracle(grid_wrapper, env, None)
+env = RGBImgObsWrapper(env)
 reward_model = csvRewardModel(obs_size = obs_size, inner_size = inner_size).cuda()
 policy = Policy(obs_size = obs_size, act_size = act_size, inner_size = inner_size).cuda()
-oracle = Oracle(grid_wrapper, env, None)
 optimizer_p = torch.optim.Adam(params=policy.parameters(), lr = lr_policy)
 optimizer_r = torch.optim.Adam(params=reward_model.parameters(), lr = lr_reward, weight_decay=0.01)
 
@@ -53,13 +55,18 @@ annotation_buffer = []
 trainable = False
 
 for epoch in range(epochs):
-    
+
+    shutil.rmtree(clips_database)
+    os.makedirs(clips_database)
+
     # POLICY
+
+    print('starting policy at epoch ', epoch)    
 
     idx = 0
     l = []
 
-    for step in range(0, episodes)):
+    for step in tqdm.tqdm(range(episodes)):
                         
         (states, actions, dones, grids) = run_episode(env, policy, 80, grid_wrapper)
 
@@ -84,21 +91,27 @@ for epoch in range(epochs):
 
     # ORACLE 
 
+    print('starting annotation')
+
     clips_number = int(   len(os.listdir(clips_database))  * 50 / 2 )
-    for i in range(0, clips_number):
+    for i in tqdm.tqdm(range(0, clips_number)):
         
         clips, _ = annotator.load_clips_figure(clips_database)                    
         clip_1 = clips.pop(0)
         clip_2 = clips.pop(0)
         preferences = oracle.takeReward(clips_database, clip_1, clip_2, env)
         annotation_buffer.append([clip_1['clip'], clip_2['clip'], preferences])
+        shutil.rmtree(clips_database+'/'+clip_1['path'])
+        shutil.rmtree(clips_database+'/'+clip_2['path'])
         gc.collect()
 
     # REWARD MODEL
 
+    print('starting reward model training')
+
     loss = []
 
-    for k in range(K):
+    for k in tqdm.tqdm(range(K)):
         train_clips = data_loader(annotation_buffer, 16)
         loss.append(reward_model.compute_rewards(reward_model, optimizer_r, train_clips))
 
