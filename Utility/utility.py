@@ -176,7 +176,10 @@ def save_annotation(save_path, annotation_buffer, iteration, start_point):
         path =  [save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el][0]
         triple = os.listdir([save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el][0])
         triple_number = [int(re.findall('\d+', t)[0]) for t in triple]
-        triple_number = max(triple_number) + 1
+        if not triple_number:
+            triple_number = 0
+        else:
+            triple_number = max(triple_number) + 1
 
     annotation_buffer = annotation_buffer[start_point:]
     for i, triple in enumerate(annotation_buffer):
