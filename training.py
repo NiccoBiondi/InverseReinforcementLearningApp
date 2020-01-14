@@ -37,6 +37,9 @@ inner_size = 64   # Number of neurons in two hidden layers.
 reward_batch = 16 
 K = 1000
 
+os.makedirs(clips_database)
+os.makedirs(weigth_path)
+
 lr_reward = 1e-4
 lr_policy = 1e-4
 
@@ -60,9 +63,9 @@ trainable = False
 
 for epoch in range(epochs):
 
-    shutil.rmtree(clips_database)
-    os.makedirs(clips_database)
-    os.makedirs(weigth_path)
+    if os.path.exists(clips_database):
+        shutil.rmtree(clips_database)
+        os.makedirs(clips_database)
 
     # POLICY
 
@@ -85,9 +88,9 @@ for epoch in range(epochs):
         if trainable:
             s = [obs['obs'] for obs in states]
             reward =reward_model(s)
-            rewards += [reward[i].item() for i in range(len(reward))]
-            for i in range(len(reward)):
-                reward[i] = ( reward[i].item() - np.mean(rewards) ) / 0.05 
+            #rewards += [reward[i].item() for i in range(len(reward))]
+            #for i in range(len(reward)):
+            #    reward[i] = ( reward[i].item() - np.mean(rewards) ) / 0.05 
             l.append(Loss(policy, optimizer_p, states, actions, reward))
 
         save_policy_weights(policy, weigth_path)
@@ -109,7 +112,6 @@ for epoch in range(epochs):
         annotation_buffer.append([clip_1['clip'], clip_2['clip'], preferences])
         shutil.rmtree(clips_database+'/'+clip_1['path'])
         shutil.rmtree(clips_database+'/'+clip_2['path'])
-        gc.collect()
 
     # REWARD MODEL
 
