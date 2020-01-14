@@ -7,6 +7,8 @@ from Utility.utility import clips_generator, save_clips
 
 import gym, gym_minigrid, torch, copy, tqdm, shutil, os
 
+DIR_NAME = os.path.dirname(os.path.abspath('__file__'))
+
 # Simple contructor function.
 def data_loader(annotation_buffer, batch):
     
@@ -23,7 +25,7 @@ def data_loader(annotation_buffer, batch):
 
 epochs = 20
 
-save_path = 'zz_saving'
+save_path =DIR_NAME +  '/zz_saving'
 clips_database = save_path +'/clips_db'
 weigth_path = save_path +'/weigths'
 episodes = 500
@@ -49,16 +51,16 @@ optimizer_r = torch.optim.Adam(params=reward_model.parameters(), lr = lr_reward,
 
 annotator = Annotator()
 annotation_buffer = []
-rewards = []
+
+
 
 trainable = False
-
-# MAIN LOOP 
 
 for epoch in range(epochs):
 
     shutil.rmtree(clips_database)
     os.makedirs(clips_database)
+    os.makedirs(weigth_path)
 
     # POLICY
 
@@ -87,9 +89,8 @@ for epoch in range(epochs):
             l.append(Loss(policy, optimizer_p, states, actions, reward))
 
         save_policy_weights(policy, weigth_path)
-
-    if trainable:
-        print("End train policy at epoch {}, the loss is : {:.3f}".format(epoch, (sum(l)/len(l))))
+    
+    print("End train policy at epoch {}, the loss is : {:.3f}".format(epoch, (sum(l)/len(l))))
 
     # ORACLE 
 
