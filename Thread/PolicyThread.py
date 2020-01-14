@@ -80,6 +80,15 @@ class PolicyThread(QThread):
             if self._train:
                 s = [obs['obs'] for obs in states]
                 reward = self._model.reward_model(s)
+
+                rewards += [reward[i].item() for i in range(len(reward))]
+
+                for i in range(len(reward)):
+                    reward[i] = ( reward[i].item() - np.mean(rewards) ) / 0.05 # / 0.05 or np.std(rewards) # to force rewards to be 0 mean and 0.05 std 
+
+                l = Loss(self._model.policy, self._model.optimizer_p, states, actions, reward)
+                print("Train policy loss: {:.3f}".format((sum(l)/len(l))))
+            
             self._model.iteration += 1
             gc.collect()
             
