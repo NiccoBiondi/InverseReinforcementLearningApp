@@ -107,7 +107,7 @@ for epoch in range(epochs):
 
     print('starting annotation')
 
-    clips_number = int(   len(os.listdir(clips_database))  * 50 / 2 )
+    clips_number = int(   len(os.listdir(clips_database))  * 0.5 / 2 )
     for i in tqdm.tqdm(range(0, clips_number)):
         
         clips, _ = annotator.load_clips_figure(clips_database)                    
