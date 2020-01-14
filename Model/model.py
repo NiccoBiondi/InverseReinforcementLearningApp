@@ -366,7 +366,7 @@ class Model(QObject):
             os.makedirs(self._auto_save_folder)
 
         # Use the Adam optimizer.
-        self._optimizer_p = torch.optim.Adam(params=self._policy.parameters(), lr = 1e-4)
+        self._optimizer_p = torch.optim.Adam(params=self._policy.parameters(), lr = 1e-3)
         self._optimizer_r = torch.optim.Adam(params=self._reward_model.parameters(), lr = float(self._model_parameters['lr']), weight_decay=0.01)
         
         # When a model is initialized I control if a previous reward model
