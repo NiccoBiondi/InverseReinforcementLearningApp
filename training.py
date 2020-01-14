@@ -37,16 +37,15 @@ inner_size = 64   # Number of neurons in two hidden layers.
 reward_batch = 16 
 K = 1000
 
-<<<<<<< HEAD
 lr_reward = 1e-3
 lr_policy = 5e-3
-=======
-os.makedirs(clips_database)
-os.makedirs(weigth_path)
 
-lr_reward = 1e-4
-lr_policy = 1e-4
->>>>>>> ebccdcb760805c303be8c7dde948a17eed5f117a
+if os.path.exists(clips_database):
+    shutil.rmtree(clips_database)
+os.makedirs(clips_database)
+
+if not os.path.exists(weigth_path):
+    os.makedirs(weigth_path)
 
 env = gym.make(env_name)
 grid_wrapper = FullyObsWrapper(env)
