@@ -272,13 +272,6 @@ class Controller(QObject):
 
         self._model.logBarDxSignal.emit('Annotation phase finished')
 
-        # If the checkpoint is loaded and the clips to annotate are finished,
-        # the reward model start. If othrewise the annotation phase is finished
-        # is saved the remain annotation buffer and it is loaded for the reward model training.
-        if len(self._model.annotation_buffer) !=  clips_number:
-            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, self._start_point)
-            self._model.annotation_buffer, _  = load_annotation_buffer(self._model.auto_save_folder + [ '/' + path + '/' for path in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in path][0])
-
         self._model.display_imageSx = []
         self._model.display_imageDx = []
         self._model.choiceButton = False
