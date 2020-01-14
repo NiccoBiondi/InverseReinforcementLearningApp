@@ -38,8 +38,8 @@ inner_size = 64   # Number of neurons in two hidden layers.
 reward_batch = 16 
 K = 1000
 
-lr_reward = 1e-3
-lr_policy = 5e-3
+lr_reward = 1e-4
+lr_policy = 1e-4
 
 if os.path.exists(clips_database):
     shutil.rmtree(clips_database)
@@ -96,7 +96,9 @@ for epoch in range(epochs):
             #rewards += [reward[i].item() for i in range(len(reward))]
             #for i in range(len(reward)):
             #    reward[i] = ( reward[i].item() - np.mean(rewards) ) / 0.05 
-            l.append(Loss(policy, optimizer_p, states, actions, reward))
+            losses = Loss(policy, optimizer_p, states, actions, reward)
+            for i in range(len(losses)):
+                l.append(losses[i])
 
         save_policy_weights(policy, weigth_path)
 
