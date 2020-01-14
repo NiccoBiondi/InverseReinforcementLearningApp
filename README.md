@@ -1,8 +1,8 @@
 # Inverse Reinforcement Learning Application
 
 <p align="center">
-  <img src="Build/gitimages/main_view.png" width="480"/>
-  <img src="Build/gitimages/alg_view.png" width="480"/>
+  <img src="Build/gitimages/main_view.png" width="470"/>
+  <img src="Build/gitimages/alg_view.png" width="470"/>
 </p>
 
 The aim of this project is to create a simple application that can give the opportunity to all the user to use the Inverse Reinforcement Learning technique. The application is implemented in Python and the interface is made entirely with PyQt5.
