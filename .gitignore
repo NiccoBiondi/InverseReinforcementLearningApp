@@ -9,5 +9,5 @@
 *reward_model_init_weight/
 
 # added for clamp and standardization tries
-Thread/PolicyThread.py
-ReinforcementLearning/csvRewardModel.py
+PolicyThread.py
+csvRewardModel.py
