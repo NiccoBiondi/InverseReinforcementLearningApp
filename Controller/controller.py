@@ -8,7 +8,6 @@ import torch
 import time
 import shutil
 from datetime import date
-import psutil
 
 from View.AlgView import AlgView
 
@@ -112,7 +111,7 @@ class Controller(QObject):
                     self._model.grid_wrapper = FullyObsWrapper(env)
                     self._model.oracle = Oracle(self._model.grid_wrapper, env, self._model)
                     self._model.env.reset() 
-                    self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = 1e-4)
+                    self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = 1e-3)
                     self._model.optimizer_r = torch.optim.Adam(params=self._model.reward_model.parameters(), lr = float(self._model.model_parameters['lr']), weight_decay=0.01)
 
                 self._model.auto_save_folder = DIR_NAME + '/SAVE_FOLDER/' + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
