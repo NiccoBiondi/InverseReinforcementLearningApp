@@ -94,7 +94,6 @@ class Controller(QObject):
         fileName = QFileDialog.getExistingDirectory(caption="Choose checkpoint to load", directory=DIR_NAME + "/SAVE_FOLDER/", options=options)
 
         if fileName:
-            print(fileName)
             if fileName != self._model.load_path:
 
                 if [path for path in os.listdir(fileName) if 'csv_reward_weight' in path]:
@@ -282,6 +281,7 @@ class Controller(QObject):
 
         self._model.display_imageSx = []
         self._model.display_imageDx = []
+        self._model.choiceButton = False
 
         self._reward_t.start()         
         
