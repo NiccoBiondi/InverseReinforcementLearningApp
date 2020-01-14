@@ -220,6 +220,8 @@ def load_values(path):
 def load_annotation_buffer(load_path, annotation_path=None):
 
     if load_path != annotation_path and annotation_path != None:
+        if os.path.exists(annotation_path):
+            shutil.rmtree(annotation_path)
         shutil.copytree(load_path, annotation_path)
 
     shape = (7, 7, 3)

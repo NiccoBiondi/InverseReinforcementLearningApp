@@ -75,8 +75,10 @@ class Controller(QObject):
             
             save_model(save_path, self._model.policy, self._model.model_parameters, self._model.iteration)
             save_reward_weights(self._model.reward_model, save_path, self._model.weigth_path, self._model.model_parameters['lr'], self._model.model_parameters['K'])
+
             if os.path.exists(self._model.auto_save_folder + '/annotation_buffer/'):
                 shutil.copytree(self._model.auto_save_folder + '/annotation_buffer/', save_path + '/annotation_buffer/')
+                
             if len(self._model.annotation_buffer):
                 save_annotation(save_path, self._model.annotation_buffer, self._model.ann_point, self._start_point)
             
