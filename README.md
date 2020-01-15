@@ -8,6 +8,8 @@ The aim of this project is to create a simple application that can give the oppo
   <img src="Build/gitimages/alg_view.png" width="400"/>
 </p>
 
+The application is composed by two different View. The first View, left image, is used to set the model or load it. The second View, rigth image, is used for the Inverse Reinforcement Learning technique. This work is inspired from Ibarz, Borja and Leike, Jan and Pohlen, Tobias and Irving, Geoffrey and Legg, Shane and Amodei, Dario work. Please [read the paper](http://papers.nips.cc/paper/8025-reward-learning-from-human-preferences-and-demonstrations-in-atari). 
+
 ## Features 
 
 Features include:
