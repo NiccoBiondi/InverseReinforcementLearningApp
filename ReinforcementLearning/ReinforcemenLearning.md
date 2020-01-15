@@ -1,6 +1,6 @@
 # Reinforcement Learning
 
-In this file are contained the Reinforcement Learnig  element used by the application.
+In this folder are contained the Reinforcement Learnig  element used by the application.
 
 
 ## Policy

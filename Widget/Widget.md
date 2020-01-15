@@ -8,7 +8,7 @@ In this folder there are all the widgets used to build the application view and 
   <img src="gitimages/default_setting.png" width="350"/>
 </p>
 
-This window, which is represented in the upper images, give the possibility to the user to initialize a new work. There the user can set different type of parameters:
+This window, which is represented in the upper image, give the possibility to the user to initialize a new work. There the user can set different type of parameters:
 - Minigrid env name that describe which MiniGrid environment the user will use. Is possible to choose from 7 different type of environment:
 `MiniGrid-Empty-6x6-v0`, `MiniGrid-Empty-16x16-v0`, `MiniGrid-Multiroom-N2-S4-v0`, `MiniGrid-Multiroom-N2-S5-v0`, `MiniGrid-Multiroom-N2-S6-v0`, `MiniGrid-Dynamic-Obstacle-6x6-v0` and `MiniGrid-Dynamic-Obstacle-16x16-v0`. (The description of all the environment is in the [MiniGrid github repository](https://github.com/maximecb/gym-minigrid)).
 
@@ -21,7 +21,7 @@ learning rate. In this implementation, the [policy](../ReinforcementLearning/Rei
 
 - Train policy period is the number of episodes that the policy has to do and during which the single trajectory is divided in clips.
 
-- Reward Model mini-batch is the number of mini-batch build from the annotation buffer build during the annotation phase to the training of the reward model.
+- Reward Model mini-batch is the number of mini-batch create from the annotation buffer build during the annotation phase.
 
 - Annotation percentage define the number of pairs of clips that the user has to annotate. The number of pairs of clips depends on the number of clips generate during the policy train period.
 
