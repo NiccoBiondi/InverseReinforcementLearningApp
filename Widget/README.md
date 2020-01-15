@@ -1,6 +1,6 @@
 # Application Wdget
 
-In this folder there are all the widget used to build he application view and functionality.
+In this folder there are all the widget used to build he application view and functionality. There are described the most usefull widget.
 
 ## Setup window
 
@@ -27,15 +27,30 @@ learning rate. In this implementation, the [policy](../ReinforcementLearning/Rei
 
 All of this parameters can be setted manually or with the default button that set the default values, that can be seen in the image, for all the parameters.
 
+## Checkpoint Loader
 
 
-
-
-
+Another important features is that the user can load the previous work checkpoint.
 
 <p align="center">
   <img src="gitimages/load_checkpoint.png" width="300">
 </p>
+
+
+ This is made by choosing the folder that the user want to load.
+Inside all folder in 'SAVE_FOLDER' directory, the user can find:
+
+- annotation_buffer : is a directory where there are saved all the triple ([clip a, clip b, preference]) in the annotation buffer during the work.
+
+- values : is a csv that contain all the parameters and the information of the corresponding work.
+
+- policy_weight : a .pth file which is the weight of the policy.
+
+- csv_reward_model : a .pth file which is the weight of the reward model.
+
+N.B : when the user start initialize the model for the first time and start the application, the previous file are not saved. They are automatically saved in some checkpoint, to make manula save click 'File/Save State' from the bar.
+
+
 
 <p align="center">
   <img src="gitimages/history_window.png" width="400"/>
