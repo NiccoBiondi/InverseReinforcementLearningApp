@@ -21,7 +21,8 @@ Features include:
 
 ## Download
 
-Get the app by downloading this repository tapping in 'clone or download' button and then select 'Download Zip' command or by [tap there](https://github.com/giuliobz/InverseReinforcementLearningApp/archive/master.zip).
+Get the app by downloading this repository tapping in 'clone or download' button and then select 'Download Zip' command or from [here](https://github.com/giuliobz/InverseReinforcementLearningApp/archive/master.zip).
+After downloading the zip file, extract it and follow the Dependecies instructions and Usage instructions.
 
 ## Dependecies
 
