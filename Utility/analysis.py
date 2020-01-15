@@ -114,7 +114,7 @@ def main():
         print('define reward model weigth path')
         sys.exit()
 
-    reward_model.load_state_dict( torch.load(option.reward) )
+    reward_model.load_state_dict( torch.load(options.reward_model) )
 
     reward_model.cuda()
 
@@ -132,10 +132,8 @@ def main():
     number = 1
 
     rewards = np.zeros((env.width, env.height))
-    real_rewards = np.zeros((env.width, env.height))
     counts = np.zeros((env.width, env.height))
     states = []
-    all_reward = []
 
     while True:
         env.render('human')
@@ -146,8 +144,6 @@ def main():
             action = keyDownCb(c, env)
 
             obs, reward, done, info = env.step(action)
-
-            all_reward.append(reward)
 
             img = wrapper.observation(obs)
             img = img[:,:,0].T
@@ -163,11 +159,6 @@ def main():
             
             if done:
                 print('done!')
-                d_rewards = compute_discounted_rewards(all_reward)
-                for i in range(len(states)):
-                    real_rewards[states[i][0], states[i][1]] += d_rewards[i]
-                
-                all_reward = []
                 states = []
                 env.reset()
         
@@ -192,7 +183,7 @@ def heatmap_reward(rewards, counts):
     fig = plt.figure()
     ax = sns.heatmap(rewards)
     fig.add_subplot(1,1,1)
-    fig.savefig('prova.png')
+    fig.savefig('heat-map.png')
 
 def plot_loss():
 

@@ -8,10 +8,4 @@
 *History_Database/
 *SAVE_FOLDER/
 *reward_model_init_weight/
-
-zz_saving/
-training.py
-
-# added for clamp and standardization tries
-PolicyThread.py
-csvRewardModel.py
+zz_saving/clips_db

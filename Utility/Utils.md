@@ -4,7 +4,7 @@ In this folder there are tree script which add additional and separate functiona
 
 ## Analysis
 
-This script give to the user the opportunity to build a reward hit-map manually. Using terminal, the user uses the keyboard commands to move the agent within the selected environment. The commands to use are:
+This script give to the user the opportunity to build a reward heat-map manually. Using terminal, the user uses the keyboard commands to move the agent within the selected environment. The commands to use are:
 
 - ↑ : move forward
 
@@ -41,3 +41,5 @@ From InverseReinforcementLearningApp folder run:
 # example of command
 python Utility/training.py
 ```
+
+The clips and the weigth produce with the training.py script are saved in the 'zz_saving' folder.
