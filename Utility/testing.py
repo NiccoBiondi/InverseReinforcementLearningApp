@@ -2,6 +2,7 @@ import time
 import gym
 import gym_minigrid
 import numpy as np
+import sys
 
 import torch
 import torch.nn as nn
@@ -11,6 +12,7 @@ import torch.autograd as autograd
 from torch.distributions.categorical import Categorical
 from itertools import count
 
+sys.path.insert(1, os.path.dirname(os.path.abspath('__file__')))
 from ReinforcementLearning.csvRewardModel import csvRewardModel
 
 # A simple, memoryless MLP (Multy Layer Perceptron) agent.

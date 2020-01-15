@@ -1,11 +1,23 @@
 # Inverse Reinforcement Learning Application
 
+The aim of this project is to create a simple application that can give the opportunity to all the user to use the Inverse Reinforcement Learning technique. The application is implemented in Python and the interface is made entirely with PyQt5.
+
+
 <p align="center">
   <img src="Build/gitimages/main_view.png" width="400"/>
   <img src="Build/gitimages/alg_view.png" width="400"/>
 </p>
 
-The aim of this project is to create a simple application that can give the opportunity to all the user to use the Inverse Reinforcement Learning technique. The application is implemented in Python and the interface is made entirely with PyQt5.
+## Feature
+
+Features include:
+
+- The opportunity to choose from [different environment](Widget/SETUP.md).
+- Auto save function during the work.
+- [History window](Widget/SETUP.md) to memorize the user preferencies.
+- Restore previous work sesssion before starting a new work.
+- [Oracle](ReinforcementLearning/ReinforcemenLearning.md) to speed up the annotations and to debug the policy and reward model.
+- [Utility function](Utility/UTILS.md) which the user can use to analyze the reward model and to testing the policy and reward model too. 
 
 ## Dependacies
 
