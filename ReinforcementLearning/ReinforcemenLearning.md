@@ -5,7 +5,7 @@ In this file are contained the Reinforcement Learnig  element used by the applic
 
 ## Policy
 
-The policy model is a simple model taken from [Andrew Bagdanov repository](https://gitlab.com/bagdanov/pg-minigrid). For detailed information please see his repository.
+The policy model is a simple model taken from [Andrew Bagdanov repository](https://gitlab.com/bagdanov/pg-minigrid). For detailed informations please see his repository.
 
 ## Reward Model
 
