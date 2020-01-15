@@ -21,7 +21,7 @@ Features include:
 
 ## Download
 
-Get the app cloning this repository in your computer and install the dependencies.
+Get the app by downloading this repository tapping in 'clone or download' button and then select 'Download Zip' command or by [tap there](https://github.com/giuliobz/InverseReinforcementLearningApp/archive/master.zip).
 
 ## Dependecies
 
