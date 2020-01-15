@@ -190,8 +190,8 @@ class Controller(QObject):
     # Process button function.
     @pyqtSlot()
     def process(self):
-        
-        self._model.logBarSxSignal.emit('Policy processing...')
+        self._model.logBarSxSignal.emit('')
+        self._model.logBarDxSignal.emit('')
         self._policy_t.done = False
         self._policy_t.start()
         self._model.processButton = False
@@ -270,6 +270,9 @@ class Controller(QObject):
 
             self._model.ann_point = self._model.ann_point + 1
 
+        if len(self._model.annotation_buffer) > 0:
+            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, self._start_point)
+            
         self._model.logBarDxSignal.emit('Annotation phase finished')
 
         self._model.display_imageSx = []
