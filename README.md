@@ -15,7 +15,7 @@ Features include:
 - The opportunity to choose from [different environment](Widget/SETUP.md).
 - Auto save function during the work.
 - [History window](Widget/SETUP.md) to memorize the user preferencies.
-- Restore previous work sesssion before starting a new work.
+- [Restore previous work sesssion](Widget/SETUP.md) before starting a new work.
 - [Oracle](ReinforcementLearning/ReinforcemenLearning.md) to speed up the annotations and to debug the policy and reward model.
 - [Utility function](Utility/UTILS.md) which the user can use to analyze the reward model and to testing the policy and reward model too. 
 
