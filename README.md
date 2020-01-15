@@ -19,7 +19,7 @@ Features include:
 - [Oracle](ReinforcementLearning/ReinforcemenLearning.md) to speed up the annotations and to debug the policy and reward model.
 - [Utility function](Utility/UTILS.md) which the user can use to analyze the reward model and to testing the policy and reward model too. 
 
-## Dependacies
+## Dependecies
 
 - Pytorch
 - NumPy
