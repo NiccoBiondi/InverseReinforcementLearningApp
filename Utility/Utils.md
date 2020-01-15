@@ -35,3 +35,9 @@ python Utility/testing.py --env-name=name of environment --policy=path/to policy
 This usefull script is used to understand if the reward model structure or the choosen hyperparameters are good or not. This script represent the entire algorithm described in the [paper](http://papers.nips.cc/paper/8025-reward-learning-from-human-preferences-and-demonstrations-in-atari) using a [oralce](../ReinforcementLearning/ReinforcemenLearning.md) to make the preferencies. The user can open this script and modify the hyperparameters inside the script. The main idea is that the user can modify the policy, reward model and the oracle and with this script can test faster the new model. 
 For now this script can be used to test models in the `MiniGrid-Empty-6x6-v0` environment.
 
+From InverseReinforcementLearningApp folder run:
+
+```bash
+# example of command
+python Utility/training.py
+```
