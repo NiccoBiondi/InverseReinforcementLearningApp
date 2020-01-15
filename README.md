@@ -12,12 +12,12 @@ The aim of this project is to create a simple application that can give the oppo
 
 Features include:
 
-- The opportunity to choose from [different environment](Widget/SETUP.md).
+- The opportunity to choose from [different environment](Widget/Widget.md).
 - Auto save function during the work.
-- [History window](Widget/SETUP.md) to memorize the user preferencies.
-- [Restore previous work sesssion](Widget/SETUP.md) before starting a new work.
+- [History window](Widget/Widget.md) to memorize the user preferencies.
+- [Restore previous work sesssion](Widget/Widget.md) before starting a new work.
 - [Oracle](ReinforcementLearning/ReinforcemenLearning.md) to speed up the annotations and to debug the policy and reward model.
-- [Utility function](Utility/UTILS.md) which the user can use to analyze the reward model and to testing the policy and reward model too. 
+- [Utility function](Utility/Utils.md) which the user can use to analyze the reward model and to testing the policy and reward model too. 
 
 ## Download
 

@@ -8,8 +8,8 @@ In this folder there are all the widget used to build he application view and fu
   <img src="gitimages/default_setting.png" width="350"/>
 </p>
 
-This window, wich is represented in the upper images, give the possibility to the user to initialize a new work. There the user can set different type of parameters:
-- Minigrid env name that describe wich MiniGrid environment the user will use. Is possible to choose from 7 different type of environment:
+This window, which is represented in the upper images, give the possibility to the user to initialize a new work. There the user can set different type of parameters:
+- Minigrid env name that describe which MiniGrid environment the user will use. Is possible to choose from 7 different type of environment:
 `MiniGrid-Empty-6x6-v0`, `MiniGrid-Empty-16x16-v0`, `MiniGrid-Multiroom-N2-S4-v0`, `MiniGrid-Multiroom-N2-S5-v0`, `MiniGrid-Multiroom-N2-S6-v0`, `MiniGrid-Dynamic-Obstacle-6x6-v0` and `MiniGrid-Dynamic-Obstacle-16x16-v0`. (The description of all the environment is in the [MiniGrid github repository](https://github.com/maximecb/gym-minigrid)).
 
 - Trajectory length describe the length of the trajectory that the policy has to create during each episodes.
@@ -50,9 +50,29 @@ Inside all folder in 'SAVE_FOLDER' directory, the user can find:
 
 N.B : when the user start initialize the model for the first time and start the application, the previous file are not saved. They are automatically saved in some checkpoint, to make manula save click 'File/Save State' from the bar.
 
+## History Window
 
+The Hisory Window Widget is used during the annotation phase and store all the triple ([[clip a, clip b, preference]) which are inside the annotation buffer in real time.
 
 <p align="center">
   <img src="gitimages/history_window.png" width="400"/>
-  <img src="gitimages/replay_window.png" width="300"/>
 </p>
+
+This Widget is structured in 4 column where
+
+| CheckBox | List pos | Clip 1 | Clip 2 | Preferencies |
+| :---: | :---: | :---: | :---: | :---: |
+|  |  |  |  |  |
+
+- List Pos indicates the triple position in annotation buffer.
+- Clip 1 and Clip 2 are two button that describe the two clips in the triple. When the user click the button appear a replay window with which the user can see the clip.
+
+<p align="center">
+  <img src="gitimages/replay_window.png" width="200"/>
+</p>
+
+- Preferencies that define the user preference.
+
+- CheckBox that is uset by the user to select all the triples which have a wrong annotation. This permits to the user to give the correct annotation to these triples.
+
+
