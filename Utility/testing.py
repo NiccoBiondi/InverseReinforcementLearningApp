@@ -3,6 +3,8 @@ import gym
 import gym_minigrid
 import numpy as np
 import sys
+import os
+from optparse import OptionParser
 
 import torch
 import torch.nn as nn
@@ -95,6 +97,24 @@ def run_episode(env, policy, length, gamma=0.99):
 
 ###### The main loop.
 if __name__ == '__main__':
+    parser = OptionParser()
+    parser.add_option(
+        "-e",
+        "--env-name",
+        dest="env_name",
+        help="gym environment to load",
+        default='MiniGrid-Empty-6x6-v0'
+    )
+    parser.add_option(
+        "-p", 
+        "--policy",
+        dest="policy_weigth", 
+        help="path to policy weigth",
+        default=None
+    )
+
+    (options, args) = parser.parse_args()
+
     ###### Some configuration variables.
     episode_len = 50  # Length of each game.
     obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
@@ -103,13 +123,12 @@ if __name__ == '__main__':
     lr = 0.001        # Adam learning rate
     avg_reward = 0.0  # For tracking average regard per episode.
 
-    env_name = 'MiniGrid-Empty-6x6-v0' # 'MiniGrid-Empty-6x6-v0'
     # Setup OpenAI Gym environment for guessing game.
-    env = gym.make(env_name)
+    env = gym.make(options.env_name)
 
     # Instantiate a policy network.
     policy = Policy(obs_size=obs_size, act_size=act_size, inner_size=inner_size)
-    policy.load_state_dict(torch.load('/home/bazza/Scrivania/RL/InverseReinforcementLearningApp/SAVE_FOLDER/MiniGrid-Empty-6x6-v0_(12-01-2020)/policy_weight_19:00.pth'))
+    policy.load_state_dict(torch.load(options.policy_weigth))
 
     # Run for a while.
     episodes = 2000
