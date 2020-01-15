@@ -93,10 +93,12 @@ for epoch in range(epochs):
         if trainable:
             s = [obs['obs'] for obs in states]
             reward =reward_model(s)
-            #rewards += [reward[i].item() for i in range(len(reward))]
-            #for i in range(len(reward)):
-            #    reward[i] = ( reward[i].item() - np.mean(rewards) ) / 0.05 
-            l.append(Loss(policy, optimizer_p, states, actions, reward))
+            rewards += [reward[i].item() for i in range(len(reward))]
+            for i in range(len(reward)):
+               reward[i] = ( reward[i].item() - np.mean(rewards) ) / 0.05 
+            losses = Loss(policy, optimizer_p, states, actions, reward)
+            for i in range(len(losses)):
+                l.append(losses[i])
 
         save_policy_weights(policy, weigth_path)
 
