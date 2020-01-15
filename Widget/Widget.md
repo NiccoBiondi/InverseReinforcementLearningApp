@@ -1,6 +1,6 @@
 # Application Wdget
 
-In this folder there are all the widget used to build he application view and functionality. There are described the most usefull widget.
+In this folder there are all the widgets used to build the application view and functionality. The most important widgets will be described below.
 
 ## Setup window
 
