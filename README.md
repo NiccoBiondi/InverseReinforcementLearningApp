@@ -8,7 +8,7 @@ The aim of this project is to create a simple application that can give the oppo
   <img src="Build/gitimages/alg_view.png" width="400"/>
 </p>
 
-## Feature
+## Features 
 
 Features include:
 
@@ -18,6 +18,10 @@ Features include:
 - Restore previous work sesssion before starting a new work.
 - [Oracle](ReinforcementLearning/ReinforcemenLearning.md) to speed up the annotations and to debug the policy and reward model.
 - [Utility function](Utility/UTILS.md) which the user can use to analyze the reward model and to testing the policy and reward model too. 
+
+## Download
+
+Get the app cloning this repository in your computer and install the dependencies.
 
 ## Dependecies
 
