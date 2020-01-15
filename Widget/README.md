@@ -1,5 +1,13 @@
 # Setup Application
 
-<p>
-  <img src="https://github.com/giuliobz/InverseReinforcementLearningApp/blob/master/Widget/gitimages/init_setting.png">
+<p align="center">
+  <img src="gitimages/init_setting.png" width="400">
+</p>
+
+<p align="center">
+  <img src="gitimages/default_setting.png" width="400">
+</p>
+
+<p align="center">
+  <img src="gitimages/load_checkpoint.png" width="400">
 </p>
