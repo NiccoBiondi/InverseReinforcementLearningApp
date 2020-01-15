@@ -1,6 +1,7 @@
 # Don't track content of these folders
 *.vscode/
 *__pycache__/
+*~
 
 # added for not mixing our results
 *Clips_Database/
