@@ -60,3 +60,18 @@ pip install mathplotlib
 pip install Pillow
 pip install opencv-python
 ```
+
+## Usage
+
+Inverse Reinforcement Learning app is used by terminal support. The user has to go from terminal to the folder in which he has downloaded the github repository and then follow this command:
+
+```bash
+# Activate virtual environment in which you have installed all the dependencies
+conda activate minigrid
+
+# Go inside the master folder 
+cd InverseReinforcementLearningApp-master
+
+# Start application
+python Application.py
+```
