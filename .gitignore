@@ -10,6 +10,7 @@
 *reward_model_init_weight/
 
 zz_saving/
+training.py
 
 # added for clamp and standardization tries
 PolicyThread.py
