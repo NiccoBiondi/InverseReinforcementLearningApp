@@ -5,7 +5,7 @@ import re
 import numpy as np
 
 from ReinforcementLearning.csvRewardModel import save_reward_weights
-from Utility.utility import save_model_parameters
+from Utility.utility import save_model_parameters, load_annotation_buffer
 
 from PyQt5.QtCore import QThread, pyqtSlot, QObject, pyqtSignal
 
@@ -44,7 +44,6 @@ class RewardThread(QThread):
         # is saved the remain annotation buffer and it is loaded for the reward model training.
         clips_number = int( ( ( len(os.listdir(self._model.clips_database)) + len(os.listdir(self._model.history_database)) ) * ( int( self._model.model_parameters['n_annotation'] ) / 100  ) )  / 2 )
         if len(self._model.annotation_buffer) !=  clips_number:
-            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, self._start_point)
             self._model.annotation_buffer, _  = load_annotation_buffer(self._model.auto_save_folder + [ '/' + path + '/' for path in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in path][0])
         
         for k in range(int(self._model.model_parameters['K'])):
