@@ -11,6 +11,3 @@
 
 zz_saving/
 
-# added for clamp and standardization tries
-PolicyThread.py
-csvRewardModel.py
