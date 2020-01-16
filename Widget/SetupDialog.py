@@ -164,7 +164,7 @@ class SetupDialogController(QObject):
         default_param = {}
         default_param['minigrid_env'] = 'MiniGrid-Empty-6x6-v0'
         default_param['episode_len'] = str(80)
-        default_param['lr'] = str(0.001)
+        default_param['lr'] = str(0.0001)
         default_param['clips_len'] = str(5)
         default_param['episodes'] = str(200)
         default_param['K'] = str(100)

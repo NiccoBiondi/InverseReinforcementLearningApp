@@ -59,6 +59,7 @@ class Controller(QObject):
     @pyqtSlot(dict)
     def init_values(self, values):
         self._model.model_parameters = values
+        save_model_parameters(self._model.auto_save_path, self._model.model_parameters, 0)
 
     # Simple function to create a folder where the user can save policy and reward model weight,
     # annotation buffer and model parameters. 
@@ -227,7 +228,9 @@ class Controller(QObject):
         
         # Connect the oracle timer with a function
         self._model.oracle_timer.timeout.connect(lambda : self.setOraclePreferencies())
-
+        
+        # Define the number of clips to annotate
+        self._clips_number = int( ( ( len(os.listdir(self._model.clips_database)) + len(os.listdir(self._model.history_database)) ) * ( int( self._model.model_parameters['n_annotation'] ) / 100  ) )  / 2 )
         self._start_point = 0 if len(self._model.annotation_buffer) == 0 else len(self._model.annotation_buffer) - 1
 
         for i in range(self._model.ann_point, self._clips_number):

@@ -24,7 +24,7 @@ class Policy(nn.Module):
     def __init__(self, obs_size, act_size, inner_size, **kwargs):
         super(Policy, self).__init__(**kwargs)
         self.affine1 = nn.Linear(obs_size, inner_size)
-        self.affine2 = nn.Linear(inner_size, 3)
+        self.affine2 = nn.Linear(inner_size, act_size)
 
         self.saved_log_probs = []
         self.rewards = []
