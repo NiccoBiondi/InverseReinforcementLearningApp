@@ -193,7 +193,7 @@ def heatmap_reward(rewards, counts, mode=None):
     fig = plt.figure()
     ax = sns.heatmap(rewards)
     fig.add_subplot(1,1,1)
-    fig.savefig('heatmap.png')
+    fig.savefig(mode + 'heatmap.png')
 
 def plot_loss():
 
