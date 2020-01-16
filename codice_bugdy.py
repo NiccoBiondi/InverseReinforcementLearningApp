@@ -78,7 +78,7 @@ def run_episode(env, policy, length, reward_model, gamma=0.99):
         state, reward, done, _ = env.step(action)
         state = state_filter(state)
         states.append(state)
-        rewards.append(reward_model(reward)[0].item())
+        rewards.append(reward_model([s])[0].item())
         actions.append(action)
         if done:
             break
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     # Instantiate a reward model.
     reward_model = csvRewardModel(obs_size=obs_size, inner_size=inner_size)
     reward_model.load_state_dict(torch.load('path'))
-
+    reward_model.cuda()
     # Use the Adam optimizer.
     optimizer = torch.optim.Adam(params=policy.parameters(), lr=lr)
 
