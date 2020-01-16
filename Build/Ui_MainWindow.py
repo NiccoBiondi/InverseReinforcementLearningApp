@@ -128,7 +128,7 @@ class Ui_MainWindow(object):
         self.startButton.setText(_translate("MainWindow", "Start"))
         self.loadState.setText(_translate("MainWindow", "Load Checkpoint"))
         self.InitParameters.setText(_translate("MainWindow", "Set starting settings"))
-        self.resetState.setText(_translate("MainWindow", "Reset model"))
+        self.resetState.setText(_translate("MainWindow", "Reset loaded model"))
         self.stateLabel.setText(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"

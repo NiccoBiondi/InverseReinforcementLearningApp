@@ -2,6 +2,7 @@
 *.vscode/
 *__pycache__/
 *~
+*.png
 
 # added for not mixing our results
 *Clips_Database/

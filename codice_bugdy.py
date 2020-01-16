@@ -2,9 +2,6 @@ import time
 import gym
 import gym_minigrid
 import numpy as np
-import sys
-import os
-from optparse import OptionParser
 
 import torch
 import torch.nn as nn
@@ -13,9 +10,6 @@ import torch.optim as optim
 import torch.autograd as autograd
 from torch.distributions.categorical import Categorical
 from itertools import count
-
-sys.path.insert(1, os.path.dirname(os.path.abspath('__file__')))
-from ReinforcementLearning.csvRewardModel import csvRewardModel
 
 # A simple, memoryless MLP (Multy Layer Perceptron) agent.
 # Last layer are logits (scores for which higher values
@@ -75,8 +69,6 @@ def run_episode(env, policy, length, gamma=0.99):
 
     # Run for desired episode length.
     for step in range(length):
-        env.render('human')
-        time.sleep(0.5)
         # Get action from policy net based on current state.
         action = select_action(policy, state)
 
@@ -87,34 +79,19 @@ def run_episode(env, policy, length, gamma=0.99):
         rewards.append(reward)
         actions.append(action)
         if done:
+            print(rewards)
             break
 
     # Finished with episode, compute loss per step.
     discounted_rewards = compute_discounted_rewards(rewards, gamma)
+    if done:
+        print(discounted_rewards) 
 
     # Return the sequence of states, actions, and the corresponding rewards.
     return (states, actions, discounted_rewards)
 
 ###### The main loop.
 if __name__ == '__main__':
-    parser = OptionParser()
-    parser.add_option(
-        "-e",
-        "--env-name",
-        dest="env_name",
-        help="gym environment to load",
-        default='MiniGrid-Empty-6x6-v0'
-    )
-    parser.add_option(
-        "-p", 
-        "--policy",
-        dest="policy_weigth", 
-        help="path to policy weigth",
-        default=None
-    )
-
-    (options, args) = parser.parse_args()
-
     ###### Some configuration variables.
     episode_len = 50  # Length of each game.
     obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
@@ -124,23 +101,61 @@ if __name__ == '__main__':
     avg_reward = 0.0  # For tracking average regard per episode.
 
     # Setup OpenAI Gym environment for guessing game.
-    env = gym.make(options.env_name)
+    env = gym.make('MiniGrid-Empty-6x6-v0')
 
     # Instantiate a policy network.
     policy = Policy(obs_size=obs_size, act_size=act_size, inner_size=inner_size)
-    policy.load_state_dict(torch.load(options.policy_weigth))
+
+    # Use the Adam optimizer.
+    optimizer = torch.optim.Adam(params=policy.parameters(), lr=lr)
 
     # Run for a while.
     episodes = 2000
     for step in range(episodes):
         # MiniGrid has a QT5 renderer which is pretty cool.
         env.render('human')
-        time.sleep(0.5)
+        time.sleep(0.01)
 
         # Run an episode.
         (states, actions, discounted_rewards) = run_episode(env, policy, episode_len)
+        avg_reward += np.mean(discounted_rewards) # con i reward veri
+        if step % 100 == 0:
+            print('Average reward @ episode {}: {}'.format(step, avg_reward / 100))
+            avg_reward = 0.0
+        
+        # Repeat each action, and backpropagate discounted
+        # rewards. This can probably be batched for efficiency with a
+        # memoryless agent...
+	# LOSS...
+        optimizer.zero_grad()
+        for (step, a) in enumerate(actions):
+            logits = policy(states[step])
+            dist = Categorical(logits=logits)
+            loss = -dist.log_prob(actions[step]) * discounted_rewards[step]
+            loss.backward()
+        optimizer.step()
 
-        print(discounted_rewards)
-        print('*' * 100)
+    # Now estimate the diagonal FIM.
+    print('Estimating diagonal FIM...')
+    episodes = 1000
+    log_probs = []
+    for step in range(episodes):
+        # Run an episode.
+        (states, actions, discounted_rewards) = run_episode(env, policy, episode_len)
+        avg_reward += np.mean(discounted_rewards)
+        if step % 100 == 0:
+            print('Average reward @ episode {}: {}'.format(step, avg_reward / 100))
+            avg_reward = 0.0
+        
+        # Repeat each action, and backpropagate discounted
+        # rewards. This can probably be batched for efficiency with a
+        # memoryless agent...
+        for (step, a) in enumerate(actions):
+            logits = policy(states[step])
+            dist = Categorical(logits=logits)
+            log_probs.append(-dist.log_prob(actions[step]) * discounted_rewards[step])
 
-	
+    loglikelihoods = torch.cat(log_probs).mean(0)
+    loglikelihood_grads = autograd.grad(loglikelihoods, policy.parameters())
+    FIM = {n: g**2 for n, g in zip([n for (n, _) in policy.named_parameters()], loglikelihood_grads)}
+        

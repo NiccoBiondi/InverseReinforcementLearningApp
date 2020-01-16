@@ -103,7 +103,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Reset model</string>
+          <string>Reset loaded model</string>
          </property>
         </widget>
        </item>
