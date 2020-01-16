@@ -109,6 +109,7 @@ if __name__ == '__main__':
 
     # Instantiate a reward model.
     reward_model = csvRewardModel(obs_size=obs_size, inner_size=inner_size)
+    reward_model.load_state_dict(torch.load('path'))
 
     # Use the Adam optimizer.
     optimizer = torch.optim.Adam(params=policy.parameters(), lr=lr)
