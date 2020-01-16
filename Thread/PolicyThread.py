@@ -53,11 +53,12 @@ class PolicyThread(QThread):
 
         clips_generated = []
         rewards = []
+        l = []
 
         # Check if in weigth_init path there is the reward model weigth. In the positive case, the policy
         # can be trained, else the policy has to create the clips.
         self._train = True if 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) else False
-           
+        
         for step in range(self._model.iteration, int(self._model.model_parameters['episodes'])):
             
             self._model.logBarSxSignal.emit('Policy processing :' +  str(self._model.iteration + 1) + '/' + str(self._model.model_parameters['episodes']) + ' episodes')
@@ -78,19 +79,19 @@ class PolicyThread(QThread):
             # If the reward model is trained one time the policy can be trained.
             # To train the policy are used the rewards computed by the reward model.
             if self._train:
-                s = [obs['obs'] for obs in states]
-                reward = self._model.reward_model(s)
-
-                rewards += [reward[i].item() for i in range(len(reward))]
-
-                for i in range(len(reward)):
-                    reward[i] = ( reward[i].item() - np.mean(rewards) ) / 0.05 # / 0.05 or np.std(rewards) # to force rewards to be 0 mean and 0.05 std 
-                    
-                l = Loss(self._model.policy, self._model.optimizer_p, states, actions, reward)
-                # print("Train policy loss: {:.3f}".format((sum(l)/len(l))))
-            
+                reward = self._model.reward_model([obs['obs'] for obs in states])
+                #rewards += [reward[i].item() for i in range(len(reward))]
+                #for i in range(len(reward)):
+                #   reward[i] = ( reward[i].item() - np.mean(rewards) ) / 0.05 
+                losses = Loss(self._model.policy, self._model.optimizer_p, states, actions, reward)
+                for i in range(len(losses)):
+                    l.append(losses[i])
+                
             self._model.iteration += 1
             gc.collect()
+
+        if len(l) > 0:
+            print("Train policy loss: {:.6f}".format((sum(l)/len(l))))
             
         self._model.logBarSxSignal.emit('Training of policy finished')
 

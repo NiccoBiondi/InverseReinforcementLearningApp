@@ -14,7 +14,6 @@ sys.path.insert(1, os.path.dirname(os.path.abspath('__file__')))
 from ReinforcementLearning.csvRewardModel import csvRewardModel
 from ReinforcementLearning.wrapper import FullyObsWrapper
 
-
 KEY_NUMBER = {
     259 : 'UP',
     261 : 'RIGHT',
@@ -97,6 +96,13 @@ def main():
         help="gym environment to load",
         default='MiniGrid-Empty-6x6-v0'
     )
+    parser.add_option(
+        "-r", 
+        "--reward",
+        dest="reward_model", 
+        help="path to reard model weigth",
+        default=None
+    )
 
     (options, args) = parser.parse_args()
 
@@ -104,7 +110,11 @@ def main():
     obs_size = 7*7
 
     reward_model = csvRewardModel(obs_size, inner_size)
-    reward_model.load_state_dict( torch.load('zz_saving/weigths/csv_reward_weight_lr0.0001_k1000_20:57.pth') )
+    if options.reward_model == None:
+        print('define reward model weigth path')
+        sys.exit()
+
+    reward_model.load_state_dict( torch.load(options.reward_model) )
 
     reward_model.cuda()
 
@@ -122,10 +132,8 @@ def main():
     number = 1
 
     rewards = np.zeros((env.width, env.height))
-    real_rewards = np.zeros((env.width, env.height))
     counts = np.zeros((env.width, env.height))
     states = []
-    all_reward = []
 
     while True:
         env.render('human')
@@ -136,8 +144,6 @@ def main():
             action = keyDownCb(c, env)
 
             obs, reward, done, info = env.step(action)
-
-            all_reward.append(reward)
 
             img = wrapper.observation(obs)
             img = img[:,:,0].T
@@ -153,11 +159,6 @@ def main():
             
             if done:
                 print('done!')
-                d_rewards = compute_discounted_rewards(all_reward)
-                for i in range(len(states)):
-                    real_rewards[states[i][0], states[i][1]] += d_rewards[i]
-                
-                all_reward = []
                 states = []
                 env.reset()
         
@@ -182,7 +183,7 @@ def heatmap_reward(rewards, counts):
     fig = plt.figure()
     ax = sns.heatmap(rewards)
     fig.add_subplot(1,1,1)
-    fig.savefig('prova.png')
+    fig.savefig('heat-map.png')
 
 def plot_loss():
 

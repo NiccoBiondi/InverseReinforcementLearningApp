@@ -28,7 +28,7 @@ class csvRewardModel(nn.Module):
 
             x_1 = state_filter(obs).cuda().view(-1, 7*7)
             x_1 = F.relu(self.affine1(x_1))
-            rewards.append(self.affine2(x_1).clamp(0,1))
+            rewards.append( self.affine2(x_1).clamp(0, +1) )
         
         return rewards
 
@@ -40,7 +40,6 @@ class csvRewardModel(nn.Module):
     def compute_rewards(self, reward_model, optimizer, train_clips):
 
         probs = []
-        #reward_model.train()
         optimizer.zero_grad()
 
         for idx, triple in enumerate(train_clips):
@@ -65,7 +64,6 @@ class csvRewardModel(nn.Module):
         # nn.utils.clip_grad_norm_(reward_model.parameters(), 5)
         optimizer.step()
 
-        #reward_model.eval()
         return loss.item()
 
 # Simple utility function to save the reward model weights

@@ -1,12 +1,15 @@
+import gym, gym_minigrid, torch, copy, tqdm, shutil, os, sys
+import numpy as np
+import argparse
+
+sys.path.insert(1, os.path.dirname(os.path.abspath('__file__')))
+
 from ReinforcementLearning.policy import Policy, run_episode, save_policy_weights, Loss
 from ReinforcementLearning.csvRewardModel import csvRewardModel, save_reward_weights
 from ReinforcementLearning.Oracle import Oracle
 from ReinforcementLearning.wrapper import FullyObsWrapper, RGBImgObsWrapper
 from Utility.annotator import Annotator
 from Utility.utility import clips_generator, save_clips
-
-import gym, gym_minigrid, torch, copy, tqdm, shutil, os, argparse
-import numpy as np
 
 # Simple contructor function.
 def data_loader(annotation_buffer, batch):
@@ -69,7 +72,7 @@ trainable = False
 
 # MAIN LOOP 
 
-for epoch in range(epochs):
+for epoch in range(args.epochs):
 
     if os.path.exists(clips_database):
         shutil.rmtree(clips_database)
@@ -96,9 +99,9 @@ for epoch in range(epochs):
         if trainable:
             s = [obs['obs'] for obs in states]
             reward =reward_model(s)
-            rewards += [reward[i].item() for i in range(len(reward))]
-            for i in range(len(reward)):
-               reward[i] = ( reward[i].item() - np.mean(rewards) ) / 0.05 
+            #rewards += [reward[i].item() for i in range(len(reward))]
+            #for i in range(len(reward)):
+            #   reward[i] = ( reward[i].item() - np.mean(rewards) ) / 0.05 
             losses = Loss(policy, optimizer_p, states, actions, reward)
             for i in range(len(losses)):
                 l.append(losses[i])

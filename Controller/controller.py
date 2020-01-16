@@ -42,8 +42,10 @@ class Controller(QObject):
         self._policy_t = PolicyThread(self._model)
         self._policy_t._signals.finishedSignal.connect(lambda : self.annotation())
         self._reward_t = RewardThread(self._model)
+        self._reward_t._signals.finishedSignal.connect(lambda : self._reward_t.quit())
 
         self._start_point = 0
+        self._clips_number = 0
 
     # Simple function that when the timer end set the preferencies
     # like the oracle predict..(frase a caso)
@@ -136,12 +138,12 @@ class Controller(QObject):
                 if [path for path in os.listdir(fileName) if 'annotation_buffer' in path]:
                     self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0], self._model.auto_save_folder + '/annotation_buffer/')
 
-                    if self._model.ann_point % 80 == 0:
-                        self._model.annotation_buffer = []
+                    #if self._model.ann_point % 80 == 0:
+                    #    self._model.annotation_buffer = []
 
-                    elif len(self._model.annotation_buffer) > 80:
-                        idx = (int(len(self._model.annotation_buffer) / 80) * 80) + 2
-                        self._model.annotation_buffer = self._model.annotation_buffer[idx:]
+                    #elif len(self._model.annotation_buffer) > 80:
+                    #    idx = (int(len(self._model.annotation_buffer) / 80) * 80) + 2
+                    #    self._model.annotation_buffer = self._model.annotation_buffer[idx:]
                 
                 self._model.load_path = fileName
                 
@@ -190,11 +192,23 @@ class Controller(QObject):
     # Process button function.
     @pyqtSlot()
     def process(self):
-        
-        self._model.logBarSxSignal.emit('Policy processing...')
-        self._policy_t.done = False
-        self._policy_t.start()
+
+        self._model.logBarSxSignal.emit('')
+        self._model.logBarDxSignal.emit('')
         self._model.processButton = False
+
+        # Define the number of clips to annotate
+        self._clips_number = int( ( ( len(os.listdir(self._model.clips_database)) + len(os.listdir(self._model.history_database)) ) * ( int( self._model.model_parameters['n_annotation'] ) / 100  ) )  / 2 )
+
+        if self._model.iteration < int(self._model.model_parameters['episodes']):
+            self._policy_t.done = False
+            self._policy_t.start()
+
+        elif self._model.ann_point < self._clips_number:
+            self.annotation()
+        
+        else:
+            self._reward_t.start()
 
     # Simple QEventLoop used to wait the choice button clicked event.
     def wait_signal(self):
@@ -214,14 +228,12 @@ class Controller(QObject):
         # Connect the oracle timer with a function
         self._model.oracle_timer.timeout.connect(lambda : self.setOraclePreferencies())
 
-        # Define the number of clips to annotate
-        clips_number = int( ( ( len(os.listdir(self._model.clips_database)) + len(os.listdir(self._model.history_database)) ) * ( int( self._model.model_parameters['n_annotation'] ) / 100  ) )  / 2 )
         self._start_point = 0 if len(self._model.annotation_buffer) == 0 else len(self._model.annotation_buffer) - 1
 
-        for i in range(self._model.ann_point, clips_number):
+        for i in range(self._model.ann_point, self._clips_number):
 
             self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database)
-            self._model.logBarSxSignal.emit( 'Annotation: ' + str(i) + '/' + str(clips_number) )
+            self._model.logBarSxSignal.emit( 'Annotation: ' + str(i) + '/' + str(self._clips_number) )
 
             while(len(self._model.disp_figure) > 0):
                 
@@ -270,6 +282,9 @@ class Controller(QObject):
 
             self._model.ann_point = self._model.ann_point + 1
 
+        if len(self._model.annotation_buffer) > 0:
+            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, self._start_point)
+            
         self._model.logBarDxSignal.emit('Annotation phase finished')
 
         self._model.display_imageSx = []

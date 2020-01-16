@@ -13,11 +13,14 @@ class OracleButton(QCheckBox):
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
 
     def check_changed(self):
+
         if self.isChecked():
             self._model.choiceButton = False
             self._model.oracle_timer.start()
+
         else:
-            if len(self._model.display_imageDx) > 0:
+
+            if self._model.display_imageDx and self._model.display_imageSx:
                 self._model.timer_dx.start()
                 self._model.timer_sx.start()
 

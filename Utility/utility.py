@@ -233,7 +233,7 @@ def load_annotation_buffer(load_path, annotation_path=None):
     
     if len(os.listdir(load_path)) > 0:
         
-        for triple in os.listdir(load_path):
+        for triple in sorted(os.listdir(load_path)):
 
             data_df = pd.read_csv(load_path + triple , error_bad_lines=False, names=["clip_1", "clip_2", "pref", "iteration"])
 
