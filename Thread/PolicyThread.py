@@ -7,7 +7,7 @@ import copy
 import re
 import numpy as np
 
-from ReinforcementLearning.policy import run_episode, Loss, save_policy_weights
+from ReinforcementLearning.policy import run_episode, Loss, save_policy_weights,compute_discounted_rewards
 
 from Utility.utility import clips_generator, save_clips, save_model
 
@@ -52,6 +52,8 @@ class PolicyThread(QThread):
     def run(self):
 
         clips_generated = []
+
+        # memorize the rewards numeber for the standardization
         rewards = []
         l = []
 
@@ -80,9 +82,18 @@ class PolicyThread(QThread):
             # To train the policy are used the rewards computed by the reward model.
             if self._train:
                 reward = self._model.reward_model([obs['obs'] for obs in states])
-                #rewards += [reward[i].item() for i in range(len(reward))]
-                #for i in range(len(reward)):
-                #   reward[i] = ( reward[i].item() - np.mean(rewards) ) / 0.05 
+                
+                # Compute the discounted rewards 
+                discounted_rewards = compute_discounted_rewards(reward)
+                # Memorize only the last 1000 rewards to make the standardization
+                for r in reward:
+                    if len(rewards) == 1000:
+                        rewards.pop(0)
+                    rewards.append(r.item())
+                # Rewards standardization with std = 0.05 and mean = 0
+                for i in range(len(reward)):
+                  reward[i] = ( ( reward[i].item() - np.mean(rewards) ) / np.std(rewards) ) * 0.05
+
                 losses = Loss(self._model.policy, self._model.optimizer_p, states, actions, reward)
                 for i in range(len(losses)):
                     l.append(losses[i])
