@@ -80,9 +80,9 @@ class PolicyThread(QThread):
             # To train the policy are used the rewards computed by the reward model.
             if self._train:
                 reward = self._model.reward_model([obs['obs'] for obs in states])
-                #rewards += [reward[i].item() for i in range(len(reward))]
-                #for i in range(len(reward)):
-                #   reward[i] = ( reward[i].item() - np.mean(rewards) ) / 0.05 
+                rewards += [reward[i].item() for i in range(len(reward))]
+                for i in range(len(reward)):
+                  reward[i] = ( ( reward[i].item() - np.mean(rewards) ) / np.std(rewards) ) * 0.05 
                 losses = Loss(self._model.policy, self._model.optimizer_p, states, actions, reward)
                 for i in range(len(losses)):
                     l.append(losses[i])
