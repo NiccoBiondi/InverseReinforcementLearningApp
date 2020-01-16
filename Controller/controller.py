@@ -139,12 +139,12 @@ class Controller(QObject):
                 if [path for path in os.listdir(fileName) if 'annotation_buffer' in path]:
                     self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0], self._model.auto_save_folder + '/annotation_buffer/')
 
-                    #if self._model.ann_point % 80 == 0:
-                    #    self._model.annotation_buffer = []
+                    if self._model.ann_point % 80 == 0:
+                       self._model.annotation_buffer = []
 
-                    #elif len(self._model.annotation_buffer) > 80:
-                    #    idx = (int(len(self._model.annotation_buffer) / 80) * 80) + 2
-                    #    self._model.annotation_buffer = self._model.annotation_buffer[idx:]
+                    elif len(self._model.annotation_buffer) > 80:
+                       idx = (int(len(self._model.annotation_buffer) / 80) * 80) + 2
+                       self._model.annotation_buffer = self._model.annotation_buffer[idx:]
                 
                 self._model.load_path = fileName
                 

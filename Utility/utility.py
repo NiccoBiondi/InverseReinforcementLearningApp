@@ -245,7 +245,7 @@ def load_annotation_buffer(load_path, annotation_path=None):
             
             for idx, element in enumerate(data_df["clip_1"].values):
                 img_1 = convert_string(element)
-                img_2 = convert_string(data_df["clip_1"].values[idx])
+                img_2 = convert_string(data_df["clip_2"].values[idx])
                 clip_1.append(np.reshape(img_1, shape))
                 clip_2.append(np.reshape(img_2, shape))
 
