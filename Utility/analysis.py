@@ -136,36 +136,40 @@ def main():
     states = []
 
     while True:
+
         env.render('human')
         time.sleep(0.01)
-        c = damn.getch()
-        if c > 1:
+        try:
+            c = damn.getch()
+            if c > 1:
+                
+                action = keyDownCb(c, env)
+
+                obs, reward, done, info = env.step(action)
+
+                img = wrapper.observation(obs)
+                img = img[:,:,0].T
+                x_ag, y_ag = np.where(img == 10)
+
+                states.append([x_ag[0],y_ag[0]])
+                reward = reward_model([obs['image']])
+
+                print('step=%s, reward=%.6f' % (env.step_count, reward[0]))
+
+                rewards[x_ag[0], y_ag[0]] += reward[0]
+                counts[x_ag[0], y_ag[0]] += 1
+                
+                if done:
+                    print('done!')
+                    states = []
+                    env.reset()
             
-            action = keyDownCb(c, env)
-
-            obs, reward, done, info = env.step(action)
-
-            img = wrapper.observation(obs)
-            img = img[:,:,0].T
-            x_ag, y_ag = np.where(img == 10)
-
-            states.append([x_ag[0],y_ag[0]])
-            reward = reward_model([obs['image']])
-
-            print('step=%s, reward=%.6f' % (env.step_count, reward[0]))
-
-            rewards[x_ag[0], y_ag[0]] += reward[0]
-            counts[x_ag[0], y_ag[0]] += 1
-            
-            if done:
-                print('done!')
-                states = []
-                env.reset()
+                env.render('human')
+                time.sleep(0.01)
         
-            env.render('human')
-            time.sleep(0.01)
+        except:
+            print()
 
-        
         # If the window was closed
         if renderer.window == None:
             
@@ -183,7 +187,7 @@ def heatmap_reward(rewards, counts):
     fig = plt.figure()
     ax = sns.heatmap(rewards)
     fig.add_subplot(1,1,1)
-    fig.savefig('heat-map.png')
+    fig.savefig('heatmap.png')
 
 def plot_loss():
 

@@ -44,11 +44,6 @@ class RewardThread(QThread):
         loss = []
 
         self._model.annotation_buffer, _  = load_annotation_buffer(self._model.auto_save_folder + [ '/' + path + '/' for path in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in path][0])
-
-        for triple in self._model.annotation_buffer:
-            print(triple[2])
-
-        sys.exit()
         
         for k in range(int(self._model.model_parameters['K'])):
             self._model.logBarSxSignal.emit("Train reward model : k-batch " + str(k) + ' of ' + str(self._model.model_parameters['K']) )
