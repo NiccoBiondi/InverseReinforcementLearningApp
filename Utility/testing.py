@@ -39,7 +39,9 @@ class Policy(nn.Module):
 # action according to the probabilities output by final layer.
 def select_action(policy, state):
     probs = policy.forward(state)
+    print(probs)
     dist = Categorical(logits=probs)
+    print(dist)
     action = dist.sample()
     return action
 
