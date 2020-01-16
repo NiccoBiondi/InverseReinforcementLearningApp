@@ -104,7 +104,7 @@ def main():
     obs_size = 7*7
 
     reward_model = csvRewardModel(obs_size, inner_size)
-    reward_model.load_state_dict( torch.load('SAVE_FOLDER/MiniGrid-Empty-6x6-v0_(14-01-2020)/csv_reward_weight_lr0.001_k1000_15:20.pth') )
+    reward_model.load_state_dict( torch.load('zz_saving/weigths/csv_reward_weight_lr0.0001_k1000_20:57.pth') )
 
     reward_model.cuda()
 

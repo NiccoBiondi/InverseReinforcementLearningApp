@@ -5,7 +5,7 @@ from ReinforcementLearning.wrapper import FullyObsWrapper, RGBImgObsWrapper
 from Utility.annotator import Annotator
 from Utility.utility import clips_generator, save_clips
 
-import gym, gym_minigrid, torch, copy, tqdm, shutil, os
+import gym, gym_minigrid, torch, copy, tqdm, shutil, os, argparse
 import numpy as np
 
 # Simple contructor function.
@@ -24,8 +24,11 @@ def data_loader(annotation_buffer, batch):
 
 DIR_NAME = os.path.dirname(os.path.abspath('__file__'))
 
-epochs = 20
+parser = argparse.ArgumentParser()
+parser.add_argument("--e", dest="epochs", default=50, type=int) 
+args = parser.parse_args()
 
+epochs = args.epochs
 save_path = DIR_NAME + '/zz_saving'
 clips_database = save_path +'/clips_db'
 weigth_path = save_path +'/weigths'
@@ -39,7 +42,7 @@ reward_batch = 16
 K = 1000
 
 lr_reward = 1e-4
-lr_policy = 1e-4
+lr_policy = 5e-4
 
 if os.path.exists(clips_database):
     shutil.rmtree(clips_database)
@@ -54,7 +57,7 @@ oracle = Oracle(grid_wrapper, env, None)
 env = RGBImgObsWrapper(env)
 reward_model = csvRewardModel(obs_size = obs_size, inner_size = inner_size).cuda()
 policy = Policy(obs_size = obs_size, act_size = act_size, inner_size = inner_size).cuda()
-optimizer_p = torch.optim.Adam(params=policy.parameters(), lr = lr_policy)
+optimizer_p = torch.optim.Adam(params=policy.parameters(), lr = lr_policy, weight_decay=0.01)
 optimizer_r = torch.optim.Adam(params=reward_model.parameters(), lr = lr_reward, weight_decay=0.01)
 
 annotator = Annotator()
@@ -125,7 +128,8 @@ for epoch in range(epochs):
     print('starting reward model training')
 
     loss = []
-
+    # annotation_buffer = [ triple for triple in annotation_buffer if triple[2] != [0,0] ]
+    # print(len(annotation_buffer))
     for k in tqdm.tqdm(range(K)):
         train_clips = data_loader(annotation_buffer, 16)
         loss.append(reward_model.compute_rewards(reward_model, optimizer_r, train_clips))

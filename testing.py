@@ -20,7 +20,7 @@ class Policy(nn.Module):
     def __init__(self, obs_size, act_size, inner_size, **kwargs):
         super(Policy, self).__init__(**kwargs)
         self.affine1 = nn.Linear(obs_size, inner_size)
-        self.affine2 = nn.Linear(inner_size, act_size)
+        self.affine2 = nn.Linear(inner_size, 3)
 
         self.saved_log_probs = []
         self.rewards = []
@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
     # Instantiate a policy network.
     policy = Policy(obs_size=obs_size, act_size=act_size, inner_size=inner_size)
-    policy.load_state_dict(torch.load('/home/bazza/Scrivania/RL/InverseReinforcementLearningApp/SAVE_FOLDER/MiniGrid-Empty-6x6-v0_(12-01-2020)/policy_weight_19:00.pth'))
+    policy.load_state_dict(torch.load('zz_saving/weigths/policy_weight_20:55.pth'))
 
     # Run for a while.
     episodes = 2000

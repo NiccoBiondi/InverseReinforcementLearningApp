@@ -12,7 +12,6 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 
 DIR_NAME = os.path.dirname(os.path.abspath('__file__'))
 
-
 app = QApplication(sys.argv)
 model = Model()
 controller = Controller(model)
