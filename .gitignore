@@ -2,7 +2,6 @@
 *.vscode/
 *__pycache__/
 *~
-*heatmap.png
 
 # added for not mixing our results
 *Clips_Database/
