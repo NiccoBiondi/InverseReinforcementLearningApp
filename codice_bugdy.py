@@ -11,6 +11,8 @@ import torch.autograd as autograd
 from torch.distributions.categorical import Categorical
 from itertools import count
 
+from ReinforcementLearning.csvRewardModel import csvRewardModel
+
 # A simple, memoryless MLP (Multy Layer Perceptron) agent.
 # Last layer are logits (scores for which higher values
 # represent preferred actions.
@@ -57,7 +59,7 @@ def compute_discounted_rewards(rewards, gamma=0.99):
 # nice thing about the MiniGrid environment is that the game never
 # ends. After achieving the goal, the game resets. Kind of like
 # Sisyphus...
-def run_episode(env, policy, length, gamma=0.99):
+def run_episode(env, policy, length, reward_model, gamma=0.99):
     # Restart the MiniGrid environment.
     state = state_filter(env.reset())
 
@@ -76,10 +78,9 @@ def run_episode(env, policy, length, gamma=0.99):
         state, reward, done, _ = env.step(action)
         state = state_filter(state)
         states.append(state)
-        rewards.append(reward)
+        rewards.append(reward_model(reward)[0].item())
         actions.append(action)
         if done:
-            print(rewards)
             break
 
     # Finished with episode, compute loss per step.
@@ -106,6 +107,10 @@ if __name__ == '__main__':
     # Instantiate a policy network.
     policy = Policy(obs_size=obs_size, act_size=act_size, inner_size=inner_size)
 
+    # Instantiate a reward model.
+    reward_model = csvRewardModel(obs_size=obs_size, inner_size=inner_size)
+    reward_model.load_state_dict(torch.load('path'))
+
     # Use the Adam optimizer.
     optimizer = torch.optim.Adam(params=policy.parameters(), lr=lr)
 
@@ -117,7 +122,7 @@ if __name__ == '__main__':
         time.sleep(0.01)
 
         # Run an episode.
-        (states, actions, discounted_rewards) = run_episode(env, policy, episode_len)
+        (states, actions, discounted_rewards) = run_episode(env, policy, episode_len, reward_model)
         avg_reward += np.mean(discounted_rewards) # con i reward veri
         if step % 100 == 0:
             print('Average reward @ episode {}: {}'.format(step, avg_reward / 100))
