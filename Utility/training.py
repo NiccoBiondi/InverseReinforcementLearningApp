@@ -45,7 +45,7 @@ reward_batch = 16
 K = 1000
 
 lr_reward = 1e-4
-lr_policy = 5e-4
+lr_policy = 1e-4
 
 if os.path.exists(clips_database):
     shutil.rmtree(clips_database)
