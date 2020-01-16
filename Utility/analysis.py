@@ -87,7 +87,7 @@ def keyDownCb(keyValue, env):
     return action
 
 
-def main():
+def main(mode=None):
     parser = OptionParser()
     parser.add_option(
         "-e",
@@ -156,9 +156,14 @@ def main():
 
                 print('step=%s, reward=%.6f' % (env.step_count, reward[0]))
 
-                rewards[x_ag[0], y_ag[0]] += reward[0]
-                counts[x_ag[0], y_ag[0]] += 1
+                if mode == 'mean':
+                    rewards[x_ag[0], y_ag[0]] += reward[0]
+                    counts[x_ag[0], y_ag[0]] += 1
                 
+                elif mode == 'max':
+                    if rewards[x_ag[0], y_ag[0]] == 0 or reward[0] > rewards[x_ag[0], y_ag[0]]:
+                        rewards[x_ag[0], y_ag[0]] = reward[0]
+
                 if done:
                     print('done!')
                     states = []
@@ -173,17 +178,18 @@ def main():
         # If the window was closed
         if renderer.window == None:
             
-            heatmap_reward(rewards, counts)
+            heatmap_reward(rewards, counts, mode)
             break
     
 
-def heatmap_reward(rewards, counts):
+def heatmap_reward(rewards, counts, mode=None):
 
-    for i in range(1, len(rewards)-1):
-        for j in range(1, len(rewards)-1):
-            if counts[i,j] != 0: 
-                rewards[i,j] = rewards[i,j]/counts[i,j]
-
+    if mode == 'mean':
+        for i in range(1, len(rewards)-1):
+            for j in range(1, len(rewards)-1):
+                if counts[i,j] != 0: 
+                    rewards[i,j] = rewards[i,j]/counts[i,j]
+    
     fig = plt.figure()
     ax = sns.heatmap(rewards)
     fig.add_subplot(1,1,1)
@@ -195,4 +201,4 @@ def plot_loss():
 
 if __name__ == '__main__':
 
-    main()
+    main(mode='max')
