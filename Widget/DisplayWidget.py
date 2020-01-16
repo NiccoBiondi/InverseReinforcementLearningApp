@@ -30,10 +30,11 @@ class Display(QLabel):
     @pyqtSlot()
     def update_display(self):
 
-        if len(self._displayImage) == 0:
+        if not self._displayImage:
             self._timer.stop()
 
         else:
+            
             if not self._model.oracle_active:
 
                 if self._count != len(self._displayImage) :
@@ -54,10 +55,14 @@ class Display(QLabel):
     # Funtion to upload the displayImage variable
     @pyqtSlot(list)
     def updateDisplayImage(self, image):
+
         if self._displayImage != None:
             del self._displayImage
+
         self._displayImage = image
-        self._displayImage.insert(0, Image.new('RGB', (800, 800), color=(255, 255, 255)))
+        
+        if image:
+            self._displayImage.insert(0, Image.new('RGB', (800, 800), color=(255, 255, 255)))
         
         
 

@@ -38,13 +38,7 @@ class RewardThread(QThread):
     def run(self):
         loss = []
 
-
-        # If the checkpoint is loaded and the clips to annotate are finished,
-        # the reward model start. If othrewise the annotation phase is finished
-        # is saved the remain annotation buffer and it is loaded for the reward model training.
-        clips_number = int( ( ( len(os.listdir(self._model.clips_database)) + len(os.listdir(self._model.history_database)) ) * ( int( self._model.model_parameters['n_annotation'] ) / 100  ) )  / 2 )
-        if len(self._model.annotation_buffer) !=  clips_number:
-            self._model.annotation_buffer, _  = load_annotation_buffer(self._model.auto_save_folder + [ '/' + path + '/' for path in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in path][0])
+        self._model.annotation_buffer, _  = load_annotation_buffer(self._model.auto_save_folder + [ '/' + path + '/' for path in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in path][0])
         
         for k in range(int(self._model.model_parameters['K'])):
             self._model.logBarSxSignal.emit("Train reward model : k-batch " + str(k) + ' of ' + str(self._model.model_parameters['K']) )

@@ -192,9 +192,12 @@ class Controller(QObject):
     def process(self):
         self._model.logBarSxSignal.emit('')
         self._model.logBarDxSignal.emit('')
-        self._policy_t.done = False
-        self._policy_t.start()
         self._model.processButton = False
+        if self._model.iteration != int(self._model.model_parameters['episodes']):
+            self._policy_t.done = False
+            self._policy_t.start()
+        else:
+            self.annotation()
 
     # Simple QEventLoop used to wait the choice button clicked event.
     def wait_signal(self):
