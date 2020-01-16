@@ -83,8 +83,6 @@ class PolicyThread(QThread):
             if self._train:
                 reward = self._model.reward_model([obs['obs'] for obs in states])
                 
-                # Compute the discounted rewards 
-                discounted_rewards = compute_discounted_rewards(reward)
                 # Memorize only the last 1000 rewards to make the standardization
                 for r in reward:
                     if len(rewards) == 1000:
@@ -94,7 +92,11 @@ class PolicyThread(QThread):
                 for i in range(len(reward)):
                   reward[i] = ( ( reward[i].item() - np.mean(rewards) ) / np.std(rewards) ) * 0.05
 
-                losses = Loss(self._model.policy, self._model.optimizer_p, states, actions, reward)
+                # Compute the discounted rewards 
+                discounted_rewards = compute_discounted_rewards(reward)
+                
+                losses = Loss(self._model.policy, self._model.optimizer_p, states, actions, discounted_rewards)
+                
                 for i in range(len(losses)):
                     l.append(losses[i])
                 
