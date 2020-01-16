@@ -2,14 +2,13 @@
 *.vscode/
 *__pycache__/
 *~
-*heatmap.png
 
 # added for not mixing our results
 *Clips_Database/
 *History_Database/
 *SAVE_FOLDER/
 *reward_model_init_weight/
-
+images/
 zz_saving/
 
 training.py
