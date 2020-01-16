@@ -78,7 +78,7 @@ def run_episode(env, policy, length, reward_model, gamma=0.99):
         s, reward, done, _ = env.step(action)
         state = state_filter(s)
         states.append(state)
-        rewards.append(reward_model(s)[0].item())
+        rewards.append(reward_model([s])[0].item())
         actions.append(action)
         if done:
             break
