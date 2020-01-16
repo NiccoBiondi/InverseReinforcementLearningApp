@@ -21,6 +21,12 @@ def data_loader(annotation_buffer, batch):
 
         return train_data
 
+class ThreadSignals(QObject):
+    '''
+    Defines the signals available from a running worker thread.
+    '''
+    finishedSignal = pyqtSignal()
+
 # Simple class that make the reward model train.
 # For K times, from annotation buffer, is created different train 
 # clips set that is given to the reward model. 
@@ -31,14 +37,18 @@ class RewardThread(QThread):
         # Store constructor arguments (re-used for processing)
 
         self._model = model
-        self._train = True if os.listdir(self._model._weigth_path) else False
-        self._done = False
+        self._signals = ThreadSignals()
 
     @pyqtSlot()
     def run(self):
         loss = []
 
         self._model.annotation_buffer, _  = load_annotation_buffer(self._model.auto_save_folder + [ '/' + path + '/' for path in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in path][0])
+
+        for triple in self._model.annotation_buffer:
+            print(triple[2])
+
+        sys.exit()
         
         for k in range(int(self._model.model_parameters['K'])):
             self._model.logBarSxSignal.emit("Train reward model : k-batch " + str(k) + ' of ' + str(self._model.model_parameters['K']) )
@@ -68,6 +78,7 @@ class RewardThread(QThread):
         self._model.logBarDxSignal.emit("Press process to continue or quit application")
         
         self._model.processButton = True
+        self._signals.finishedSignal.emit()
   
 
         
