@@ -99,6 +99,7 @@ class PolicyThread(QThread):
                 
                 for i in range(len(losses)):
                     l.append(losses[i])
+                    self._model.policy_loss.append(losses[i])
                 
             self._model.iteration += 1
             gc.collect()

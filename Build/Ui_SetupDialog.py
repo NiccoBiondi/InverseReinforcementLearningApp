@@ -2,13 +2,11 @@
 
 # Form implementation generated from reading ui file 'SetupDialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_SetupModel(object):
     def setupUi(self, SetupModel):
@@ -177,3 +175,4 @@ class Ui_SetupModel(object):
         self.annotation.setItemText(4, _translate("SetupModel", "60"))
         self.annotation.setItemText(5, _translate("SetupModel", "80"))
         self.annotation.setItemText(6, _translate("SetupModel", "90"))
+

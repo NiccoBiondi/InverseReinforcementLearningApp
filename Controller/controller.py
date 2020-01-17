@@ -8,6 +8,7 @@ import torch
 import time
 import shutil
 from datetime import date
+import matplotlib.pyplot as plt
 
 from View.AlgView import AlgView
 
@@ -44,6 +45,22 @@ class Controller(QObject):
         self._reward_t._signals.finishedSignal.connect(lambda : self._reward_t.quit())
 
         self._clips_number = 0
+
+
+    # Simple function to save the reward and policy graphic loss
+    def save_graphic_loss(self, name):
+        if self._model.model_parameters.keys():
+            
+            if not os.path.exists('Graphic_Images/' + self._model.model_parameters['minigrid_env']):
+                os.makedirs('Graphic_Images/' + self._model.model_parameters['minigrid_env'])
+
+            plt.plot([i for i in range(len(losses))], losses)
+            plt.xlabel('Epochs')
+            plt.ylabel('Loss')
+            plt.title(name.split('.')[0])
+            save_path ='Graphic_Images/' + self._model.model_parameters['minigrid_env'] + '/' + name
+            plt.savefig()
+            plt.show()
 
     # Simple function that when the timer end set the preferencies
     # like the oracle predict..(frase a caso)
@@ -137,7 +154,7 @@ class Controller(QObject):
 
                 if fileName != self._model.auto_save_folder:
                     shutil.rmtree(self._model.auto_save_folder)
-                    os.makedirs(self._model.auto_save_folder)
+                    #os.makedirs(self._model.auto_save_folder)
                     shutil.copytree(fileName, self._model.auto_save_folder)
                 
                 self._model.load_path = fileName

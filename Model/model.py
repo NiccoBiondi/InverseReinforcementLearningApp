@@ -90,6 +90,11 @@ class Model(QObject):
         self._optimizer_p = None
         self._optimizer_r = None 
 
+        # Define two list that memorize the reward model and policy 
+        # loss. This is usefull to save the graphic loss 
+        self._reward_loss = []
+        self._policy_loss = []
+
         # Define oracle variable
         self._oracle = None       
         self._grid_wrapper = None  
@@ -112,6 +117,14 @@ class Model(QObject):
     @property
     def oracle_timer(self):
         return self._oracle_timer
+
+    @property
+    def policy_loss(self):
+        return self._policy_loss
+
+    @property
+    def reward_loss(self):
+        return self._reward_loss
 
     @property
     def grid_wrapper(self):
@@ -248,6 +261,14 @@ class Model(QObject):
     @property
     def oracle(self):
         return self._oracle
+
+    @policy_loss.setter
+    def policy_loss(self, slot):
+        self._policy_loss = slot
+
+    @reward_loss.setter
+    def reward_loss(self, slot):
+        self._reward_loss = slot
 
     @grid_wrapper.setter
     def grid_wrapper(self, slot):

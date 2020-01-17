@@ -152,7 +152,17 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="action_About"/>
    </widget>
+   <widget class="QMenu" name="menuSave_Loss_Grahics">
+    <property name="title">
+     <string>&amp;Save Loss Grahics</string>
+    </property>
+    <addaction name="action_Reward_loss_graphic"/>
+    <addaction name="separator"/>
+    <addaction name="action_Policy_loss_graphic"/>
+    <addaction name="separator"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menuSave_Loss_Grahics"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -174,6 +184,16 @@ p, li { white-space: pre-wrap; }
   <action name="action_About">
    <property name="text">
     <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="action_Reward_loss_graphic">
+   <property name="text">
+    <string>&amp;Reward loss graphic</string>
+   </property>
+  </action>
+  <action name="action_Policy_loss_graphic">
+   <property name="text">
+    <string>&amp;Policy loss graphic</string>
    </property>
   </action>
  </widget>

@@ -2,13 +2,11 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -99,6 +97,8 @@ class Ui_MainWindow(object):
         self.menu_File.setObjectName("menu_File")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
+        self.menuSave_Loss_Grahics = QtWidgets.QMenu(self.menubar)
+        self.menuSave_Loss_Grahics.setObjectName("menuSave_Loss_Grahics")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -111,11 +111,20 @@ class Ui_MainWindow(object):
         self.action_Quit.setObjectName("action_Quit")
         self.action_About = QtWidgets.QAction(MainWindow)
         self.action_About.setObjectName("action_About")
+        self.action_Reward_loss_graphic = QtWidgets.QAction(MainWindow)
+        self.action_Reward_loss_graphic.setObjectName("action_Reward_loss_graphic")
+        self.action_Policy_loss_graphic = QtWidgets.QAction(MainWindow)
+        self.action_Policy_loss_graphic.setObjectName("action_Policy_loss_graphic")
         self.menu_File.addAction(self.action_Save_state)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.action_Quit)
         self.menu_Help.addAction(self.action_About)
+        self.menuSave_Loss_Grahics.addAction(self.action_Reward_loss_graphic)
+        self.menuSave_Loss_Grahics.addSeparator()
+        self.menuSave_Loss_Grahics.addAction(self.action_Policy_loss_graphic)
+        self.menuSave_Loss_Grahics.addSeparator()
         self.menubar.addAction(self.menu_File.menuAction())
+        self.menubar.addAction(self.menuSave_Loss_Grahics.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -136,7 +145,11 @@ class Ui_MainWindow(object):
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:11pt; color:#ff0000;\">MODEL NOT LOAD OR INITIALIZE</span></p></body></html>"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
+        self.menuSave_Loss_Grahics.setTitle(_translate("MainWindow", "&Save Loss Grahics"))
         self.action_Save_state.setText(_translate("MainWindow", "&Save State"))
         self.action_Load_State.setText(_translate("MainWindow", "&Load State"))
         self.action_Quit.setText(_translate("MainWindow", "&Quit"))
         self.action_About.setText(_translate("MainWindow", "&About"))
+        self.action_Reward_loss_graphic.setText(_translate("MainWindow", "&Reward loss graphic"))
+        self.action_Policy_loss_graphic.setText(_translate("MainWindow", "&Policy loss graphic"))
+
