@@ -56,10 +56,12 @@ class Controller(QObject):
             
             if 'reward' in name:
                 plt.plot([i for i in range(len(self._model.reward_loss))], self._model.reward_loss)
+                plt.xlabel('Iterations')
+                
             else:
                 plt.plot([i for i in range(len(self._model.policy_loss))], self._model.policy_loss)
+                plt.xlabel('Agent Step')
 
-            plt.xlabel('Epochs')
             plt.ylabel('Loss')
             plt.title(name.split('.')[0])
             save_path ='Graphic_Images/' + self._model.model_parameters['minigrid_env'] + '/' + name
