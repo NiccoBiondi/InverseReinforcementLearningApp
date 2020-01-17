@@ -60,7 +60,7 @@ class Controller(QObject):
             plt.title(name.split('.')[0])
             save_path ='Graphic_Images/' + self._model.model_parameters['minigrid_env'] + '/' + name
             plt.savefig()
-            #plt.show()
+            plt.show()
 
     # Simple function that when the timer end set the preferencies
     # like the oracle predict..(frase a caso)
