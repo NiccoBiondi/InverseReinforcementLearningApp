@@ -53,13 +53,17 @@ class Controller(QObject):
             
             if not os.path.exists('Graphic_Images/' + self._model.model_parameters['minigrid_env']):
                 os.makedirs('Graphic_Images/' + self._model.model_parameters['minigrid_env'])
+            
+            if 'reward' in name:
+                plt.plot([i for i in range(len(self._model.reward_loss))], self._model.reward_loss)
+            else:
+                plt.plot([i for i in range(len(self._model.policy_loss))], self._model.policy_loss)
 
-            plt.plot([i for i in range(len(losses))], losses)
             plt.xlabel('Epochs')
             plt.ylabel('Loss')
             plt.title(name.split('.')[0])
             save_path ='Graphic_Images/' + self._model.model_parameters['minigrid_env'] + '/' + name
-            plt.savefig()
+            plt.savefig(save_path)
             plt.show()
 
     # Simple function that when the timer end set the preferencies

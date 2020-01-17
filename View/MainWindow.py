@@ -40,8 +40,8 @@ class MainWindow(QMainWindow):
         # Connect quit and save action
         self.ui.action_Quit.triggered.connect(QApplication.exit)
         self.ui.action_Save_state.triggered.connect(self._controller.save_action)
-        self.ui.action_Reward_loss_graphic.trigger.connect(self.save_reward_loss)
-        self.ui.action_Policy_loss_graphic.trigger.connect(self.save_policy_loss)
+        self.ui.action_Reward_loss_graphic.triggered.connect(self.save_reward_loss)
+        self.ui.action_Policy_loss_graphic.triggered.connect(self.save_policy_loss)
 
         # Define buttons logics
         self.ui.startButton.clicked.connect(lambda : self._controller.start_button())
@@ -77,6 +77,6 @@ class MainWindow(QMainWindow):
     def save_reward_loss(self):
         self._controller.save_graphic_loss('reward_model_loss.png')
 
-    @pyqtSlot
-    def save_policy_loss(self)
+    @pyqtSlot()
+    def save_policy_loss(self):
         self._controller.save_graphic_loss('policy_loss.png')
