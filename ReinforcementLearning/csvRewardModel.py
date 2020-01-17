@@ -46,8 +46,7 @@ class csvRewardModel(nn.Module):
         optimizer.zero_grad()
 
         for idx, triple in enumerate(train_clips):
-            
-            
+                        
             reward_1 = reward_model.forward(triple[0])
             reward_2 = reward_model.forward(triple[1])
             
@@ -70,9 +69,10 @@ class csvRewardModel(nn.Module):
         return loss.item()
 
 # Simple utility function to save the reward model weights
-def save_reward_weights(reward_model, save_weights, default_path, lr, K, reward_losses):
+def save_reward_weights(reward_model, save_weights, default_path, lr, K, reward_losses=None):
 
-    save_losses_list(save_weights + '/reward_model_losses.csv', reward_losses)
+    if reward_losses != None:
+        save_losses_list(save_weights + '/reward_model_losses.csv', reward_losses)
 
     current_time = time.strftime("%H:%M", time.localtime())
     if [save_weights + '/' + el for el in os.listdir(save_weights) if 'csv_reward_weight' in el]:
