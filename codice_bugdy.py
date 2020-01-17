@@ -61,7 +61,9 @@ def compute_discounted_rewards(rewards, gamma=0.99):
 # Sisyphus...
 def run_episode(env, policy, length, reward_model, gamma=0.99):
     # Restart the MiniGrid environment.
-    state = state_filter(env.reset())
+    state = state_filter(env.reset())   
+
+    c = 0
 
     # We need to keep a record of states, actions, and the
     # instantaneous rewards.
@@ -71,6 +73,8 @@ def run_episode(env, policy, length, reward_model, gamma=0.99):
 
     # Run for desired episode length.
     for step in range(length):
+        env.render('human')
+        time.sleep(0.2)
         # Get action from policy net based on current state.
         action = select_action(policy, state)
 
@@ -80,16 +84,18 @@ def run_episode(env, policy, length, reward_model, gamma=0.99):
         states.append(state)
         rewards.append(reward_model([s['image']])[0].item())
         actions.append(action)
+
         if done:
             break
 
     # Finished with episode, compute loss per step.
     discounted_rewards = compute_discounted_rewards(rewards, gamma)
     if done:
+        c += 1
         print(discounted_rewards) 
 
     # Return the sequence of states, actions, and the corresponding rewards.
-    return (states, actions, discounted_rewards)
+    return (states, actions, discounted_rewards, c)
 
 ###### The main loop.
 if __name__ == '__main__':
@@ -98,7 +104,7 @@ if __name__ == '__main__':
     obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
     act_size = 7      # Seven possible actions (turn left, right, forward, pickup, drop, etc.)
     inner_size = 64   # Number of neurons in two hidden layers.
-    lr = 0.001        # Adam learning rate
+    lr = 5e-5        # Adam learning rate
     avg_reward = 0.0  # For tracking average regard per episode.
 
     # Setup OpenAI Gym environment for guessing game.
@@ -109,7 +115,7 @@ if __name__ == '__main__':
 
     # Instantiate a reward model.
     reward_model = csvRewardModel(obs_size=obs_size, inner_size=inner_size)
-    reward_model.load_state_dict(torch.load('/home/nicco/Documents/Progetti/InverseReinforcementLearningApp/zz_saving/weigths_1e-3p&r/csv_reward_weight_lr0.001_k1000_17:58.pth'))
+    reward_model.load_state_dict(torch.load('/home/nicco/Documents/Progetti/InverseReinforcementLearningApp/zz_saving/weigths/csv_reward_weight_lr0.005_k1000_20:55.pth'))
     reward_model.cuda()
     # Use the Adam optimizer.
     optimizer = torch.optim.Adam(params=policy.parameters(), lr=lr)
@@ -119,10 +125,10 @@ if __name__ == '__main__':
     for step in range(episodes):
         # MiniGrid has a QT5 renderer which is pretty cool.
         env.render('human')
-        time.sleep(0.01)
+        time.sleep(0.2)
 
         # Run an episode.
-        (states, actions, discounted_rewards) = run_episode(env, policy, episode_len, reward_model)
+        (states, actions, discounted_rewards, c) = run_episode(env, policy, episode_len, reward_model)
         avg_reward += np.mean(discounted_rewards) # con i reward veri
         if step % 100 == 0:
             print('Average reward @ episode {}: {}'.format(step, avg_reward / 100))
@@ -139,6 +145,8 @@ if __name__ == '__main__':
             loss = -dist.log_prob(actions[step]) * discounted_rewards[step]
             loss.backward()
         optimizer.step()
+
+    print(c)
 
     # Now estimate the diagonal FIM.
     print('Estimating diagonal FIM...')
