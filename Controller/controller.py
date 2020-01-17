@@ -23,7 +23,6 @@ from Utility.utility import save_model
 from Utility.utility import save_model_parameters
 
 from Utility.utility import load_values
-from Utility.utility import load_annotation_buffer
 
 from PyQt5.QtCore import QObject, pyqtSlot, QEventLoop, QTimer
 from PyQt5.QtWidgets import QFileDialog, QDialog, QMessageBox
@@ -44,7 +43,6 @@ class Controller(QObject):
         self._reward_t = RewardThread(self._model)
         self._reward_t._signals.finishedSignal.connect(lambda : self._reward_t.quit())
 
-        self._start_point = 0
         self._clips_number = 0
 
     # Simple function that when the timer end set the preferencies
@@ -82,7 +80,7 @@ class Controller(QObject):
                 shutil.copytree(self._model.auto_save_folder + '/annotation_buffer/', save_path + '/annotation_buffer/')
                 
             if len(self._model.annotation_buffer):
-                save_annotation(save_path, self._model.annotation_buffer, self._model.ann_point, self._start_point)
+                save_annotation(save_path, self._model.annotation_buffer, self._model.ann_point)
             
     # Simple function connect to 'Load checkpoint' button.
     # Give the possibility to the user to select a checkpoint work folder and
@@ -97,6 +95,7 @@ class Controller(QObject):
         fileName = QFileDialog.getExistingDirectory(caption="Choose checkpoint to load", directory=DIR_NAME + "/SAVE_FOLDER/", options=options)
 
         if fileName:
+
             if fileName != self._model.load_path:
 
                 if [path for path in os.listdir(fileName) if 'csv_reward_weight' in path]:
@@ -135,16 +134,11 @@ class Controller(QObject):
                 
                 if len([path for path in os.listdir(fileName) if 'csv_reward_weight' in path]) == 0  and 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) :
                     self._model.reward_model.load_state_dict(torch.load( self._model.weigth_path + '/csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' ))
-                                
-                if [path for path in os.listdir(fileName) if 'annotation_buffer' in path]:
-                    self._model.annotation_buffer, self._model.ann_point = load_annotation_buffer(fileName + [ '/' + path + '/' for path in os.listdir(fileName) if 'annotation_buffer' in path][0], self._model.auto_save_folder + '/annotation_buffer/')
 
-                    if self._model.ann_point % 80 == 0:
-                        self._model.annotation_buffer = []
-
-                    elif len(self._model.annotation_buffer) > 80:
-                        idx = (int(len(self._model.annotation_buffer) / 80) * 80) + 2
-                        self._model.annotation_buffer = self._model.annotation_buffer[idx:]
+                if fileName != self._model.auto_save_folder:
+                    shutil.rmtree(self._model.auto_save_folder)
+                    os.makedirs(self._model.auto_save_folder)
+                    shutil.copytree(fileName, self._model.auto_save_folder)
                 
                 self._model.load_path = fileName
                 
@@ -231,8 +225,7 @@ class Controller(QObject):
         
         # Define the number of clips to annotate
         self._clips_number = int( ( ( len(os.listdir(self._model.clips_database)) + len(os.listdir(self._model.history_database)) ) * ( int( self._model.model_parameters['n_annotation'] ) / 100  ) )  / 2 )
-        self._start_point = 0 if len(self._model.annotation_buffer) == 0 else len(self._model.annotation_buffer) - 1
-
+    
         for i in range(self._model.ann_point, self._clips_number):
 
             self._model.clips, self._model.disp_figure = self._model.annotator.load_clips_figure(self._model.clips_database)
@@ -272,21 +265,20 @@ class Controller(QObject):
                 except Exception as e:
                     print(e)
                     self._model.annotation_buffer = self._model.annotation_buffer[:-1]
-                    save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, self._start_point)
+                    save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
                     sys.exit()
 
                 self._model.preferences = None
                 gc.collect()
 
             if self._model.ann_point > 0 and self._model.ann_point % 80 == 0:
-                save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, self._start_point)
+                save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
                 self._model.annotation_buffer = []
-                self._start_point = 0
 
             self._model.ann_point = self._model.ann_point + 1
 
         if len(self._model.annotation_buffer) > 0:
-            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point, self._start_point)
+            save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
             
         self._model.logBarDxSignal.emit('Annotation phase finished')
 

@@ -164,24 +164,27 @@ def save_model_parameters(path, model_parameters, iteration):
 
 # Function to save annotation buffer. It is used to restart annotation
 #  and reload what the user do in previous work.
-def save_annotation(save_path, annotation_buffer, iteration, start_point):
+def save_annotation(save_path, annotation_buffer, iteration):
     triple_number = 0
-    path = ''
+    path = save_path + '/annotation_buffer'
 
-    if not [save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el]:
-        os.makedirs(save_path + '/annotation_buffer')
-        path = save_path + '/annotation_buffer'
+    # If the annotation_buffer folder not exists, it is created
+    if not os.path.exists(path):
+        os.makedirs(path)
     
     else:
-        path =  [save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el][0]
-        triple = os.listdir([save_path + '/' + el for el in os.listdir(save_path) if 'annotation_buffer' in el][0])
+
+        # If the annotation_buffer folder exists, then is taken the save point to save the new value.
+        triple = os.listdir(path)
         triple_number = [int(re.findall('\d+', t)[0]) for t in triple]
         if not triple_number:
             triple_number = 0
         else:
             triple_number = max(triple_number) + 1
+    
+    # There we discard all the triple with preference [0, 0]
+    annotation_buffer = [triple for triple in annotation_buffer if triple[2] != [0, 0]]
 
-    annotation_buffer = annotation_buffer[start_point:]
     for i, triple in enumerate(annotation_buffer):
         with open(path + '/triple_' + str(triple_number) + '.csv', 'w') as csvfile:
             filewriter = csv.writer(csvfile)
@@ -220,12 +223,7 @@ def load_values(path):
     return values, int(data_df["iteration"].values[0])
 
 # Function to load the previous annotation made in previous work
-def load_annotation_buffer(load_path, annotation_path=None):
-
-    if load_path != annotation_path and annotation_path != None:
-        if os.path.exists(annotation_path):
-            shutil.rmtree(annotation_path)
-        shutil.copytree(load_path, annotation_path)
+def load_annotation_buffer(load_path):
 
     shape = (7, 7, 3)
     annotation_buffer = []
