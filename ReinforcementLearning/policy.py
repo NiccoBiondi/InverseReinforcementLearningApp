@@ -107,8 +107,8 @@ def run_episode(env, policy, length, grid_wrapper):
 def save_policy_weights(model, save_weights_path):
 
     current_time = time.strftime("%H:%M", time.localtime())
-    if [save_weights_path + '/' + el for el in os.listdir(save_weights_path) if 'policy' in el]:
-        os.remove([save_weights_path + '/' + el for el in os.listdir(save_weights_path) if 'policy' in el][0])
+    if [save_weights_path + '/' + el for el in os.listdir(save_weights_path) if 'policy_weight' in el]:
+        os.remove([save_weights_path + '/' + el for el in os.listdir(save_weights_path) if 'policy_weight' in el][0])
 
     torch.save(model.state_dict(), save_weights_path + '/policy_weight_' + current_time + '.pth')
 
