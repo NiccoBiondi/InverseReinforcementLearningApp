@@ -121,22 +121,7 @@ class Controller(QObject):
         if fileName:
 
             if fileName != self._model.load_path:
-                
-                # load reward model weigth
-                if [path for path in os.listdir(fileName) if 'csv_reward_weight' in path]:
-                    self._model.reward_model.load_state_dict(torch.load( fileName + [ '/' + path for path in os.listdir(fileName) if 'csv_reward_weight' in path][0] ))
-                
-                # In this case the user, in previous works, has already train a reward model with the same parameters defined in the current loaded work.
-                # So if in the loaded folder there isn't the reward model weigth (the policy doesn't finish or the user doesn't finish to annotate),
-                # is checked in a reward model weigth folder if there is a weight. This prevents the training the reward model in the first iteration 
-                # and allows the policy training in the first iteration.
-                if len([path for path in os.listdir(fileName) if 'csv_reward_weight' in path]) == 0  and 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) :
-                    self._model.reward_model.load_state_dict(torch.load( self._model.weigth_path + '/csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' ))
 
-                # load policy weigth
-                if [path for path in os.listdir(fileName) if 'policy_weight' in path]:
-                    self._model.policy.load_state_dict(torch.load( fileName + [ '/' + path for path in os.listdir(fileName) if 'policy_weight' in path][0] ))
-                
                 # load hyperparameters and set the environment
                 if [path for path in os.listdir(fileName) if 'values' in path]:
 
@@ -148,6 +133,21 @@ class Controller(QObject):
                     self._model.env.reset() 
                     self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = 1e-4)
                     self._model.optimizer_r = torch.optim.Adam(params=self._model.reward_model.parameters(), lr = float(self._model.model_parameters['lr']), weight_decay=0.01)
+                
+                # load reward model weigth
+                if [path for path in os.listdir(fileName) if 'csv_reward_weight' in path]:
+                    self._model.reward_model.load_state_dict(torch.load( fileName + [ '/' + path for path in os.listdir(fileName) if 'csv_reward_weight' in path][0] ))
+
+                # In this case the user, in previous works, has already train a reward model with the same parameters defined in the current loaded work.
+                # So if in the loaded folder there isn't the reward model weigth (the policy doesn't finish or the user doesn't finish to annotate),
+                # is checked in a reward model weigth folder if there is a weight. This prevents the training the reward model in the first iteration 
+                # and allows the policy training in the first iteration.
+                if len([path for path in os.listdir(fileName) if 'csv_reward_weight' in path]) == 0  and 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) :
+                    self._model.reward_model.load_state_dict(torch.load( self._model.weigth_path + '/csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' ))
+
+                # load policy weigth
+                if [path for path in os.listdir(fileName) if 'policy_weight' in path]:
+                    self._model.policy.load_state_dict(torch.load( fileName + [ '/' + path for path in os.listdir(fileName) if 'policy_weight' in path][0] ))
 
                 # load reward model losses 
                 if 'reward_model_losses.csv' in os.listdir(fileName):

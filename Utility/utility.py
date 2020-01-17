@@ -32,8 +32,10 @@ def save_model(path, policy, model_parameters, iteration, policy_losses):
 
     if not os.path.exists(path):
         os.makedirs(path)
-
-    save_losses_list(path + '/policy_losses.csv', policy_losses)
+    
+    if policy_losses:
+        save_losses_list(path + '/policy_losses.csv', policy_losses)
+        
     save_policy_weights(policy, path)
     save_model_parameters(path, model_parameters, iteration)
 
