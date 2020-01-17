@@ -99,13 +99,13 @@ class PolicyThread(QThread):
                 
                 for i in range(len(losses)):
                     l.append(losses[i])
-                    self._model.policy_loss.append(losses[i])
                 
             self._model.iteration += 1
             gc.collect()
 
         if len(l) > 0:
             print("Train policy loss: {:.6f}".format((sum(l)/len(l))))
+            self._model.policy_loss.append((sum(l)/len(l)))
             
         self._model.logBarSxSignal.emit('Training of policy finished')
 
