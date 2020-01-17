@@ -23,6 +23,7 @@ from Utility.utility import save_annotation
 from Utility.utility import save_model
 from Utility.utility import save_model_parameters
 
+from Utility.utility import load_annotation_point
 from Utility.utility import load_values
 from Utility.utility import load_losses
 
@@ -159,6 +160,9 @@ class Controller(QObject):
                 # load policy losses 
                 if 'policy_losses.csv' in os.listdir(fileName):
                     self._model.policy_loss = load_losses(fileName + '/policy_losses.csv')
+
+                if os.path.exists(fileName + '/annotation_buffer'):
+                    self._model.ann_point = load_annotation_point(fileName + '/annotation_buffer/')
                 
                 # Set the default path and create them if not exist.
                 self._model.auto_save_folder = DIR_NAME + '/SAVE_FOLDER/' + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
@@ -182,7 +186,6 @@ class Controller(QObject):
                 # with the same element to allineate the two salvataggi
                 if fileName != self._model.auto_save_folder:
                     shutil.rmtree(self._model.auto_save_folder)
-                    #os.makedirs(self._model.auto_save_folder)
                     shutil.copytree(fileName, self._model.auto_save_folder)
                 
                 self._model.load_path = fileName

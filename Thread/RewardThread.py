@@ -43,7 +43,7 @@ class RewardThread(QThread):
     def run(self):
         loss = []
 
-        self._model.annotation_buffer, _  = load_annotation_buffer(self._model.auto_save_folder + '/annotation_buffer/')
+        self._model.annotation_buffer  = load_annotation_buffer(self._model.auto_save_folder + '/annotation_buffer/')
         
         for k in range(int(self._model.model_parameters['K'])):
             self._model.logBarSxSignal.emit("Train reward model : k-batch " + str(k) + ' of ' + str(self._model.model_parameters['K']) )

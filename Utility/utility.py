@@ -242,12 +242,27 @@ def load_values(path):
 
     return values, int(data_df["iteration"].values[0])
 
+# Function to load the previous annotation point
+def load_annotation_point(load_path):
+    ann_point = []
+
+    if len(os.listdir(load_path)) > 0:
+        for triple in sorted(os.listdir(load_path)):
+            data_df = pd.read_csv(load_path + triple , error_bad_lines=False, names=["clip_1", "clip_2", "pref", "iteration"])
+            iteration.append(data_df["iteration"].values[0])
+
+        ann_point = max(ann_point)
+
+    else:
+        ann_point = 0
+
+    return ann_point
+
 # Function to load the previous annotation made in previous work
 def load_annotation_buffer(load_path):
 
     shape = (7, 7, 3)
     annotation_buffer = []
-    iteration = []
     
     if len(os.listdir(load_path)) > 0:
         
@@ -258,8 +273,6 @@ def load_annotation_buffer(load_path):
             clip_1 = []
             clip_2 = []
             pref = [int(x) for x in re.findall('\d+', data_df['pref'][0])]
-
-            iteration.append(data_df["iteration"].values[0])
             
             for idx, element in enumerate(data_df["clip_1"].values):
                 img_1 = convert_string(element)
@@ -269,12 +282,7 @@ def load_annotation_buffer(load_path):
 
             annotation_buffer.append([clip_1, clip_2, pref])
     
-    if iteration == []:
-        iteration = 0
-    else:
-        iteration = max(iteration)
-    
-    return annotation_buffer, iteration
+    return annotation_buffer
         
 
 
