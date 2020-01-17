@@ -11,14 +11,32 @@ import matplotlib.pyplot as plt
 
 from ReinforcementLearning.policy import save_policy_weights
 
+# save the loss list. Is used when the application is closed and the user
+# don't save the losses graphics. 
+def save_losses_list(path, losses):
+    
+    if os.path.exists(path):
+        os.remove(path)
+        
+    with open(path, 'w') as csvfile:
+            filewriter = csv.writer(csvfile)
+            filewriter.writerow(losses)
+
+# define a functioon to read and load the losses
+def load_losses(path):
+    data_df = pd.read_csv(path , error_bad_lines=False, nrows=1)
+    return [float(loss) for loss in data_df.columns]
+
 # save the policy model during the policy training
-def save_model(path, policy, model_parameters, iteration):
+def save_model(path, policy, model_parameters, iteration, policy_losses):
 
     if not os.path.exists(path):
         os.makedirs(path)
 
+    save_losses_list(path + '/policy_losses.csv', policy_losses)
     save_policy_weights(policy, path)
     save_model_parameters(path, model_parameters, iteration)
+
 
 # Simple utility function to read states saved in csv file
 def read_csv_clips(dir_path):

@@ -24,6 +24,7 @@ from Utility.utility import save_model
 from Utility.utility import save_model_parameters
 
 from Utility.utility import load_values
+from Utility.utility import load_losses
 
 from PyQt5.QtCore import QObject, pyqtSlot, QEventLoop, QTimer
 from PyQt5.QtWidgets import QFileDialog, QDialog, QMessageBox
@@ -120,13 +121,23 @@ class Controller(QObject):
         if fileName:
 
             if fileName != self._model.load_path:
-
+                
+                # load reward model weigth
                 if [path for path in os.listdir(fileName) if 'csv_reward_weight' in path]:
                     self._model.reward_model.load_state_dict(torch.load( fileName + [ '/' + path for path in os.listdir(fileName) if 'csv_reward_weight' in path][0] ))
+                
+                # In this case the user, in previous works, has already train a reward model with the same parameters defined in the current loaded work.
+                # So if in the loaded folder there isn't the reward model weigth (the policy doesn't finish or the user doesn't finish to annotate),
+                # is checked in a reward model weigth folder if there is a weight. This prevents the training the reward model in the first iteration 
+                # and allows the policy training in the first iteration.
+                if len([path for path in os.listdir(fileName) if 'csv_reward_weight' in path]) == 0  and 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) :
+                    self._model.reward_model.load_state_dict(torch.load( self._model.weigth_path + '/csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' ))
 
+                # load policy weigth
                 if [path for path in os.listdir(fileName) if 'policy_weight' in path]:
                     self._model.policy.load_state_dict(torch.load( fileName + [ '/' + path for path in os.listdir(fileName) if 'policy_weight' in path][0] ))
                 
+                # load hyperparameters and set the environment
                 if [path for path in os.listdir(fileName) if 'values' in path]:
 
                     self._model.model_parameters, self._model.iteration = load_values(fileName + [ '/' + path for path in os.listdir(fileName) if 'values' in path][0])
@@ -138,6 +149,15 @@ class Controller(QObject):
                     self._model.optimizer_p = torch.optim.Adam(params=self._model.policy.parameters(), lr = 1e-4)
                     self._model.optimizer_r = torch.optim.Adam(params=self._model.reward_model.parameters(), lr = float(self._model.model_parameters['lr']), weight_decay=0.01)
 
+                # load reward model losses 
+                if 'reward_model_losses.csv' in os.listdir(fileName):
+                    self._model.reward_loss = load_losses(fileName + '/reward_model_losses.csv')
+
+                # load policy losses 
+                if 'policy_losses.csv' in os.listdir(fileName):
+                    self._model.policy_loss = load_losses(fileName + '/policy_losses.csv')
+                
+                # Set the default path and create them if not exist.
                 self._model.auto_save_folder = DIR_NAME + '/SAVE_FOLDER/' + self._model.model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
                 self._model.clips_database = DIR_NAME + '/Clips_Database/' + self._model.model_parameters['minigrid_env'] 
                 self._model.history_database = DIR_NAME + '/History_Database/' + self._model.model_parameters['minigrid_env'] 
@@ -154,10 +174,9 @@ class Controller(QObject):
 
                 if not os.path.exists(self._model.weigth_path):
                     os.makedirs(self._model.weigth_path)
-                
-                if len([path for path in os.listdir(fileName) if 'csv_reward_weight' in path]) == 0  and 'csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' in os.listdir(self._model.weigth_path) :
-                    self._model.reward_model.load_state_dict(torch.load( self._model.weigth_path + '/csv_reward_weight_lr' + str(self._model.model_parameters['lr']) + '_k' + str(self._model.model_parameters['K']) + '.pth' ))
 
+                # if the loaded folder is not an autosave folder, then we create an autosave folder 
+                # with the same element to allineate the two salvataggi
                 if fileName != self._model.auto_save_folder:
                     shutil.rmtree(self._model.auto_save_folder)
                     #os.makedirs(self._model.auto_save_folder)

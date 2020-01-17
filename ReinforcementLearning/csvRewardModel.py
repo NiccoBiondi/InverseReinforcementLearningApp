@@ -5,6 +5,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from Utility.utility import save_losses_list
+
 # Utility function. The MiniGrid gym environment uses 3 channels as
 # state, but for this we only use the first channel: represents all
 # objects (including goal) with integers. This function just strips
@@ -68,7 +70,9 @@ class csvRewardModel(nn.Module):
         return loss.item()
 
 # Simple utility function to save the reward model weights
-def save_reward_weights(reward_model, save_weights, default_path, lr, K):
+def save_reward_weights(reward_model, save_weights, default_path, lr, K, reward_losses):
+
+    save_losses_list(path + '/reward_model_losses.csv', reward_losses)
 
     current_time = time.strftime("%H:%M", time.localtime())
     if [save_weights + '/' + el for el in os.listdir(save_weights) if 'csv_reward_weight' in el]:

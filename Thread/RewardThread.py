@@ -68,7 +68,7 @@ class RewardThread(QThread):
 
         # Auto save policy weight, reward model weight and model parameters.
         save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, self._model.iteration)
-        save_reward_weights(self._model.reward_model, self._model.auto_save_folder, self._model.weigth_path, self._model.model_parameters['lr'], self._model.model_parameters['K'])
+        save_reward_weights(self._model.reward_model, self._model.auto_save_folder, self._model.weigth_path, self._model.model_parameters['lr'], self._model.model_parameters['K'], self._model.reward_loss)
 
         self._model.logBarSxSignal.emit("End train reward model, the loss is : {:.3f}".format((sum(loss)/len(loss))))
         self._model.logBarDxSignal.emit("Press process to continue or quit application")
