@@ -70,7 +70,7 @@ class csvRewardModel(nn.Module):
 # Simple utility function to save the reward model weights
 def save_reward_weights(reward_model, save_weights, default_path, lr, K, reward_losses=None):
 
-    if reward_losses != None:
+    if reward_losses != None and reward_losses:
         save_losses_list(save_weights + '/reward_model_losses.csv', reward_losses)
 
     current_time = time.strftime("%H:%M", time.localtime())

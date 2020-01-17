@@ -249,7 +249,7 @@ def load_annotation_point(load_path):
     if len(os.listdir(load_path)) > 0:
         for triple in sorted(os.listdir(load_path)):
             data_df = pd.read_csv(load_path + triple , error_bad_lines=False, names=["clip_1", "clip_2", "pref", "iteration"])
-            iteration.append(data_df["iteration"].values[0])
+            ann_point.append(data_df["iteration"].values[0])
 
         ann_point = max(ann_point)
 
