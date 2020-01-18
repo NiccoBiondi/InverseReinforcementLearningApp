@@ -92,8 +92,11 @@ class PolicyThread(QThread):
                 for i in range(len(reward)):
                   reward[i] = ( ( reward[i].item() - np.mean(rewards) ) / np.std(rewards) ) * 0.05
 
-                # Compute the discounted rewards 
-                discounted_rewards = compute_discounted_rewards(reward)
+                # Compute the discounted rewards only if the agent arrive to the goal.
+                if True in dones:
+                    discounted_rewards = compute_discounted_rewards(reward)
+                else:
+                    discounted_rewards = np.zeros(len(reward))
                 
                 losses = Loss(self._model.policy, self._model.optimizer_p, states, actions, discounted_rewards)
                 
