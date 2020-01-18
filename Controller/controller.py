@@ -215,7 +215,7 @@ class Controller(QObject):
         else:
             
             # When the model is initialize, the hyperparameters are saved in autosave folder.
-            if not os.path.exists(self._model.auto_save_folder):
+            if not os.path.exists(self._model.auto_save_folder + '/values.csv'):
                 save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, 0)
 
             self._model.set_newWindow(AlgView(self._model, self))
