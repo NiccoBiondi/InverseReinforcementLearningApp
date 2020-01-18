@@ -61,20 +61,20 @@ def compute_discounted_rewards(rewards, gamma=0.99):
 # Sisyphus...
 def run_episode(env, policy, length, reward_model, gamma=0.99):
     # Restart the MiniGrid environment.
-    state = state_filter(env.reset())   
-
-    c = 0
+    state = state_filter(env.reset())  
 
     # We need to keep a record of states, actions, and the
     # instantaneous rewards.
     states = [state]
     actions = []
     rewards = []
+    dones = []
+    all_r = []
 
     # Run for desired episode length.
-    for step in range(length):
+    for step in range(80):
         env.render('human')
-        time.sleep(0.2)
+        time.sleep(0.1)
         # Get action from policy net based on current state.
         action = select_action(policy, state)
 
@@ -83,19 +83,28 @@ def run_episode(env, policy, length, reward_model, gamma=0.99):
         state = state_filter(s)
         states.append(state)
         rewards.append(reward_model([s['image']])[0].item())
+        if len(all_r) >= 1000:
+            all_r.pop(0)
+        all_r.append(rewards[-1])
         actions.append(action)
+        dones.append(done)
 
         if done:
             break
 
     # Finished with episode, compute loss per step.
+    #if True in dones:
+    for i in range(len(rewards)):
+        rewards[i] = ( ( rewards[i] - np.mean(all_r) ) / np.std(all_r) ) * 0.5
     discounted_rewards = compute_discounted_rewards(rewards, gamma)
+    #else:
+    #    discounted_rewards = np.zeros(len(rewards))
+    
     if done:
-        c += 1
-        print(discounted_rewards) 
+        print(discounted_rewards)
 
     # Return the sequence of states, actions, and the corresponding rewards.
-    return (states, actions, discounted_rewards, c)
+    return (states, actions, discounted_rewards)
 
 ###### The main loop.
 if __name__ == '__main__':
@@ -115,7 +124,7 @@ if __name__ == '__main__':
 
     # Instantiate a reward model.
     reward_model = csvRewardModel(obs_size=obs_size, inner_size=inner_size)
-    reward_model.load_state_dict(torch.load('/home/nicco/Documents/Progetti/InverseReinforcementLearningApp/zz_saving/weigths/csv_reward_weight_lr0.005_k1000_20:55.pth'))
+    reward_model.load_state_dict(torch.load('SAVE_FOLDER/MiniGrid-Empty-6x6-v0_(18-01-2020)/csv_reward_weight_lr0.0001_k1000_10:49.pth'))
     reward_model.cuda()
     # Use the Adam optimizer.
     optimizer = torch.optim.Adam(params=policy.parameters(), lr=lr)
@@ -125,10 +134,10 @@ if __name__ == '__main__':
     for step in range(episodes):
         # MiniGrid has a QT5 renderer which is pretty cool.
         env.render('human')
-        time.sleep(0.2)
+        time.sleep(0.1)
 
         # Run an episode.
-        (states, actions, discounted_rewards, c) = run_episode(env, policy, episode_len, reward_model)
+        (states, actions, discounted_rewards) = run_episode(env, policy, episode_len, reward_model)
         avg_reward += np.mean(discounted_rewards) # con i reward veri
         if step % 100 == 0:
             print('Average reward @ episode {}: {}'.format(step, avg_reward / 100))
@@ -138,15 +147,17 @@ if __name__ == '__main__':
         # rewards. This can probably be batched for efficiency with a
         # memoryless agent...
 	# LOSS...
+        l = []
         optimizer.zero_grad()
         for (step, a) in enumerate(actions):
             logits = policy(states[step])
             dist = Categorical(logits=logits)
             loss = -dist.log_prob(actions[step]) * discounted_rewards[step]
+            l.append(loss.item())
             loss.backward()
         optimizer.step()
 
-    print(c)
+        print('Loss : {:.3f} '.format(sum(l) / len(l)) )
 
     # Now estimate the diagonal FIM.
     print('Estimating diagonal FIM...')

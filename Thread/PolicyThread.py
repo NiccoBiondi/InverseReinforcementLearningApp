@@ -90,7 +90,7 @@ class PolicyThread(QThread):
                     rewards.append(r.item())
                 # Rewards standardization with std = 0.05 and mean = 0
                 for i in range(len(reward)):
-                  reward[i] = ( ( reward[i].item() - np.mean(rewards) ) / np.std(rewards) ) * 0.05
+                  reward[i] = ( ( reward[i].item() - np.mean(rewards) ) / np.std(rewards) ) * 0.5
 
                 # Compute the discounted rewards only if the agent arrive to the goal.
                 if True in dones:
