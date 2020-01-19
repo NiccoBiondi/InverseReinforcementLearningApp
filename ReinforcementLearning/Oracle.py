@@ -82,7 +82,7 @@ def createOracleMatrix(wrapper, env):
                 oracle_rewards[row][col] = m / 2
 
     for row in range(len(oracle_rewards)-2, 1, -1):
-        for col in range(1, len(oracle_rewards)-1):
+        for col in range(1, len(oracle_rewards)-2):
             if oracle_rewards[row][col] == 0:
                 m = max(list(oracle_rewards[row-1:row+2, col-1:col+1].flatten()))
                 if m == 10:
@@ -90,6 +90,8 @@ def createOracleMatrix(wrapper, env):
                 elif m <= 0.1:
                     m = 0
                 oracle_rewards[row][col] = m / 2
+    
+    print(oracle_rewards)
     
     return oracle_rewards
 

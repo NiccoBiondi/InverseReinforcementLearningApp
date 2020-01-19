@@ -153,23 +153,15 @@ def clips_generator(states, dones, clips_len, grids):
 # Is usefull to restart from the checkpoint
 def save_model_parameters(path, model_parameters, iteration):
     '''
-        minigrid_env : gym minigrid environment name
-
-        episode_len : trajectory length 
-
-        lr : policy and reward model learning rate
-
-        clips_len : clips length
-
-        episodes : number of iterations made by the policy
- 
-        K : mini-batches number for reward model train phase
-
-        n_annotation : number of annotation that the user has to do
-
-        idx : current number of clips set created by policy
-
-        iteration : current episode made by the policy
+        -minigrid_env    : gym minigrid environment name
+        -episode_len     : trajectory length 
+        -lr              : policy and reward model learning rate
+        -clips_len       : clips length
+        -episodes        : number of iterations made by the policy
+        -K               : mini-batches number for reward model train phase
+        -n_annotation    : number of annotation that the user has to do
+        -idx             : current number of clips set created by policy
+        -iteration       : current episode made by the policy
         
     '''
     current_time = time.strftime("%H:%M", time.localtime())
