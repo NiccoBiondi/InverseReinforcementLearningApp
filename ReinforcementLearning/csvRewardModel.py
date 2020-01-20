@@ -80,4 +80,3 @@ def save_reward_weights(reward_model, save_weights, default_path, lr, K, reward_
     torch.save(reward_model.state_dict(), save_weights + '/csv_reward_weight_lr' + str(lr) + '_k' + str(K) + '_' + current_time + '.pth')
     if default_path != None:
         torch.save(reward_model.state_dict(), default_path + '/csv_reward_weight_lr' + str(lr) + '_k' + str(K) + '.pth')
-

@@ -182,4 +182,3 @@ if __name__ == '__main__':
     loglikelihoods = torch.cat(log_probs).mean(0)
     loglikelihood_grads = autograd.grad(loglikelihoods, policy.parameters())
     FIM = {n: g**2 for n, g in zip([n for (n, _) in policy.named_parameters()], loglikelihood_grads)}
-        
