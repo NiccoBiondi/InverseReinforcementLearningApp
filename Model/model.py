@@ -82,7 +82,7 @@ class Model(QObject):
         self._obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
         self._act_size = 7      # Seven possible actions (turn left, right, forward, pickup, drop, etc.)
         self._inner_size = 64   # Number of neurons in two hidden layers.
-        self._reward_batch = 16 # Reward model batch size
+        self._reward_batch = 20 # Reward model batch size
 
         self._env = None
         self._reward_model = csvRewardModel(obs_size = self._obs_size, inner_size = self._inner_size).cuda()
@@ -378,7 +378,7 @@ class Model(QObject):
         self._env.reset()
 
         # Use the Adam optimizer.
-        self._optimizer_p = torch.optim.Adam(params=self._policy.parameters(), lr = 1e-4)
+        self._optimizer_p = torch.optim.Adam(params=self._policy.parameters(), lr = 1e-3, weight_decay=0.01)
         self._optimizer_r = torch.optim.Adam(params=self._reward_model.parameters(), lr = float(self._model_parameters['lr']), weight_decay=0.01)
         
         # When a model is initialized I control if a previous reward model

@@ -163,12 +163,12 @@ class SetupDialogController(QObject):
     def set_default(self):
         default_param = {}
         default_param['minigrid_env'] = 'MiniGrid-Empty-6x6-v0'
-        default_param['episode_len'] = str(80)
+        default_param['episode_len'] = str(50)
         default_param['lr'] = str(0.0001)
         default_param['clips_len'] = str(5)
-        default_param['episodes'] = str(200)
-        default_param['K'] = str(100)
-        default_param['n_annotation'] = str(80)
+        default_param['episodes'] = str(100)
+        default_param['K'] = str(1000)
+        default_param['n_annotation'] = str(100)
         self._model.default_parameters = default_param
 
     @pyqtSlot(str)
