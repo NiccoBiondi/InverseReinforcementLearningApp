@@ -185,7 +185,7 @@ class SetupDialogController(QObject):
 
     @pyqtSlot(str)
     def change_clips_len(self, value):
-        self.clips_len = value
+        self._model.clips_len = value
     
     @pyqtSlot(str)
     def change_episodes(self, value):

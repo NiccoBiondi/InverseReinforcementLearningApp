@@ -143,6 +143,10 @@ def clips_generator(states, dones, clips_len, grids):
             clips = [states[i]]
             clips_grid = [grids[i]]
     
+    if len(clips) == clips_len:
+        total_clips.append(clips)
+        total_clips_grid.append(clips_grid)
+    
     if len(clips_goal) != 0:
         total_clips.insert(0, clips_goal)
         total_clips_grid.insert(0, clips_grid_goal)
