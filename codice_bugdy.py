@@ -20,7 +20,7 @@ class Policy(nn.Module):
     def __init__(self, obs_size, act_size, inner_size, **kwargs):
         super(Policy, self).__init__(**kwargs)
         self.affine1 = nn.Linear(obs_size, inner_size)
-        self.affine2 = nn.Linear(inner_size, act_size)
+        self.affine2 = nn.Linear(inner_size, 3)
 
         self.saved_log_probs = []
         self.rewards = []
@@ -83,6 +83,7 @@ def run_episode(env, policy, length, reward_model, gamma=0.99):
         state = state_filter(s)
         states.append(state)
         rewards.append(reward_model([s['image']])[0].item())
+
         if len(all_r) >= 1000:
             all_r.pop(0)
         all_r.append(rewards[-1])
@@ -96,6 +97,7 @@ def run_episode(env, policy, length, reward_model, gamma=0.99):
     #if True in dones:
     for i in range(len(rewards)):
         rewards[i] = ( ( rewards[i] - np.mean(all_r) ) / np.std(all_r) ) * 0.5
+
     discounted_rewards = compute_discounted_rewards(rewards, gamma)
     #else:
     #    discounted_rewards = np.zeros(len(rewards))
@@ -124,7 +126,7 @@ if __name__ == '__main__':
 
     # Instantiate a reward model.
     reward_model = csvRewardModel(obs_size=obs_size, inner_size=inner_size)
-    reward_model.load_state_dict(torch.load('SAVE_FOLDER/MiniGrid-Empty-6x6-v0_(18-01-2020)/csv_reward_weight_lr0.0001_k1000_10:49.pth'))
+    reward_model.load_state_dict(torch.load('SAVE_FOLDER/0.5std_(21-01-2020)/csv_reward_weight_lr0.0001_k1000_14:39.pth'))
     reward_model.cuda()
     # Use the Adam optimizer.
     optimizer = torch.optim.Adam(params=policy.parameters(), lr=lr)

@@ -30,7 +30,7 @@ class csvRewardModel(nn.Module):
 
             x_1 = state_filter(obs).cuda().view(-1, 7*7)
             x_1 = F.relu(self.affine1(x_1))
-            rewards.append( self.affine2(x_1))
+            rewards.append( self.affine2(x_1).clamp(-0.5, +0.5) )
         
         return rewards
 
@@ -41,25 +41,32 @@ class csvRewardModel(nn.Module):
     # [0, 0] if the user discard the clips in triple. the preferency is used in loss computation.
     def compute_rewards(self, reward_model, optimizer, train_clips):
 
-        probs = []
+        #probs = []
         optimizer.zero_grad()
-
-        for idx, triple in enumerate(train_clips):
-                        
-            reward_1 = reward_model.forward(triple[0])
-            reward_2 = reward_model.forward(triple[1])
+        loss = []
+        for triple in train_clips:
+            # take the user preference 
+            preference = triple[2]
             
-            den = (torch.exp(sum(reward_1)) + torch.exp(sum(reward_2))) + 1e-7
-
-            p_sigma_1 = torch.exp(sum(reward_1)) / den
-            p_sigma_2 = torch.exp(sum(reward_2)) / den
-
-            probs.append([p_sigma_1, p_sigma_2, triple[2]])
-
-        loss = 0
-        for element in probs:
-            loss -= ( (element[2][0] * torch.log(element[0])) + (element[2][1] * torch.log(element[1])) )
+            # Compute reward for all single state in each clips 
+            reward_clip_1 = reward_model.forward(triple[0])
+            reward_clip_2 = reward_model.forward(triple[1])
             
+            # Compute the P[signma_1 > sigma_2] probability.
+            den = (torch.exp(sum(reward_clip_1)) + torch.exp(sum(reward_clip_2))) + 1e-7
+            sigma_clip_1 = torch.exp(sum(reward_clip_1)) / den
+            sigma_clip_2 = torch.exp(sum(reward_clip_2)) / den
+
+            #probs.append([sigma_clip_1, sigma_clip_2, triple[2]])
+            # Compute the single loss 
+            loss.append( -1 * ( ( preference[0] * torch.log(sigma_clip_1) ) + ( preference[1] * torch.log(sigma_clip_2) ) ) )
+
+        #loss = 0
+        #for p in probs:
+        #    loss -= ( (p[2][0] * torch.log(p[0])) + (p[2][1] * torch.log(p[1])) )
+
+        # Compute loss and backpropagate.
+        loss = sum(loss)   
         loss.backward() 
 
         # nn.utils.clip_grad_norm_(reward_model.parameters(), 5)
