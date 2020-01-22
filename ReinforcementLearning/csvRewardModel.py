@@ -30,7 +30,7 @@ class csvRewardModel(nn.Module):
 
             x_1 = state_filter(obs).cuda().view(-1, 7*7)
             x_1 = F.relu(self.affine1(x_1))
-            rewards.append( self.affine2(x_1).clamp(-0.5, +0.5) )
+            rewards.append(self.affine2(x_1))
         
         return rewards
 
