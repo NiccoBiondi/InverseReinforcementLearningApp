@@ -90,9 +90,7 @@ def createOracleMatrix(wrapper, env):
                 elif m <= 0.1:
                     m = 0
                 oracle_rewards[row][col] = m / 2
-    
-    print(oracle_rewards)
-    
+       
     return oracle_rewards
 
 class Oracle:

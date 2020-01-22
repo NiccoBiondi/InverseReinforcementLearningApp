@@ -58,13 +58,12 @@ class csvRewardModel(nn.Module):
 
         loss = 0
         for element in probs:
-            loss -= ( (element[2][0] * torch.log(element[0])) + (element[2][1] * torch.log(element[1])) )
+            loss = loss - ( (element[2][0] * torch.log(element[0])) + (element[2][1] * torch.log(element[1])) )
             
         loss.backward() 
 
         # nn.utils.clip_grad_norm_(reward_model.parameters(), 5)
         optimizer.step()
-
         return loss.item()
 
 # Simple utility function to save the reward model weights

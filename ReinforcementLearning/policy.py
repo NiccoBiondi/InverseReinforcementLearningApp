@@ -60,7 +60,7 @@ def compute_discounted_rewards(rewards, gamma=0.99):
     discounted_rewards = []
     running = 0.0
     for r in reversed(rewards):
-        running = r + gamma * running
+        running = r.item() + gamma * running
         discounted_rewards.append(running)
     return list(reversed(discounted_rewards))
 

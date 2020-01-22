@@ -96,7 +96,8 @@ class PolicyThread(QThread):
                 if True in dones:
                     discounted_rewards = compute_discounted_rewards(reward)
                 else:
-                    discounted_rewards = np.zeros(len(reward))
+                    # discounted_rewards = np.zeros(len(reward))
+                    discounted_rewards = compute_discounted_rewards(reward)
                 
                 losses = Loss(self._model.policy, self._model.optimizer_p, states, actions, discounted_rewards)
                 
