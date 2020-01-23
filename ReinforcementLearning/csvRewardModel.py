@@ -1,5 +1,6 @@
 import os
 import time
+import numpy as np 
 
 import torch
 import torch.nn as nn
@@ -41,8 +42,7 @@ class csvRewardModel(nn.Module):
     # [0, 0] if the user discard the clips in triple. the preferency is used in loss computation.
     def compute_rewards(self, reward_model, optimizer, train_clips):
 
-        #probs = []
-        optimizer.zero_grad()
+        #probs = []        
         loss = []
         for triple in train_clips:
             # take the user preference 
@@ -53,7 +53,9 @@ class csvRewardModel(nn.Module):
             reward_clip_2 = reward_model.forward(triple[1])
             
             # Compute the P[signma_1 > sigma_2] probability.
-            den = (torch.exp(sum(reward_clip_1)) + torch.exp(sum(reward_clip_2))) + 1e-7
+            den = (torch.exp(sum(reward_clip_1)) + torch.exp(sum(reward_clip_2))) 
+            if den == np.float(0):
+                den += 1e-7
             sigma_clip_1 = torch.exp(sum(reward_clip_1)) / den
             sigma_clip_2 = torch.exp(sum(reward_clip_2)) / den
 
@@ -66,6 +68,7 @@ class csvRewardModel(nn.Module):
         #    loss -= ( (p[2][0] * torch.log(p[0])) + (p[2][1] * torch.log(p[1])) )
 
         # Compute loss and backpropagate.
+        optimizer.zero_grad()
         loss = sum(loss)   
         loss.backward() 
 

@@ -189,9 +189,12 @@ def heatmap_reward(rewards, counts, mode=None):
             for j in range(1, len(rewards)-1):
                 if counts[i,j] != 0: 
                     rewards[i,j] = rewards[i,j]/counts[i,j]
-    
+
+    # Normalize rewards array to 0 1 for visualization
+    rewards = (rewards-rewards.min())/(rewards.max()-rewards.min())
+
     fig = plt.figure()
-    ax = sns.heatmap(rewards)
+    ax = sns.heatmap(rewards, xticklabels=False, yticklabels=False)
     fig.add_subplot(1,1,1)
     fig.savefig('images/' + mode + '_heatmap.png')
 
