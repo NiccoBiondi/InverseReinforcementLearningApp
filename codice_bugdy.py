@@ -20,7 +20,7 @@ class Policy(nn.Module):
     def __init__(self, obs_size, act_size, inner_size, **kwargs):
         super(Policy, self).__init__(**kwargs)
         self.affine1 = nn.Linear(obs_size, inner_size)
-        self.affine2 = nn.Linear(inner_size, 3)
+        self.affine2 = nn.Linear(inner_size, act_size)
 
         self.saved_log_probs = []
         self.rewards = []
@@ -59,7 +59,7 @@ def compute_discounted_rewards(rewards, gamma=0.99):
 # nice thing about the MiniGrid environment is that the game never
 # ends. After achieving the goal, the game resets. Kind of like
 # Sisyphus...
-def run_episode(env, policy, length, reward_model, gamma=0.99):
+def run_episode(env, policy, length, reward_model, all_r, gamma=0.99):
     # Restart the MiniGrid environment.
     state = state_filter(env.reset())  
 
@@ -69,11 +69,9 @@ def run_episode(env, policy, length, reward_model, gamma=0.99):
     actions = []
     rewards = []
     dones = []
-    all_r = []
 
     # Run for desired episode length.
     for step in range(80):
-        env.render('human')
         time.sleep(0.1)
         # Get action from policy net based on current state.
         action = select_action(policy, state)
@@ -89,6 +87,8 @@ def run_episode(env, policy, length, reward_model, gamma=0.99):
         all_r.append(rewards[-1])
         actions.append(action)
         dones.append(done)
+        
+        env.render('human')
 
         if done:
             break
@@ -96,10 +96,13 @@ def run_episode(env, policy, length, reward_model, gamma=0.99):
     # Finished with episode, compute loss per step.
     #if True in dones:
     for i in range(len(rewards)):
-        rewards[i] = ( ( rewards[i] - np.mean(all_r) ) / np.std(all_r) ) * 0.5
+        rewards[i] = ( ( rewards[i] - np.mean(all_r) ) / np.std(all_r) ) * 0.4
+   
 
     discounted_rewards = compute_discounted_rewards(rewards, gamma)
-    #else:
+    # discounted_rewards -= np.mean(discounted_rewards)
+    # discounted_rewards /= (np.std(discounted_rewards) + 1e-12)
+    # #else:
     #    discounted_rewards = np.zeros(len(rewards))
     
     if done:
@@ -126,20 +129,21 @@ if __name__ == '__main__':
 
     # Instantiate a reward model.
     reward_model = csvRewardModel(obs_size=obs_size, inner_size=inner_size)
-    reward_model.load_state_dict(torch.load('SAVE_FOLDER/0.5std_(21-01-2020)/csv_reward_weight_lr0.0001_k1000_14:39.pth'))
+    reward_model.load_state_dict(torch.load('BackUp-Folder/zz_saving_prova--eplen150/weigths3/csv_reward_weight_lr0.0003_k2000_20:02.pth'))
     reward_model.cuda()
     # Use the Adam optimizer.
     optimizer = torch.optim.Adam(params=policy.parameters(), lr=lr)
 
     # Run for a while.
     episodes = 2000
+    all_r = []
     for step in range(episodes):
         # MiniGrid has a QT5 renderer which is pretty cool.
         env.render('human')
         time.sleep(0.1)
 
         # Run an episode.
-        (states, actions, discounted_rewards) = run_episode(env, policy, episode_len, reward_model)
+        (states, actions, discounted_rewards) = run_episode(env, policy, episode_len, reward_model, all_r)
         avg_reward += np.mean(discounted_rewards) # con i reward veri
         if step % 100 == 0:
             print('Average reward @ episode {}: {}'.format(step, avg_reward / 100))

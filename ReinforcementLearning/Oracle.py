@@ -31,7 +31,7 @@ def count_reward(grid, matrix):
             y_old = y[0]
         else:
             reward = 0
-            break
+            return reward
     
     return reward
 
@@ -91,6 +91,9 @@ def createOracleMatrix(wrapper, env):
     #                m = 0
     #            oracle_rewards[row][col] = m / 2
                 
+
+
+    print(oracle_rewards)
     return oracle_rewards
 
 class Oracle:
@@ -132,20 +135,20 @@ class Oracle:
         elif count_2 <= 3:
             preference = give_pref(0, reward_2)
 
-        if (count_1 == 4 and reward_1 >= 5) and (count_2 == 4 and reward_2 >= 5):
-            preference = [0.5, 0.5]
+        # if (count_1 == 4 and reward_1 >= 5) and (count_2 == 4 and reward_2 >= 5):
+        #     preference = [0.5, 0.5]
         
-        elif count_1 == 4 and reward_1 >= 5 and (preference == None or preference == [0,0]):
-            preference = [1, 0]
+        # elif count_1 == 4 and reward_1 >= 5 and (preference == None or preference == [0,0]):
+        #     preference = [1, 0]
         
-        elif count_1 == 4 and reward_1 >= 5 and preference != None:
-            preference = [0.5, 0.5]
+        # elif count_1 == 4 and reward_1 >= 5 and preference != None:
+        #     preference = [0.5, 0.5]
 
-        elif count_2 == 4 and reward_2 >= 5 and (preference == None or preference == [0,0]):
-            preference = [0, 1]
+        # elif count_2 == 4 and reward_2 >= 5 and (preference == None or preference == [0,0]):
+        #     preference = [0, 1]
 
-        elif count_2 == 4 and reward_2 >= 5 and preference != None:
-            preference = [0.5, 0.5]
+        # elif count_2 == 4 and reward_2 >= 5 and preference != None:
+        #     preference = [0.5, 0.5]
         
         if preference == None: 
             preference = [0, 0]
