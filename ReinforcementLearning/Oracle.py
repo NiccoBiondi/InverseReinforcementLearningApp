@@ -93,7 +93,6 @@ def createOracleMatrix(wrapper, env):
                 
 
 
-    print(oracle_rewards)
     return oracle_rewards
 
 class Oracle:
