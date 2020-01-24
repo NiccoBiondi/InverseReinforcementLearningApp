@@ -6,17 +6,18 @@ import numpy as np
 
 from Utility.utility import read_csv_grids
 
+GOOD_X_Y = [ [1, 1], [2, 1], [3, 1], [4, 1], [4, 2], [4, 3], [4, 4] ]
+
 def no_move_count(grid):
     # count for how much frames are equal in the clip
 
-    counts = np.zeros(len(grid))
-
+    counts = np.ones(len(grid))
     for i in range(len(grid)):
         for j in range(i, len(grid)):
-            if np.array_equal(grid[i], grid[j]):
+            if np.array_equal(grid[i], grid[j]) and j != i:
                 counts[i] += 1
-            
-    return int(max(counts))
+
+    return counts
 
 def count_reward(grid, matrix):
 
@@ -24,32 +25,59 @@ def count_reward(grid, matrix):
     reward = 0
 
     for i in range(len(grid)):
+
         x, y = np.where(grid[i] == 10)
-        if (not x[0] < x_old) and (not y[0] < y_old) and (not matrix[x, y][0] == 0):
+
+        if (not x[0] < x_old ) and (not y[0] < y_old) and ( [x[0], y[0]] in GOOD_X_Y):
             reward += matrix[x, y][0]
             x_old = x[0]
             y_old = y[0]
         else:
-            reward = 0
-            return reward
+            return 0
     
     return reward
 
 
-def give_pref(reward_1, reward_2):
+def give_pref(count_1, count_2, reward_1, reward_2):
+
+    c_1 = count_1
+    c_2 = count_2
     preference = None
 
-    if reward_1 > 1.5 and reward_2 > 1.5:
-        preference = [0.5, 0.5]
+    if int(max(c_1)) == 3 and int(max(c_2)) == 3 and reward_1 == 5 and reward_2 == 5:
+        v_1 = int(max(c_1))
+        v_2 = int(max(c_2))
 
-    elif reward_1 > 1.5:
-        preference = [1, 0]
+        id_1 = np.where(c_1 == v_1)[0][0]
+        id_2 = np.where(c_2 == v_2)[0][0]
 
-    elif reward_2 > 1.5:
-        preference = [0, 1]
+        c_1[id_1 : id_1 + v_1] = 0
+        c_2[id_2 : id_2 + v_2] = 0
 
-    else:
-        preference = [0, 0]
+        if int(max(c_1)) == 2 and int(max(c_2)) == 2:
+
+            return [0, 0]
+
+        elif int(max(c_1)) == 2 and int(max(c_2)) == 1:
+
+            return [0, 1]
+
+        elif int(max(c_1)) == 1 and int(max(c_2)) == 2:
+
+            return [1, 0]
+        
+        else:
+
+            return [0.5, 0.5]
+        
+    if int(max(count_1)) < int(max(count_2)) and reward_1 == reward_2:
+        return [1, 0]
+
+    elif int(max(count_2)) < int(max(count_1)) and reward_1 == reward_2:
+        return [0, 1]
+
+    elif int(max(count_1)) == int(max(count_2)) and reward_1 == reward_2:
+        return [0.5, 0.5]
     
     return preference
 
@@ -120,19 +148,91 @@ class Oracle:
 
         reward_1 = count_reward(states_1, self._matrix)
         reward_2 = count_reward(states_2, self._matrix)
+
         preference = None
 
-        # In the two clips the agent mooves at least twice
-        if count_1 <= 3 and count_2 <= 3:
-            preference = give_pref(reward_1, reward_2)
+        # Goal check
+        if reward_1 > 10 and reward_2 > 10:
+            return [0.5, 0.5]
         
-        # In one clips make at least 3 moves and in the another clips no
-        elif count_1 <= 3:
-            preference = give_pref(reward_1, 0)
+        elif reward_1 > 10 and reward_2 < 10:
+            return [1, 0]
+        
+        elif reward_1 < 10 and reward_2 > 10:
+            return [0, 1]
+
+        # Correct clips, if rewards are 0 it means that the agent
+        # make moves in a not correct position.
+        if reward_1 == 0 and reward_2 == 0:
+            return [0, 0]
+
+        # If one clip has reward = 5 it makes mooves in the correct
+        # position so i check if the agent makes 2 or 
+        # higher moves.
+        elif reward_1 == 0 and int(max(count_2)) <= 3:
+            v_2 = int(max(count_2))
+            id_2 = np.where(count_2 == v_2)[0][0]
+            count_2[id_2 : id_2 + v_2] = 0
+
+            if int(max(count_2)) == 1 or int(max(count_2)) == 2:
+                return [0, 1]
+
+            else:
+
+                return [0, 0]
+        
+        elif reward_2 == 0 and int(max(count_1)) <= 3:
+            v_1 = int(max(count_1))
+            id_1 = np.where(count_1 == v_1)[0][0]
+            count_1[id_1 : id_1 + v_1] = 0
+
+            if int(max(count_1)) == 1 or int(max(count_1)) == 2:
+                return [1, 0]
+
+            else:
+
+                return [0, 0]
+
+        # The agent makes mooves in correct position
+        elif reward_1 > 0 and reward_2 > 0:
+
+            if int(max(count_1)) <= 3 and int(max(count_2)) >= 4:
+                v_1 = int(max(count_1))
+                id_1 = np.where(count_1 == v_1)[0][0]
+                count_1[id_1 : id_1 + v_1] = 0
+
+                if int(max(count_1)) == 1 or int(max(count_1)) == 2:
+                    return [1, 0]
+
+                else:
+
+                    return [0, 0]
+            
+            elif int(max(count_2)) <= 3 and int(max(count_1)) >= 4:
+                v_2 = int(max(count_2))
+                id_2 = np.where(count_2 == v_2)[0][0]
+                count_2[id_2 : id_2 + v_2] = 0
+
+                if int(max(count_2)) == 1 or int(max(count_2)) == 2:
+
+                    return [0, 1]
+
+                else:
+
+                    return [0, 0]
+
+            # I both clips the agent makes one ore more mooves, i take the 
+            # clips where the agent makes more mooves ( 2, 3 , 4). 
+            elif int(max(count_1)) <= 3 and int(max(count_2)) <= 3:
+                preference = give_pref(count_1, count_2, reward_1, reward_2)
 
         # In one clips make at least 3 moves and in the another clips no
-        elif count_2 <= 3:
-            preference = give_pref(0, reward_2)
+        #elif count_1 <= 3:
+            #preference = give_pref(reward_1, 0)
+
+        # In one clips make at least 3 moves and in the another clips no
+        #elif count_2 <= 3:
+            #preference = give_pref(0, reward_2)
 
         # if (count_1 == 4 and reward_1 >= 5) and (count_2 == 4 and reward_2 >= 5):
         #     preference = [0.5, 0.5]
