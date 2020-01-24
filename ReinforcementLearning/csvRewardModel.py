@@ -61,7 +61,7 @@ class csvRewardModel(nn.Module):
 
             #probs.append([sigma_clip_1, sigma_clip_2, triple[2]])
             # Compute the single loss 
-            loss.append( -1 * ( ( preference[0] * torch.log(sigma_clip_1) ) + ( preference[1] * torch.log(sigma_clip_2) ) ) )
+            loss.append( -1 * ( ( preference[0] * torch.log(sigma_clip_1) ) + ( preference[1] * torch.log(sigma_clip_2) ) + 1e-12) )
 
         #loss = 0
         #for p in probs:
