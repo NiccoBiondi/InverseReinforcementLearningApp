@@ -39,8 +39,14 @@ class Policy(nn.Module):
 # action according to the probabilities output by final layer.
 def select_action(policy, state):
     probs = policy.forward(state)
-    dist = Categorical(logits=probs)
-    action = dist.sample()
+    #dist = Categorical(logits=probs)
+    #action = dist.sample()
+    probs = [ p.item() for p in probs[0] ]
+    #print(probs, 'probs')
+    #print(probs.index(max(probs)), 'action')
+    action = torch.tensor([probs.index(max(probs))])
+    print(probs)
+    print(action)
     return action
 
 # Utility function. The MiniGrid gym environment uses 3 channels as
@@ -72,14 +78,21 @@ def run_episode(env, policy, length, gamma=0.99):
     states = [state]
     actions = []
     rewards = []
-
+    a = []
+    #a_2 = [0, 2, 2, 2]
     # Run for desired episode length.
     for step in range(length):
         env.render('human')
-        time.sleep(0.1)
+        time.sleep(0.5)
         # Get action from policy net based on current state.
         action = select_action(policy, state)
 
+        if len(a) > 0:
+            action = a.pop()
+        
+        #if action == 2:
+        #    if len(a_2) > 0:
+        #        action = a_2.pop()
         # Simulate one step, get new state and instantaneous reward.
         state, reward, done, _ = env.step(action)
         state = state_filter(state)
@@ -87,6 +100,7 @@ def run_episode(env, policy, length, gamma=0.99):
         rewards.append(reward)
         actions.append(action)
         if done:
+            a = []
             break
 
     # Finished with episode, compute loss per step.

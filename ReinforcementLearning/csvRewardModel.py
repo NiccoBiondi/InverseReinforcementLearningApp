@@ -45,6 +45,7 @@ class csvRewardModel(nn.Module):
         #probs = []        
         loss = []
         for triple in train_clips:
+
             # take the user preference 
             preference = triple[2]
             
@@ -53,19 +54,20 @@ class csvRewardModel(nn.Module):
             reward_clip_2 = reward_model.forward(triple[1])
             
             # Compute the P[signma_1 > sigma_2] probability.
-            den = (torch.exp(sum(reward_clip_1)) + torch.exp(sum(reward_clip_2))) 
-            if den == np.float(0):
-                den += 1e-7
+            den = (torch.exp(sum(reward_clip_1)) + torch.exp(sum(reward_clip_2))) + 1e-7
             sigma_clip_1 = torch.exp(sum(reward_clip_1)) / den
             sigma_clip_2 = torch.exp(sum(reward_clip_2)) / den
 
-            #probs.append([sigma_clip_1, sigma_clip_2, triple[2]])
-            # Compute the single loss 
-            loss.append( -1 * ( ( preference[0] * torch.log(sigma_clip_1) ) + ( preference[1] * torch.log(sigma_clip_2) ) + 1e-12) )
+            # Check if the den and one of the sigma probs have infinite value.
+            if den.item() == torch.tensor([float('inf')]).item() and sigma_clip_1.item() == torch.tensor([float('inf')]).item():
+                sigma_clip_1 = torch.tensor([1]).cuda()
+                sigma_clip_2 = torch.tensor([0]).cuda()
+            elif den.item() == torch.tensor([float('inf')]).item() and sigma_clip_2.item() == torch.tensor([float('inf')]).item():
+                sigma_clip_1 = torch.tensor([0]).cuda()
+                sigma_clip_2 = torch.tensor([1]).cuda()
 
-        #loss = 0
-        #for p in probs:
-        #    loss -= ( (p[2][0] * torch.log(p[0])) + (p[2][1] * torch.log(p[1])) )
+            # Compute the single loss 
+            loss.append( -1 * ( ( ( preference[0] * torch.log(sigma_clip_1) ) + ( preference[1] * torch.log(sigma_clip_2) ) ) + 1e-7 ) )
 
         # Compute loss and backpropagate.
         optimizer.zero_grad()
