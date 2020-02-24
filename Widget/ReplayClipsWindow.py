@@ -12,13 +12,12 @@ from PyQt5.QtCore import QTimer, QObject, pyqtSlot, pyqtSignal
 from PyQt5.QtWidgets import QDialog
 
 # Simple window used in history window widget to reproduce
-# the clips stored in annotation buffer
-# to understand if the preferency made is correct or not.
+# the clips stored in annotation buffer.
 class ReplayClipsWindow(QDialog):
     def __init__(self, path):
         super().__init__()
 
-        # Define model and controllar
+        # Define model and controller
         self._model = ReplayClipsWindowModel(path)
         self._controller = ReplayClipsWindowController(self._model) 
 

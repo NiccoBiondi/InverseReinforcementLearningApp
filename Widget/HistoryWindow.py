@@ -11,7 +11,7 @@ from Widget.ReplayClipsWindow import ReplayClipsWindow
 from PyQt5.QtCore import Qt, QObject, pyqtSlot, pyqtSignal
 from PyQt5.QtWidgets import QDialog, QPushButton, QSizePolicy, QTreeWidgetItem
 
-# Is a button to reproduce the clips associated with the button.
+# Button to reproduce the clips associated with the button.
 class HistoryWindowButton(QPushButton):
     
     def __init__(self, name, path):
@@ -22,7 +22,8 @@ class HistoryWindowButton(QPushButton):
         self.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
         self.clicked.connect(self.window.exec_)
 
-# Window that contain all the clips in annotation buffer with the correlated preferences
+# Window that contain all the clips in annotation buffer with the correspective preferences.
+# The user can select some labels that he thinks that are wrong and he can change them.
 class HistoryWindow(QDialog):
     def __init__(self, model):
         super().__init__()
@@ -114,15 +115,17 @@ class HistoryWindowController(QObject):
         super().__init__()
 
         # Define model and o_button configuration. 
-        # When press ok, i give the selected element to principal model
-        # Then i refresh the annotation buffer
+        # When "ok" is pressed, the selected element 
+        # is forwarded to the principal model.
+        # Then the annotation buffer will be refreshed.
         self._model = model
         self._on_configure = configure
         self._tree = tree
 
     # The ok button has to take the selected element from QTreeWidget,
-    # remove them from QTree widget and from annotation buffer and put the
-    # selected element in the clips list which have to be annotate.
+    # to remove them from QTree widget and from annotation buffer 
+    # and to put the selected element in the clips list which have 
+    # to be annotate.
     @pyqtSlot()
     def ok_button(self):
 

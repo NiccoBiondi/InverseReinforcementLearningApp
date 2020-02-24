@@ -24,5 +24,5 @@ class Ui_ReplayClipsWindow(object):
     def retranslateUi(self, ReplayClipsWindow):
         _translate = QtCore.QCoreApplication.translate
         ReplayClipsWindow.setWindowTitle(_translate("ReplayClipsWindow", "Replay Clips Window"))
-        self.startReplay.setText(_translate("ReplayClipsWindow", "PushButton"))
+        self.startReplay.setText(_translate("ReplayClipsWindow", "Start the replay"))
 

@@ -15,10 +15,9 @@ from Widget.LogWidget import LogWidget
 from PyQt5.QtCore import  Qt, QTimer
 from PyQt5.QtWidgets import QWidget, QGridLayout, QSizePolicy, QVBoxLayout
 
-
+# Widget that contains a number of CounterButtons arranged in a GridLayout.
 class ButtonPane(QGridLayout):
-    '''Widget that contains a number of CounterButtons arranged in a GridLayout.'''
-
+    
     def __init__(self, buttons, cols=5, **kwargs):
         super().__init__(**kwargs)
 
@@ -26,9 +25,9 @@ class ButtonPane(QGridLayout):
         for i in range(len(buttons)):
             self.addWidget(buttons[i], i // cols, i % cols)
 
+# Widget that contains a number of dislay arranged in a GridLayout.
 class VideoPane(QGridLayout):
-    '''Widget that contains a number of dislay arranged in a GridLayout.'''
-
+    
     def __init__(self, model, cols=2, **kwargs):
         super().__init__(**kwargs)
 

@@ -5,7 +5,7 @@ from Build.Ui_Dialog import Ui_Dialog
 
 from PyQt5.QtWidgets import QDialog
 
-
+# Pop up that is called when the user click on the About button 
 class AboutDialog(QDialog):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

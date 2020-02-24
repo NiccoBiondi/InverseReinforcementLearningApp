@@ -22,7 +22,7 @@ def save_losses_list(path, losses):
             filewriter = csv.writer(csvfile)
             filewriter.writerow(losses)
 
-# define a functioon to read and load the losses
+# define a function to read and load the losses
 def load_losses(path):
     data_df = pd.read_csv(path , error_bad_lines=False, nrows=1)
     return [float(loss) for loss in data_df.columns]
@@ -40,7 +40,7 @@ def save_model(path, policy, model_parameters, iteration, policy_losses):
     save_model_parameters(path, model_parameters, iteration)
 
 
-# Simple utility function to read states saved in csv file
+# Simple utility function to read agent states (7x7x3) saved in csv file
 def read_csv_clips(dir_path):
     data_df = pd.read_csv(dir_path , error_bad_lines=False, names=["state"])
 
@@ -51,7 +51,7 @@ def read_csv_clips(dir_path):
         states.append(result)
     return states
 
-# Simple utility function to read states saved in csv file
+# Simple utility function to read environment states saved in csv file
 def read_csv_grids(dir_path, env):
     data_df = pd.read_csv(dir_path , error_bad_lines=False, names=["grid"])
 
@@ -62,7 +62,7 @@ def read_csv_grids(dir_path, env):
         states.append(result)
     return states
 
-# Create the csv file  containing the clips generated
+# Create the csv file containing the generated clips
 def save_clips(name, idx, clips, clips_grid):
 
     for num_clips, clip in enumerate(clips):
@@ -154,7 +154,6 @@ def clips_generator(states, dones, clips_len, grids):
     return total_clips, total_clips_grid
 
 # Save model parameters define in initialization or in a loaded checkpoint.
-# Is usefull to restart from the checkpoint
 def save_model_parameters(path, model_parameters, iteration):
     '''
         -minigrid_env    : gym minigrid environment name
@@ -178,8 +177,7 @@ def save_model_parameters(path, model_parameters, iteration):
                                     model_parameters['lr'], model_parameters['clips_len'], model_parameters['episodes'], 
                                     model_parameters['K'], model_parameters['n_annotation'], model_parameters['idx'], iteration])
 
-# Function to save annotation buffer. It is used to restart annotation
-#  and reload what the user do in previous work.
+# Function to save annotation buffer.
 def save_annotation(save_path, annotation_buffer, iteration):
     triple_number = 0
     path = save_path + '/annotation_buffer'
@@ -189,7 +187,6 @@ def save_annotation(save_path, annotation_buffer, iteration):
         os.makedirs(path)
     
     else:
-
         # If the annotation_buffer folder exists, then is taken the save point to save the new value.
         triple = os.listdir(path)
         triple_number = [int(re.findall('\d+', t)[0]) for t in triple]
@@ -206,7 +203,7 @@ def save_annotation(save_path, annotation_buffer, iteration):
             filewriter = csv.writer(csvfile)
 
             # In a triple.csv file in each row is set a first clip stete,
-            # a second clip state, the preferency, the folder where the annotation
+            # a second clip state, the preference, the folder where the annotation
             # arrived and the clip in the folder that are annoted. 
             for idx, clip in enumerate(triple[0]):
                 filewriter.writerow([clip, triple[1][idx], triple[2], iteration])

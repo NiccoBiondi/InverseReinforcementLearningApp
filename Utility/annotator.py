@@ -9,7 +9,8 @@ sys.path.insert(1, os.path.dirname(os.path.abspath('__file__')))
 
 from Utility.utility import read_csv_clips
 
-# Simple utility class to reload figure and clips
+# Simple utility class to give preference to pairs of clips. 
+# There are some utility functions for managing the annotation bufer
 class Annotator():
 
     # Reload figure for history window widget

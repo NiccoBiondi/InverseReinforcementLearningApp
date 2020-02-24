@@ -7,8 +7,9 @@ from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 
-# Define the setup dialog to take the model parameters.
-# These parameters are settet from the user.
+# Define the setup dialog to achieve the model parameters.
+# These parameters are setted from the user. He can use 
+# default parameters.
 class SetupDialog(QDialog):
     def __init__(self, model):
         super().__init__()

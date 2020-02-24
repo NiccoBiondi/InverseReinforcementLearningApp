@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt, QObject, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QImage, QPixmap
 
+# Widget to menage a display from a clip
 class Display(QLabel):
     def __init__(self, timer, model, signal):
         super().__init__()

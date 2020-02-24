@@ -1,10 +1,9 @@
 from Widget.HistoryWindow import HistoryWindow
 from PyQt5.QtWidgets import QPushButton, QSizePolicy
 
-
+# Button in AlgView that open the History Window
 class HistoryButton(QPushButton):
-    ''' Choose button to decide the clips you prefer '''
-
+    
     def __init__(self, model, **kwargs):
         super().__init__(**kwargs)
 

@@ -11,6 +11,7 @@ import gym_minigrid
 import torch
 
 sys.path.insert(1, os.path.dirname(os.path.abspath('__file__')))
+
 from ReinforcementLearning.csvRewardModel import csvRewardModel
 from ReinforcementLearning.wrapper import FullyObsWrapper
 
@@ -26,13 +27,6 @@ KEY_NUMBER = {
     114 : 'BACKSPACE' 
 }
 
-def compute_discounted_rewards(rewards, gamma=0.99):
-    discounted_rewards = []
-    running = 0.0
-    for r in reversed(rewards):
-        running = r + gamma * running
-        discounted_rewards.append(running)
-    return list(reversed(discounted_rewards))
 
 # Reset the environment
 def resetEnv(env, wrapper):
@@ -86,7 +80,10 @@ def keyDownCb(keyValue, env):
     
     return action
 
-
+# The user move the agent in a popup window and a reward model predict the reward for the current agent state.
+# At the end of the script, it will generate a normalized heat map of the behaviour of the reward model.
+# Possible choices for the heat map are max (mode=None) or mean (mode=mean). In the former case in each cell 
+# we consider only the max predicted reward. In the latter one we compute the mean between each reward obtained in the same cell. 
 def main(mode=None):
     parser = OptionParser()
     parser.add_option(
@@ -115,7 +112,6 @@ def main(mode=None):
         sys.exit()
 
     reward_model.load_state_dict( torch.load(options.reward_model) )
-
     reward_model.cuda()
 
     damn = curses.initscr()

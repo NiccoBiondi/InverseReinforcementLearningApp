@@ -1,10 +1,10 @@
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QSizePolicy
 
-
+# This class implements the "Replay" buttons' logic. The user can in every 
+# moments watch again one clip clicking on its correspective button. 
 class ReplayButton(QPushButton):
-    ''' Choose button to decide the clips you prefer '''
-
+    
     def __init__(self, timer, model, **kwargs):
         super().__init__(**kwargs)
 

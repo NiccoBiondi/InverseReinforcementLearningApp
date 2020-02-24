@@ -1,7 +1,10 @@
 from PyQt5.QtWidgets import QCheckBox, QSizePolicy
 
+# Check Box to set or unset the Oracle used in annotation. 
+# The user can select in every moment he wants this box 
+# and the annotation will be performed by the aftificial 
+# annotator.
 class OracleButton(QCheckBox):
-    ''' Buton to set or unset the oracle used in annotation '''
 
     def __init__(self, model, on_configure, **kwargs):
         super().__init__(**kwargs)

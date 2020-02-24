@@ -1,9 +1,9 @@
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QSizePolicy
 
+# Set of buttons to express user preference between a pair of clips
 class ChoiceButton(QPushButton):
-    ''' Choose button to decide the clips you prefer '''
-
+    
     def __init__(self, name, preferences, on_configure, model, **kwargs):
         super().__init__(**kwargs)
 

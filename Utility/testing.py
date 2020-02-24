@@ -35,18 +35,19 @@ class Policy(nn.Module):
         act_probs = self.affine2(x).clamp(-1000.0, +1000.0)
         return act_probs
 
-# Function that, given a policy network and a state selects a random
-# action according to the probabilities output by final layer.
-def select_action(policy, state):
+# Function that, given a policy network and a state selects a random action
+# according to the probabilities output by final layer in categorical mode.
+# While in greedy mode, every time the action will be the one with more probabilities.
+def select_action(policy, state, mode='categorical'):
     probs = policy.forward(state)
-    # dist = Categorical(logits=probs)
-    # action = dist.sample()
-    probs = [ p.item() for p in probs[0] ]
-    # print(probs, 'probs')
-    # print(probs.index(max(probs)), 'action')
-    action = torch.tensor([probs.index(max(probs))])
-    print(probs)
-    print(action)
+    if mode == 'categorical':
+        dist = Categorical(logits=probs)
+        action = dist.sample()
+
+    elif mode == 'greedy':
+        probs = [ p.item() for p in probs[0] ]
+        action = torch.tensor([probs.index(max(probs))])
+
     return action
 
 # Utility function. The MiniGrid gym environment uses 3 channels as
@@ -67,8 +68,7 @@ def compute_discounted_rewards(rewards, gamma=0.99):
 
 # The function that runs the simulation for a specified length. The
 # nice thing about the MiniGrid environment is that the game never
-# ends. After achieving the goal, the game resets. Kind of like
-# Sisyphus...
+# ends. After achieving the goal, the game resets.
 def run_episode(env, policy, length, gamma=0.99):
     # Restart the MiniGrid environment.
     state = state_filter(env.reset())
@@ -79,7 +79,6 @@ def run_episode(env, policy, length, gamma=0.99):
     actions = []
     rewards = []
     a = []
-    #a_2 = [0, 2, 2, 2]
     # Run for desired episode length.
     for step in range(length):
         env.render('human')
@@ -90,9 +89,6 @@ def run_episode(env, policy, length, gamma=0.99):
         if len(a) > 0:
             action = a.pop()
         
-        #if action == 2:
-        #    if len(a_2) > 0:
-        #        action = a_2.pop()
         # Simulate one step, get new state and instantaneous reward.
         state, reward, done, _ = env.step(action)
         state = state_filter(state)
@@ -109,7 +105,7 @@ def run_episode(env, policy, length, gamma=0.99):
     # Return the sequence of states, actions, and the corresponding rewards.
     return (states, actions, discounted_rewards)
 
-###### The main loop.
+# The main loop. We load a specific policy model to test its effectiveness.
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option(
@@ -134,8 +130,6 @@ if __name__ == '__main__':
     obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
     act_size = 7      # Seven possible actions (turn left, right, forward, pickup, drop, etc.)
     inner_size = 64   # Number of neurons in two hidden layers.
-    lr = 0.001        # Adam learning rate
-    avg_reward = 0.0  # For tracking average regard per episode.
 
     # Setup OpenAI Gym environment for guessing game.
     env = gym.make(options.env_name)

@@ -1,10 +1,10 @@
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QSizePolicy
 
-
+# This class implements the "Speed" button. The user can set
+#  the display speed, in essence can speed up/down the clips. 
 class SpeedButton(QPushButton):
-    ''' Define speed-up of a button '''
-
+    
     def __init__(self, on_configure, model, **kwargs):
         super().__init__(**kwargs)
 

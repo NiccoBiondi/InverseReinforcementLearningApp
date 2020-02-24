@@ -13,7 +13,7 @@ from Utility.annotator import Annotator
 from Utility.utility import clips_generator, save_clips
 
 
-def make_loss(losses, name, save_path):
+def plot_loss(losses, name, save_path):
     
     x = [i for i in range(len(losses))]
     plt.plot(x, losses)
@@ -96,8 +96,10 @@ rewards = []
 
 policy_loss = []
 reward_loss = []
+reward_loss_01 = []
+reward_loss_05 = []
 
-trainable = False
+trainable = False       # during the first iteration the policy will not be trained
 
 # MAIN LOOP 
 
@@ -157,14 +159,14 @@ try:
 
         # ORACLE 
 
-        #if epoch > 0 and epoch % 5 == 0 and percentile > 0.5 :
+        if epoch > 0 and epoch % 5 == 0 and percentile > 0.2 :
 
-        #    percentile -= 0.1
+           percentile -= 0.2
 
-        #    if percentile <= 0.5:
-        #        percentile = 0.5
+           if percentile <= 0.2:
+               percentile = 0.2
 
-        if (epoch + 1) <= 45:
+        if (epoch + 1) <= 25:
 
             #clips_number = int(   ( len(os.listdir(clips_database))  * percentile ) / 2 )
             clips_number = int(len(os.listdir(clips_database)) / 2)
@@ -181,31 +183,48 @@ try:
             # REWARD MODEL
 
             print('starting reward model training')
-
+            # We create three buffer for storing:
+            # - the entaire loss of the iteration training (loss)
+            # - the indifferent label loss (losses_05)
+            # - the clips with label (0,1) or (1,0)
+            # We separated those different components to study
+            # the grown of the reward model loss during the training epochs
             loss = []
+            losses_05 = []
+            losses_01 = []
 
             print('using the {:}% of the annotation' .format(int(percentile*100)))
             annotation_buffer = [ triple for triple in annotation_buffer if triple[2] != [0,0] ]
         
-            K = len(annotation_buffer) * 4
+            # K = len(annotation_buffer) * 4
 
             for k in tqdm.tqdm(range(K)):
                 train_clips = data_loader(annotation_buffer, reward_batch)
-                loss.append(reward_model.compute_rewards(reward_model, optimizer_r, train_clips))
+                loss_batch, loss_05, loss_01 = reward_model.compute_rewards(reward_model, optimizer_r, train_clips)
+
+                loss.append(loss_batch)
+                losses_05.append(loss_05)
+                losses_01.append(loss_01)
 
             save_reward_weights(reward_model, weigth_path + str(epoch + 1), None, lr_reward, K)
             if not trainable:
                 trainable = True
 
+            reward_loss_01.append(sum(losses_01)/len(losses_01))
+            reward_loss_05.append(sum(losses_05)/len(losses_05))
             reward_loss.append(sum(loss)/len(loss))
             print("End train reward model at epoch {}, the loss is : {:.3f}".format(epoch, reward_loss[-1]))
             annotation_buffer = []
     
-    make_loss(reward_loss, 'reward_loss_' + str(args.epochs) + '.png', save_path)
-    make_loss(policy_loss, 'policy_loss_' + str(args.epochs) + '.png', save_path)
+    plot_loss(reward_loss, 'reward_loss_' + str(args.epochs) + '.png', save_path)
+    plot_loss(policy_loss, 'policy_loss_' + str(args.epochs) + '.png', save_path)
+    plot_loss(reward_loss_01, 'reward_loss_01_' + str(args.epochs) + '.png', save_path)
+    plot_loss(reward_loss_05, 'reward_loss_05_' + str(args.epochs) + '.png', save_path)
 
 except Exception as e:
     print(e)
 
-    make_loss(reward_loss, 'reward_loss_' + str(args.epochs) + '.png', save_path)
-    make_loss(policy_loss, 'policy_loss_' + str(args.epochs) + '.png', save_path)
+    plot_loss(reward_loss, 'reward_loss_' + str(args.epochs) + '.png', save_path)
+    plot_loss(policy_loss, 'policy_loss_' + str(args.epochs) + '.png', save_path)
+    plot_loss(reward_loss_01, 'reward_loss_01_' + str(args.epochs) + '.png', save_path)
+    plot_loss(reward_loss_05, 'reward_loss_05_' + str(args.epochs) + '.png', save_path)
