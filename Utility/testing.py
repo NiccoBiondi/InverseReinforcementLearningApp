@@ -38,9 +38,13 @@ class Policy(nn.Module):
 # Function that, given a policy network and a state selects a random
 # action according to the probabilities output by final layer.
 def select_action(policy, state):
-    probs = policy.forward(state)
-    dist = Categorical(logits=probs)
-    action = dist.sample()
+    probs = policy.forward(state)[0]
+    # dist = Categorical(logits=probs)
+    # action = dist.sample()
+    probs = [probs[i].item() for i in range(len(probs))]
+    # print(probs)
+    action = probs.index(max(probs))
+    # print(action)
     return action
 
 # Utility function. The MiniGrid gym environment uses 3 channels as
@@ -116,7 +120,7 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     ###### Some configuration variables.
-    episode_len = 50  # Length of each game.
+    episode_len = 150  # Length of each game.
     obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
     act_size = 7      # Seven possible actions (turn left, right, forward, pickup, drop, etc.)
     inner_size = 64   # Number of neurons in two hidden layers.

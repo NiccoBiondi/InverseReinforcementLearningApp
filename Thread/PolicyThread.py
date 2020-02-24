@@ -14,15 +14,12 @@ from Utility.utility import clips_generator, save_clips, save_model
 from PyQt5.QtCore import QThread, pyqtSignal, QObject
 
 class ThreadSignals(QObject):
-    '''
-    Defines the signals available from a running worker thread.
-    '''
+
     finishedSignal = pyqtSignal()
 
 # Simple thread that make the policy function.
 # From a number of episodes it creates trajectory from witch
 # it creates clips which are saved in Clips Database folder.
-# Thanks to this the user can check the single clips.
 class PolicyThread(QThread):
 
     def __init__(self, model):
@@ -53,7 +50,7 @@ class PolicyThread(QThread):
 
         clips_generated = []
 
-        # memorize the rewards numeber for the standardization
+        # memorize the rewards number for the standardization
         rewards = []
         l = []
 
@@ -82,17 +79,6 @@ class PolicyThread(QThread):
             # To train the policy are used the rewards computed by the reward model.
             if self._train:
                 reward = self._model.reward_model([obs['obs'] for obs in states])
-                
-                # Memorize only the last 1000 rewards to make the standardization
-                #for r in reward:
-                #    if len(rewards) == 1000:
-                #        rewards.pop(0)
-                #    rewards.append(r.item())
-
-                # Rewards standardization with std = 0.05 and mean = 0
-                #for i in range(len(reward)):
-                #  reward[i] = ( ( reward[i].item() - np.mean(rewards) ) / np.std(rewards) ) * 0.5
-
 
                 # Compute the discounted rewards 
                 discounted_rewards = compute_discounted_rewards([r.item() for r in reward])

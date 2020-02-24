@@ -15,8 +15,8 @@ from Utility.utility import save_losses_list
 def state_filter(state):
     return torch.from_numpy(state[:,:,0]).float()
 
-# Simple class to calculate states rewards. It takes a clip, collection of states, and process them
-# giving back a list of reward, of for each state.
+# RewardModel class. It takes in input a clip, collection of states, 
+# and process them giving back a list of reward, of for each state.
 class csvRewardModel(nn.Module):
     def __init__(self, obs_size, inner_size, **kwargs):
         super(csvRewardModel, self).__init__(**kwargs)
@@ -26,57 +26,65 @@ class csvRewardModel(nn.Module):
     def forward(self, clip):
         rewards = []
 
-        # (batch, dim_ch, width, height)
         for obs in clip:
-
             x_1 = state_filter(obs).cuda().view(-1, 7*7)
             x_1 = F.relu(self.affine1(x_1))
             rewards.append(self.affine2(x_1))
         
         return rewards
 
-    # The primary function. It takes the annotation buffer and process the triples.
-    # A triple is a list composed by [first clip, second clip, preferency]. Thre preferency
-    # is a list that can be [1, 0] if the user choose the firt clip, [0, 1] if the
-    # user choose the second clip, [0.5, 0.5] if the user choose both clips or
-    # [0, 0] if the user discard the clips in triple. the preferency is used in loss computation.
+    # The loss function. It takes the annotation buffer and process the triples.
+    # A triple is a list composed by [first clip, second clip, label]. The label
+    # is a list that can be [1, 0] if the user choose the first clip, [0, 1] if the
+    # user choose the second clip, or [0.5, 0.5] if the user choose both clips.
+    # The labels [0,0], those are discarded clips, will be not included in this process.
     def compute_rewards(self, reward_model, optimizer, train_clips):
-
-        #probs = []        
+        # list for separate loss component, we study why the reward model loss grows 
+        # during the system training (for more details please refers to the review)
         loss = []
-        for triple in train_clips:
-            # take the user preference 
+        loss_05 = []
+        loss_01 = []
+
+        for triple in train_clips:    
             preference = triple[2]
-            
             # Compute reward for all single state in each clips 
             reward_clip_1 = reward_model.forward(triple[0])
             reward_clip_2 = reward_model.forward(triple[1])
             
             # Compute the P[signma_1 > sigma_2] probability.
-            den = (torch.exp(sum(reward_clip_1)) + torch.exp(sum(reward_clip_2))) 
-            if den == np.float(0):
-                den += 1e-7
+            den = (torch.exp(sum(reward_clip_1)) + torch.exp(sum(reward_clip_2))) + 1e-7 
             sigma_clip_1 = torch.exp(sum(reward_clip_1)) / den
             sigma_clip_2 = torch.exp(sum(reward_clip_2)) / den
 
-            #probs.append([sigma_clip_1, sigma_clip_2, triple[2]])
-            # Compute the single loss 
-            loss.append( -1 * ( ( preference[0] * torch.log(sigma_clip_1) ) + ( preference[1] * torch.log(sigma_clip_2) ) + 1e-12) )
+            if den.item() == torch.tensor([float('inf')]).item() and sigma_clip_1.item() == torch.tensor([float('inf')]).item():
+                sigma_clip_1 = torch.tensor([1]).cuda()
+                sigma_clip_2 = torch.tensor([0]).cuda()
+            elif den.item() == torch.tensor([float('inf')]).item() and sigma_clip_2.item() == torch.tensor([float('inf')]).item():
+                sigma_clip_1 = torch.tensor([0]).cuda()
+                sigma_clip_2 = torch.tensor([1]).cuda()                
 
-        #loss = 0
-        #for p in probs:
-        #    loss -= ( (p[2][0] * torch.log(p[0])) + (p[2][1] * torch.log(p[1])) )
+            if preference == [0.5,0.5]: 
+                v = -1 * ( ( preference[0] * torch.log(sigma_clip_1) ) + ( preference[1] * torch.log(sigma_clip_2) ) + 1e-7 )
+                loss_05.append( v.item() )
+
+            else:
+                v = -1 * ( ( preference[0] * torch.log(sigma_clip_1) ) + ( preference[1] * torch.log(sigma_clip_2) ) + 1e-7 )
+                loss_01.append ( v.item() )
+
+            loss.append( v )
+
+        loss_01 = sum(loss_01)
+        loss_05 = sum(loss_05)
 
         # Compute loss and backpropagate.
         optimizer.zero_grad()
         loss = sum(loss)   
         loss.backward() 
-
-        # nn.utils.clip_grad_norm_(reward_model.parameters(), 5)
         optimizer.step()
-        return loss.item()
 
-# Simple utility function to save the reward model weights
+        return loss.item(), loss_05, loss_01
+
+# function to save the reward model weights
 def save_reward_weights(reward_model, save_weights, default_path, lr, K, reward_losses=None):
 
     if reward_losses != None and reward_losses:

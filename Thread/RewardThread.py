@@ -9,7 +9,8 @@ from Utility.utility import save_model_parameters, load_annotation_buffer
 
 from PyQt5.QtCore import QThread, pyqtSlot, QObject, pyqtSignal
 
-# Simple contructor function.
+# Data loader. We create batch for train the reward model sampling
+# annotation buffer items with bootstrapping. 
 def data_loader(annotation_buffer, batch):
     
     if len(annotation_buffer) < batch:
@@ -22,9 +23,7 @@ def data_loader(annotation_buffer, batch):
         return train_data
 
 class ThreadSignals(QObject):
-    '''
-    Defines the signals available from a running worker thread.
-    '''
+
     finishedSignal = pyqtSignal()
 
 # Simple class that make the reward model train.
@@ -34,7 +33,6 @@ class RewardThread(QThread):
 
     def __init__(self, model):
         super(RewardThread, self).__init__()
-        # Store constructor arguments (re-used for processing)
 
         self._model = model
         self._signals = ThreadSignals()
@@ -51,7 +49,7 @@ class RewardThread(QThread):
             loss.append(self._model.reward_model.compute_rewards(self._model.reward_model, self._model.optimizer_r, train_clips))
         self._model.reward_loss.append((sum(loss)/len(loss)))
 
-        # Reset ll variable used during the all process (policy work, annotation work and reward model work)
+        # Reset all the variables used during the current training protocol iteration (policy, annotation and reward model parameters)
         self._model._iteration = 0
         self._model._model_parameters['idx'] = 0
         self._model._ann_point = 0
@@ -60,7 +58,7 @@ class RewardThread(QThread):
         self._model._annotation = None
         self._model.resetHistoryWindowSignal.emit()
 
-        # Reset all folders used for the entire process
+        # Reset all folders used for the current training epoch
         self._model.annotator.reset_clips_database(self._model.clips_database)
         self._model.annotator.reset_clips_database(self._model.history_database)
         if [self._model.auto_save_folder + '/' + el for el in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in el]:

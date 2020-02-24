@@ -46,7 +46,7 @@ class Controller(QObject):
         self._reward_t = RewardThread(self._model)
         self._reward_t._signals.finishedSignal.connect(lambda : self._reward_t.quit())
 
-        self._clips_number = 0
+        self._clips_number = 0      # count the number of clips to be annotated
 
 
     # Simple function to save the reward and policy graphic loss
@@ -70,22 +70,22 @@ class Controller(QObject):
             plt.savefig(save_path)
             plt.show()
 
-    # Simple function that when the timer end set the preferencies
-    # like the oracle predict..(frase a caso)
-    def setOraclePreferencies(self):
+    # Funtion to take the oracle preferecies between pairs of clips
+    # it starts/stops when the user check the Oracle Checkbox
+    def setOraclePreferences(self):
         self._model.oracle_timer.stop()
         if len(self._model.clips) > 0:
             self._model.preferences = self._model.oracle.takeReward(self._model.clips_database, self._model.clips[0], self._model.clips[1], self._model.env)
         
     # This function connect the SetupDialog model with main model.
-    # Transfer the parameters setted in setup  window.
+    # It transfers the parameters setted in setup  window.
     @pyqtSlot(dict)
     def init_values(self, values):
         self._model.model_parameters = values
         save_model_parameters(self._model.auto_save_path, self._model.model_parameters, 0)
 
-    # Simple function to create a folder where the user can save policy and reward model weight,
-    # annotation buffer and model parameters. 
+    # Simple function to create a folder where the user can save policy,
+    # reward model weight, annotation buffer and model parameters.
     @pyqtSlot()
     def save_action(self):
         file_name = ''
@@ -110,10 +110,9 @@ class Controller(QObject):
             if len(self._model.annotation_buffer):
                 save_annotation(save_path, self._model.annotation_buffer, self._model.ann_point)
             
-    # Simple function connect to 'Load checkpoint' button.
-    # Give the possibility to the user to select a checkpoint work folder and
-    # load reward model and policy weight, model parameters defined in checkpoint work and, if exist, the annotation
-    # buffer with all the anotations made.
+    # Simple function connected to 'Load checkpoint' button.
+    # Give the possibility to the user to select a checkpoint folder and load previous system parameters.
+    # In particular the annotation buffer with all the anotations made (if it exists).
     @pyqtSlot()
     def set_loadPath(self):
         fileName = ''
@@ -182,8 +181,7 @@ class Controller(QObject):
                 if not os.path.exists(self._model.weigth_path):
                     os.makedirs(self._model.weigth_path)
 
-                # if the loaded folder is not an autosave folder, then we create an autosave folder 
-                # with the same element to allineate the two salvataggi
+                # if the loaded folder is not an autosave folder, then we create an autosave folder with the same elements
                 if fileName != self._model.auto_save_folder:
                     shutil.rmtree(self._model.auto_save_folder)
                     shutil.copytree(fileName, self._model.auto_save_folder)
@@ -200,9 +198,7 @@ class Controller(QObject):
     def reset_loadPath(self):
         self._model.load_path = ''
 
-    # start button function. When the button is pressed,
-    # the new view, AlgView, is created only if the user
-    # load or initialize the model.
+    # start button function. When the button is pressed, the AlgView is created only if the user load or initialize the model.
     @pyqtSlot()
     def start_button(self):
         if not self._model.model_init and not self._model.model_load:
@@ -220,8 +216,7 @@ class Controller(QObject):
 
             self._model.set_newWindow(AlgView(self._model, self))
 
-    # Speed button function. Set the
-    # timer interval to display clips image.
+    # Speed button function. Set the timer interval to display clips image faster or slower.
     @pyqtSlot()
     def change_speed(self):
         if (self._model.speed + 1) % 4 == 0:
@@ -231,12 +226,13 @@ class Controller(QObject):
 
     # Choice button function. The four button (left, right, both, discard)
     # have different preferences which are given to the clips.
-    # The preferences are the annotation made by the user.
+    # The preferences are the human annotation made by the user.
     @pyqtSlot(list)
     def changepreferences(self, pref):
         self._model.preferences = pref
 
-    # Process button function.
+    # Process button function, that implements one training protocol iteration.
+    # It is composed by tra policy training, the annotation phase and the reward model training.
     @pyqtSlot()
     def process(self):
 
@@ -257,23 +253,21 @@ class Controller(QObject):
         else:
             self._reward_t.start()
 
-    # Simple QEventLoop used to wait the choice button clicked event.
+    # Simple QEventLoop used to wait the choice button clicked event, in essence it waits for the human annotation.
     def wait_signal(self):
         loop = QEventLoop()
         self._model.preferenceChangedSignal.connect(loop.quit)
         loop.exec_()
 
-    # Funtion that give to the user the possibility
-    # to annotate the clips. It add the annotation
-    # to annotation buffer and to the history window.
-    # End the clips to be annotate and the policy thread,
-    # it starts the reward model thread.
+    # Funtion that give to the user the possibility to annotate the clips. 
+    # It adds the annotation to annotation buffer and to the history window.
+    # At the end it starts the reward model thread.
     @pyqtSlot()
     def annotation(self):
         self._policy_t.quit()
         
-        # Connect the oracle timer with a function
-        self._model.oracle_timer.timeout.connect(lambda : self.setOraclePreferencies())
+        # Connect the oracle timer with function to take oracle preferences
+        self._model.oracle_timer.timeout.connect(lambda : self.setOraclePreferences())
         
         # Define the number of clips to annotate
         self._clips_number = int( ( ( len(os.listdir(self._model.clips_database)) + len(os.listdir(self._model.history_database)) ) * ( int( self._model.model_parameters['n_annotation'] ) / 100  ) )  / 2 )
@@ -301,7 +295,7 @@ class Controller(QObject):
                     self._model.annotation_buffer.append([clip_1['clip'], clip_2['clip'], self._model.preferences])
                     
                     # An annotation is a list where the first two elements are the paths of the corresponding clips,
-                    # the third element is the preferency made. 
+                    # the third element is the given label. 
                     
                     annotation = [str(len(self._model.annotation_buffer) - 1), clip_1["path"], clip_2["path"], '[' + str(self._model.preferences[0]) + ',' + str(self._model.preferences[1]) + ']']
 
@@ -323,6 +317,7 @@ class Controller(QObject):
                 self._model.preferences = None
                 gc.collect()
 
+            # we save the annotation buffer every 80 annotations and we clear it
             if self._model.ann_point > 0 and self._model.ann_point % 80 == 0:
                 save_annotation(self._model.auto_save_folder, self._model.annotation_buffer, self._model.ann_point)
                 self._model.annotation_buffer = []

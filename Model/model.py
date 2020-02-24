@@ -45,16 +45,13 @@ class Model(QObject):
         self._processButton = True
         self._choiceButton = False
 
-        # Define initialize model variable. If the user
-        # don't initialize or load the model, he can't start
-        # to annotate the clips.
+        # Define initialize model variable. If the user don't initialize or load the model, he can't start to annotate the clips.
         self._model_init = False
         self._model_load = False
 
-        # Define default path where the clips are saved by the policy
-        # thread, the application can make auto save action, and where the
-        # reward model initial weight is saved. "_load_path" variable
-        # is used to memorize if the user loads a checkpoint model.
+        # Define default path where the clips are saved by the policy thread,
+        # where the annotation buffer and the reward model initial weight will be saved. 
+        # "_load_path" variable is used to memorize if the user loads a checkpoint model.
         self._weigth_path = DIR_NAME +  '/ReinforcementLearning/reward_model_init_weight/'
         self._auto_save_folder = DIR_NAME + '/SAVE_FOLDER/'
         self._clips_database = DIR_NAME + '/Clips_Database/'
@@ -62,8 +59,8 @@ class Model(QObject):
         self._load_path = ''
 
         # Define variable to train policy and reward model.
-        self._annotation = None      # Is used to update the history window widget with the current annotation made
-        self._annotation_buffer = [] # Memorize the clips annotate and the preference
+        self._annotation = None             # It is used to update the history window widget with the current label
+        self._annotation_buffer = []        # Memorize the clips annotate and the preference, every 80 labels we save it
         self._oracle_active = False         # Boolean variable used to understand if the oracle is used or not
 
         # Define util variable.
@@ -75,23 +72,21 @@ class Model(QObject):
         self._preferences = None           # Utility function used to take the preferences of the user during annotation
 
         # Define variable used to the annotation phase.
-        self._clips = []       # Contain clips to annotate
-        self._disp_figure = [] # Contain clips images to annotate
+        self._clips = []                   # Contain clips to annotate
+        self._disp_figure = []             # Contain the current diplayed agent clips
 
-        # Define Inverse Reinforcement Learning element
-        self._obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
-        self._act_size = 7      # Seven possible actions (turn left, right, forward, pickup, drop, etc.)
-        self._inner_size = 64   # Number of neurons in two hidden layers.
-        self._reward_batch = 20 # Reward model batch size
-
+        # Define Inverse Reinforcement Learning components
+        self._obs_size = 7*7               # MiniGrid uses a 7x7 window of visibility.
+        self._act_size = 7                 # Seven possible actions (turn left, right, forward, pickup, drop, etc.)
+        self._inner_size = 64              # Number of neurons in two hidden layers.
+        self._reward_batch = 20            # Reward model batch size
         self._env = None
         self._reward_model = csvRewardModel(obs_size = self._obs_size, inner_size = self._inner_size).cuda()
         self._policy = Policy(obs_size = self._obs_size, act_size = self._act_size, inner_size = self._inner_size).cuda()
         self._optimizer_p = None
         self._optimizer_r = None 
 
-        # Define two list that memorize the reward model and policy 
-        # loss. This is usefull to save the graphic loss 
+        # Define two list that memorize the reward model and policy loss.
         self._reward_loss = []
         self._policy_loss = []
 
@@ -112,8 +107,8 @@ class Model(QObject):
         self._display_imageDx = []
         self._display_imageSx = []
 
-    # Define a collection of property and property.setter.
 
+    # Define a collection of property and property.setter.
     @property
     def oracle_timer(self):
         return self._oracle_timer
@@ -381,11 +376,9 @@ class Model(QObject):
         self._optimizer_p = torch.optim.Adam(params=self._policy.parameters(), lr = 1e-3, weight_decay=0.01)
         self._optimizer_r = torch.optim.Adam(params=self._reward_model.parameters(), lr = float(self._model_parameters['lr']), weight_decay=0.01)
         
-        # When a model is initialized I control if a previous reward model
-        # weight is saved in reward_model_init_weight folder. So firstly
-        # a folder is created with all the reward model weight for that environment.
-        # Then the reward model weights are loaded checking if there exist weights 
-        # with same learning rate and K mini-batch values.
+        # When a model is initialized we control if a previous reward model weights are saved 
+        # in reward_model_init_weight folder with same learning rate and K mini-batch values.
+        # If not we create a new folder with name composed by the reward model hyperparameters for future retrievals
         self._auto_save_folder = DIR_NAME + '/SAVE_FOLDER/' + self._model_parameters['minigrid_env'] + '_(' + date.today().strftime("%d-%m-%Y") + ')'
         self._clips_database = DIR_NAME + '/Clips_Database/' + self._model_parameters['minigrid_env'] 
         self._history_database = DIR_NAME + '/History_Database/' + self._model_parameters['minigrid_env'] 
@@ -405,7 +398,6 @@ class Model(QObject):
         if not os.path.exists(self._weigth_path):
             os.makedirs(self._weigth_path)
         
-        #if this path still exists, It is checked if inside there is a saved weight inside the folder.
         else:
             if 'csv_reward_weight_lr' + str(self._model_parameters['lr']) + '_k' + str(self._model_parameters['K']) + '.pth' in os.listdir(self._weigth_path):
                 self.reward_model.load_state_dict(torch.load(self._weigth_path + '/csv_reward_weight_lr' + str(self._model_parameters['lr']) + '_k' + str(self._model_parameters['K']) + '.pth' ))
@@ -462,13 +454,10 @@ class Model(QObject):
     def refreshAnnotationBuffer(self, annotation):
         c = 0
         
-        for el in annotation:
-
-            
+        for el in annotation:            
             triple = self._annotation_buffer[int(el[0]) - c]
             self._annotation_buffer.pop(int(el[0]) - c)
             c += 1
-            
             
             self.clips.append({ 'clip' : triple[0], 'path' : el[1]})
             self.clips.append({ 'clip' : triple[1], 'path' : el[2]})
