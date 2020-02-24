@@ -136,4 +136,18 @@ class Oracle:
         if preference == None: 
             preference = [0, 0]
 
+        if self._model != None:
+        
+            if preference == [1, 0]:
+                self._model.logBarDxSignal.emit('Oracle decision : prefer left clip')
+
+            elif preference == [0, 1]:
+                self._model.logBarDxSignal.emit('Oracle decision : prefer right clip')
+
+            elif preference == [0.5, 0.5]:
+                self._model.logBarDxSignal.emit('Oracle decision : prefer both clips')
+
+            else:
+                self._model.logBarDxSignal.emit('Oracle decision : discard clips')
+
         return preference

@@ -34,7 +34,7 @@ def Loss(policy, optimizer, states, actions, discounted_rewards):
     for (step, a) in enumerate(actions):
         logits = policy(state_filter(states[step]))
         dist = Categorical(logits=logits)
-        loss = -dist.log_prob(torch.tensor(a).cuda()) * discounted_rewards[step]
+        loss = -dist.log_prob(actions[step]) * discounted_rewards[step]
         losses.append(loss.item())
         loss.backward()
     optimizer.step()
@@ -93,7 +93,7 @@ def run_episode(env, policy, length, grid_wrapper):
         states.append(state)
         grids.append(grid_wrapper.observation(state['obs']))
         rewards.append(reward)
-        actions.append(action.item())
+        actions.append(action)
         dones.append(done)
         if done:
             break
