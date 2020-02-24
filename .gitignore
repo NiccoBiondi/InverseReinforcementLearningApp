@@ -2,15 +2,3 @@
 *.vscode/
 *__pycache__/
 *~
-
-# added for not mixing our results
-*Clips_Database/
-*History_Database/
-*SAVE_FOLDER/
-*reward_model_init_weight/
-images/
-training_saves/
-BackUp-Folder/
-Graphic_Images/
-
-training.py
