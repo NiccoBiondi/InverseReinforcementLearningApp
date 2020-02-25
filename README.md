@@ -1,6 +1,6 @@
 # Inverse Reinforcement Learning Application
 
-The aim of this project is to create a simple application that can give the opportunity to all the user to use the Inverse Reinforcement Learning technique. The application is implemented in Python and the interface is made entirely with PyQt5.
+The aim of this project is to create a simple application that can give the opportunity to all the users to use the Inverse Reinforcement Learning technique. The application is implemented in Python and the interface is made entirely with PyQt5.
 
 
 <p align="center">
