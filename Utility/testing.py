@@ -38,7 +38,7 @@ class Policy(nn.Module):
 # Function that, given a policy network and a state selects a random action
 # according to the probabilities output by final layer in categorical mode.
 # While in greedy mode, every time the action will be the one with more probabilities.
-def select_action(policy, state, mode='categorical'):
+def select_action(policy, state, mode='greedy'):
     probs = policy.forward(state)
     if mode == 'categorical':
         dist = Categorical(logits=probs)
@@ -82,7 +82,7 @@ def run_episode(env, policy, length, gamma=0.99):
     # Run for desired episode length.
     for step in range(length):
         env.render('human')
-        time.sleep(0.5)
+        time.sleep(0.2)
         # Get action from policy net based on current state.
         action = select_action(policy, state)
 
@@ -143,7 +143,7 @@ if __name__ == '__main__':
     for step in range(episodes):
         # MiniGrid has a QT5 renderer which is pretty cool.
         env.render('human')
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         # Run an episode.
         (states, actions, discounted_rewards) = run_episode(env, policy, episode_len)
