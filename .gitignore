@@ -2,8 +2,21 @@
 *.vscode/
 *__pycache__/
 *~
+*.aux
+*.tex
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.gz
+*.cls
+*.bib
+sections/
+
 zz_saving*/
 BackUp-Folder/
 
 History_Database/
 Clips_Database/
+
