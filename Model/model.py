@@ -65,7 +65,8 @@ class Model(QObject):
 
         # Define util variable.
         self._iteration = 0                # Memorize the episodes where the policy arrived.
-        self._ann_point = 0                # Memorize the folder where the annotator arrive.
+        self._ann_point = 0                # Memorize the number of clips already annotate.
+        self._process = 0                  # Memorize how many time the user clicks the process button.
         self._auto_save_clock_policy = 100 # Define auto save cock period for the policy thread.
         self._annotator = Annotator()      # Utility class to reload the csv and the image which represent clips to annotate.
         self._model_parameters = {}        # Define model initial parameters like learning rate, environment name, trajectory length etc.
@@ -245,6 +246,10 @@ class Model(QObject):
     def iteration(self):
         return self._iteration
 
+    @property 
+    def process(self):
+        return self._process
+
     @property
     def weigth_path(self):
         return self._weigth_path
@@ -353,6 +358,10 @@ class Model(QObject):
     @iteration.setter
     def iteration(self, slot):
         self._iteration = slot
+
+    @process.setter
+    def process(self, slot):
+        self._process = slot
 
     @oracle.setter
     def oracle(self, slot):

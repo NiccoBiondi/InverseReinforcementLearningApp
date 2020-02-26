@@ -170,9 +170,8 @@ class Ui_SetupModel(object):
         self.n_annotations.setText(_translate("SetupModel", "Annotations percentage:"))
         self.annotation.setItemText(0, _translate("SetupModel", "-- none --"))
         self.annotation.setItemText(1, _translate("SetupModel", "20"))
-        self.annotation.setItemText(2, _translate("SetupModel", "30"))
-        self.annotation.setItemText(3, _translate("SetupModel", "50"))
+        self.annotation.setItemText(3, _translate("SetupModel", "40"))
         self.annotation.setItemText(4, _translate("SetupModel", "60"))
         self.annotation.setItemText(5, _translate("SetupModel", "80"))
-        self.annotation.setItemText(6, _translate("SetupModel", "90"))
+        self.annotation.setItemText(6, _translate("SetupModel", "100"))
 

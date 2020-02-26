@@ -154,7 +154,7 @@ def clips_generator(states, dones, clips_len, grids):
     return total_clips, total_clips_grid
 
 # Save model parameters define in initialization or in a loaded checkpoint.
-def save_model_parameters(path, model_parameters, iteration):
+def save_model_parameters(path, model_parameters, iteration, process):
     '''
         -minigrid_env    : gym minigrid environment name
         -episode_len     : trajectory length 
@@ -165,6 +165,7 @@ def save_model_parameters(path, model_parameters, iteration):
         -n_annotation    : number of annotation that the user has to do
         -idx             : current number of clips set created by policy
         -iteration       : current episode made by the policy
+        -process         : number of process the user do
         
     '''
     current_time = time.strftime("%H:%M", time.localtime())
@@ -175,7 +176,7 @@ def save_model_parameters(path, model_parameters, iteration):
             filewriter = csv.writer(csvfile)
             filewriter.writerow([model_parameters['minigrid_env'], model_parameters['episode_len'], 
                                     model_parameters['lr'], model_parameters['clips_len'], model_parameters['episodes'], 
-                                    model_parameters['K'], model_parameters['n_annotation'], model_parameters['idx'], iteration])
+                                    model_parameters['K'], model_parameters['n_annotation'], model_parameters['idx'], iteration, process])
 
 # Function to save annotation buffer.
 def save_annotation(save_path, annotation_buffer, iteration):
@@ -223,7 +224,7 @@ def convert_string(image):
 # Function to load previous model parameters saved in previous work             
 def load_values(path):
     values = {}
-    data_df = pd.read_csv(path , error_bad_lines=False, names=["minigrid_env", "episode_len", "lr", "clips_len", "episodes", "K", "n_annotation", "idx", 'iteration'])
+    data_df = pd.read_csv(path , error_bad_lines=False, names=["minigrid_env", "episode_len", "lr", "clips_len", "episodes", "K", "n_annotation", "idx", 'iteration', 'process'])
     values['minigrid_env'] = str(data_df["minigrid_env"].values[0])
     values['episode_len'] = int(data_df["episode_len"].values[0])
     values['lr'] = float(data_df["lr"].values[0])
@@ -233,7 +234,7 @@ def load_values(path):
     values['n_annotation'] = int(data_df["n_annotation"][0])
     values['idx'] = int(data_df["idx"].values[0])
 
-    return values, int(data_df["iteration"].values[0])
+    return values, int(data_df["iteration"].values[0]), int(data_df["process"].values[0])
 
 # Function to load the previous annotation point
 def load_annotation_point(load_path):

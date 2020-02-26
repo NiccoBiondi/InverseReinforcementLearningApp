@@ -82,7 +82,6 @@ class Controller(QObject):
     @pyqtSlot(dict)
     def init_values(self, values):
         self._model.model_parameters = values
-        save_model_parameters(self._model.auto_save_path, self._model.model_parameters, 0)
 
     # Simple function to create a folder where the user can save policy,
     # reward model weight, annotation buffer and model parameters.
@@ -128,7 +127,7 @@ class Controller(QObject):
                 # load hyperparameters and set the environment
                 if [path for path in os.listdir(fileName) if 'values' in path]:
 
-                    self._model.model_parameters, self._model.iteration = load_values(fileName + [ '/' + path for path in os.listdir(fileName) if 'values' in path][0])
+                    self._model.model_parameters, self._model.iteration, self._model.process = load_values(fileName + [ '/' + path for path in os.listdir(fileName) if 'values' in path][0])
                     env = gym.make(self._model.model_parameters['minigrid_env'])
                     self._model.env = RGBImgObsWrapper(env)
                     self._model.grid_wrapper = FullyObsWrapper(env)
@@ -212,7 +211,7 @@ class Controller(QObject):
             
             # When the model is initialize, the hyperparameters are saved in autosave folder.
             if not [self._model.auto_save_folder + '/' + f for f in os.listdir(self._model.auto_save_folder) if 'values' in f]:
-                save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, 0)
+                save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, 0, 0)
 
             self._model.set_newWindow(AlgView(self._model, self))
 
@@ -239,6 +238,18 @@ class Controller(QObject):
         self._model.logBarSxSignal.emit('')
         self._model.logBarDxSignal.emit('')
         self._model.processButton = False
+
+        # Any time this function is called, we check how many times the user clicks the 
+        # process button. This is usefull to decrement the number of clips to annotate
+        # during the reward model train period. After 5 "process" the number of annotation
+        # is decremented by 20 until its value does not 20.
+        if self._model.process > 0 and self._model.process % 5 == 0 and self._model.ann_point == 0:
+            if self._model.model_parameters['n_annotation'] > 20:
+                self._model.model_parameters['n_annotation'] = ['n_annotation', self._model.model_parameters['n_annotation'] - 20]
+                save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, self._model.iteration, self._model.process)
+                
+        elif self._model.ann_point == 0:
+            self._model.process += 1
 
         # Define the number of clips to annotate
         self._clips_number = int( ( ( len(os.listdir(self._model.clips_database)) + len(os.listdir(self._model.history_database)) ) * ( int( self._model.model_parameters['n_annotation'] ) / 100  ) )  / 2 )
