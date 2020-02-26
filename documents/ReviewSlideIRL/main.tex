@@ -1,0 +1,52 @@
+\documentclass[10pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{algorithm,algorithmic}
+\usepackage{changepage}
+\usepackage{amsmath}
+\usepackage{comment}
+\usepackage{graphicx}
+\usepackage{media9}
+
+\setbeamersize{text margin left=5mm,text margin right=5mm} 
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\title[Inverse Reinforcement Learning Tool for Minigrid environment] %optional
+{Inverse Reinforcement Learning Tool \\ for Minigrid environment }
+
+\author[Giulio Bazzanti, Niccolò Biondi] % (optional, for multiple authors)
+{Giulio~Bazzanti \and Niccolò~Biondi}
+
+\date[HCI 2020] % (optional)
+{Human Computer Interaction, 2020, March 5}
+
+\usetheme{Ilmenau}
+\usecolortheme{beaver}
+\setbeamercovered{invisible}
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}
+\frametitle{Table of Contents}
+\tableofcontents
+\end{frame}
+
+\include{sections/01Introduction}
+\include{sections/02Method}
+\include{sections/03Tool}
+\include{sections/04Experiments}
+\include{sections/05Conclusions}
+
+
+\end{document}
