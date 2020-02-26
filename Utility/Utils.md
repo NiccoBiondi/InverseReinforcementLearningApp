@@ -16,7 +16,7 @@ From InverseReinforcementLearningApp folder run:
 
 ```bash
 # example of command
-python Utility/analysis.py --env-name=name of environment --reward=path/to reward model weight/file.pth
+python Utility/rewardModel_test.py --env-name=name of environment --reward=path/to reward model weight/file.pth
 ```
 
 ## Testing
@@ -39,7 +39,7 @@ From InverseReinforcementLearningApp folder run:
 
 ```bash
 # example of command
-python Utility/training.py
+python Utility/training.py --e=number of epochs --env=environment name
 ```
 
-The clips and the weigth produce with the training.py script are saved in the 'zz_saving' folder.
+The clips and the weigth produce with the training.py script are saved in the 'training_saves' folder. There is create a folder which name is the same of the environment. In the folder name also is specified the number of the epochs.   
