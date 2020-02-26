@@ -28,7 +28,7 @@ def load_losses(path):
     return [float(loss) for loss in data_df.columns]
 
 # save the policy model during the policy training
-def save_model(path, policy, model_parameters, iteration, policy_losses):
+def save_model(path, policy, model_parameters, iteration, policy_losses, process):
 
     if not os.path.exists(path):
         os.makedirs(path)
@@ -37,7 +37,7 @@ def save_model(path, policy, model_parameters, iteration, policy_losses):
         save_losses_list(path + '/policy_losses.csv', policy_losses)
         
     save_policy_weights(policy, path)
-    save_model_parameters(path, model_parameters, iteration)
+    save_model_parameters(path, model_parameters, iteration, process)
 
 
 # Simple utility function to read agent states (7x7x3) saved in csv file

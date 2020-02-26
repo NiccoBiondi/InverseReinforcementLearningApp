@@ -46,7 +46,8 @@ class RewardThread(QThread):
         for k in range(int(self._model.model_parameters['K'])):
             self._model.logBarSxSignal.emit("Train reward model : k-batch " + str(k) + ' of ' + str(self._model.model_parameters['K']) )
             train_clips = data_loader(self._model.annotation_buffer, self._model.reward_batch)
-            loss.append(self._model.reward_model.compute_rewards(self._model.reward_model, self._model.optimizer_r, train_clips))
+            l, _, _ = self._model.reward_model.compute_rewards(self._model.reward_model, self._model.optimizer_r, train_clips)
+            loss.append(l)
         self._model.reward_loss.append((sum(loss)/len(loss)))
 
         # Reset all the variables used during the current training protocol iteration (policy, annotation and reward model parameters)
@@ -65,7 +66,7 @@ class RewardThread(QThread):
             shutil.rmtree([self._model.auto_save_folder + '/' + el for el in os.listdir(self._model.auto_save_folder) if 'annotation_buffer' in el][0])
 
         # Auto save policy weight, reward model weight and model parameters.
-        save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, self._model.iteration)
+        save_model_parameters(self._model.auto_save_folder, self._model.model_parameters, self._model.iteration, self._model.process)
         save_reward_weights(self._model.reward_model, self._model.auto_save_folder, self._model.weigth_path, self._model.model_parameters['lr'], self._model.model_parameters['K'], self._model.reward_loss)
 
         self._model.logBarSxSignal.emit("End train reward model, the loss is : {:.3f}".format((sum(loss)/len(loss))))

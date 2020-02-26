@@ -71,7 +71,7 @@ class PolicyThread(QThread):
                         
             # Auto save controll.
             if step > 0 and step % self._model.auto_save_clock_policy == 0:
-                    save_model(self._model.auto_save_folder, self._model.policy, self._model.model_parameters, self._model.iteration, self._model.policy_loss)
+                    save_model(self._model.auto_save_folder, self._model.policy, self._model.model_parameters, self._model.iteration, self._model.policy_loss, self._model.process)
                     self._model.logBarSxSignal.emit('Auto-save in :' +  self._model.auto_save_folder)
                     self._model.annoatate = True
 
@@ -81,7 +81,7 @@ class PolicyThread(QThread):
                 reward = self._model.reward_model([obs['obs'] for obs in states])
 
                 # Compute the discounted rewards 
-                discounted_rewards = compute_discounted_rewards([r.item() for r in reward])
+                discounted_rewards = compute_discounted_rewards(reward)
                 discounted_rewards -= np.mean(discounted_rewards)
                 discounted_rewards /= (np.std(discounted_rewards) + 1e-12)   
                 
@@ -100,6 +100,6 @@ class PolicyThread(QThread):
         self._model.logBarSxSignal.emit('Training of policy finished')
 
         # When the policy makes all episodes save the weight and model parameters
-        save_model(self._model.auto_save_folder, self._model.policy, self._model.model_parameters, self._model.iteration, self._model.policy_loss)
+        save_model(self._model.auto_save_folder, self._model.policy, self._model.model_parameters, self._model.iteration, self._model.policy_loss, self._model.process)
         
         self._signals.finishedSignal.emit()
