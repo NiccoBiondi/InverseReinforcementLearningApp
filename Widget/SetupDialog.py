@@ -56,7 +56,7 @@ class SetupDialog(QDialog):
         self.ui.clips_len_line.setText(default_param['clips_len'])
         self.ui.episodes_line.setText(default_param['episodes'])
         self.ui.K_line.setText(default_param['K'])
-        self.ui.annotation.setCurrentIndex(6)
+        self.ui.annotation.setCurrentIndex(5)
     
     def close_Window(self):
         self.close
