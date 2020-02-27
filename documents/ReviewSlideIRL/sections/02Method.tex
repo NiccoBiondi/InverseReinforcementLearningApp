@@ -3,7 +3,8 @@
 \begin{frame}{Proposed method}
 
 \begin{algorithm}[H]
-\caption{Training Protocol}
+\caption{Training Protocol \footnote{\href{http://papers.nips.cc/paper/8025-reward-learning-from-human-preferences-and-demonstrations-in-atari}{Reward learning from human preferences anddemonstrations in Atari, \textit{Ibarz et all.}}}}
+
 \begin{algorithmic}[1]
 \STATE Run the policy in the environment and store "initial trajectories".
 \STATE The annotator annotated all the "initial clips" and create the annotation buffer.
@@ -36,21 +37,54 @@
 
 \begin{frame}
 \frametitle{Annotator}
-\begin{itemize}
-    \item The annotator gives preference feedback about pairs of clips
-    \vspace{0.2cm}
-    \begin{itemize}
-        \item (0,1) (1,0) preferred clips
-        \item (0.5,0.5) indifferent labels
-        \item (0,0) discarded clips
-    \end{itemize}
-    \vspace{0.4cm}
-    \item<2-> Human annotator vs Artificial annotator (\textit{Oracle})
-    \vspace{0.4cm}
-    \item<3-> All the preferences are stored in the Annotation Buffer
-    
-    
-\end{itemize}
+		\begin{itemize}
+		\item The annotator gives preference feedback about pairs of clips
+		\vspace{0.2cm}
+		\begin{itemize}
+			\item (0,1) (1,0) preferred clips
+			\item (0.5,0.5) indifferent labels
+			\item (0,0) discarded clips
+		\end{itemize}
+		
+	\vspace{0.3cm}
+	
+		\item<2-> Human annotator vs Artificial annotator (\textit{Oracle})
+		
+	\end{itemize}
+	\begin{columns}<2->
+		\begin{column}{0.5\textwidth}
+			\centering
+			\footnotesize{
+			\begin{tabular}{|c|c|c|c|}
+				\hline
+				1 & 0    & 0    & 0     \\ \hline
+				1 & 0.5  & 0.25 & 0.125 \\ \hline
+				1 & 0.25 & 0.5  & 0.125 \\ \hline
+				1 & 1    & 1    & 10    \\ \hline
+			\end{tabular}
+		}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\centering
+			\footnotesize{
+			\begin{tabular}{|c|c|c|c|}
+				\hline
+				1 & 0 & 0 & 0  \\ \hline
+				1 & 0 & 0 & 0  \\ \hline
+				1 & 0 & 0 & 0  \\ \hline
+				1 & 1 & 1 & 10 \\ \hline
+			\end{tabular}
+		}
+		\end{column}
+	\end{columns}
+	
+	\vspace{0.3cm}
+	
+	\begin{itemize}
+		\item<3-> All the preferences are stored in the Annotation Buffer
+	\end{itemize}
+	
 \end{frame}
 
 \begin{frame}
