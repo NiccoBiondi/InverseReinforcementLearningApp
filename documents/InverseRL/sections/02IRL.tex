@@ -1,6 +1,6 @@
 \section{Inverse Reinforcement Learning}\label{IRL}
 
-To understand better the aim of Inverse Reinforcement Learning we describe firstly what Reinforcement Learning is.
+To understand better the aim of Inverse Reinforcement Learning, we describe firstly what Reinforcement Learning is.
 
 In a way, Reinforcement Learning is the science of making optimal decisions using experiences. Breaking it down, the process of Reinforcement Learning involves these simple steps: the agent takes from the environment the current state; it computes the best action; the agent performs it in the environment. The goal of RL is to find an optimal behavior strategy for the agent to obtain optimal rewards.
 The main idea behind the RL approach is the \textsl{Markov decision process}. This process is defined by a tuple $( S, A, R, p, \gamma)$:
@@ -27,7 +27,7 @@ In the RL is defined a \textsl{policy network} that implements the agent. This p
 \end{equation}
 
 This creates a \textsl{trajectory}, that is an ordered sequence of states, actions and rewards: $S_{0}, A_{0}, R_{1}, S_{1}, A_{1}, R_{2}, S_{2}, A_{2}, R_{3} \dots$.
-The agent, therefore, tends to maximize the "expected" reward following the policy network $\pi$. To do that, the policy is modelled with a parameterized function respect to $\theta$. This function is  $\pi_{\theta}(a|s)$ and represents the probability of make the action \textit{a} given the state \textit{s}. \\ 
+The agent, therefore, tends to maximize the "expected" reward following the policy network $\pi$. To do that, the policy is modeled with a parameterized function respect to $\theta$. This function is  $\pi_{\theta}(a|s)$ and it represents the probability of performing the action \textit{a} given the state \textit{s}. \\ 
 We can now define the \textsl{Reinforcement Learning Objective}: maximize the "expected" reward following a parameterized policy:
 
 \begin{equation}
@@ -35,7 +35,7 @@ We can now define the \textsl{Reinforcement Learning Objective}: maximize the "e
 \end{equation}
 
 where $r(\tau)$ define the \textsl{total reward} for a given trajectory $\tau$. \\
-A standard method to find the $\theta$ that optimize J is the \textsl{Gradient Ascent} method. Here $\theta$ is updated like that:
+A standard method to find the $\theta$ that it is an optimum for J is the \textsl{Gradient Ascent} method. Here $\theta$ is updated like that:
 
 \begin{equation}
     \theta_{t+1} = \theta_{t} + \alpha\nabla_{\theta} J(\theta)
@@ -54,11 +54,12 @@ where:
     \pi_{\theta}(\tau) = P(s_{0}) + \prod_{t=1}^{T} \pi_{\theta}(a_{t}|s_{t})p(s_{t+1}, r_{t+1} | s_{t}, a_{t})
 \end{equation}
 
-In equation \ref{eq:pitau}, \textit{P} represents the \textsl{ergodic distribution} which starts from some state $s_{0}$. \\
-Every step, an action \textit{a} is taken according to $\pi_{\theta}$ and, based on that, the environment dynamic \textit{p} decides which state transition has to be performed. Then this is multiplied by the trajectory length T. Now consider the logarithm of equation \ref{eq:pitau}, we have that $log\pi_{\theta}(\tau)$ is:
+In equation \ref{eq:pitau}, \textit{P} represents the \textsl{ergodic distribution} which starts from some state $s_{0}$. 
+
+Every step, an action \textit{a} is taken according to $\pi_{\theta}$ and, based on that, the environment dynamic \textit{p} decides which state transition has to be performed. Then this is multiplied by the trajectory length T. Now consider the logarithm of equation \ref{eq:pitau}, we have that $\log\pi_{\theta}(\tau)$ is:
 
 \begin{equation*}
-    \log P(s_{0}) + \sum_{t=1}^{T} log\pi_{\theta}(a_{t}|s_{t}) + \sum_{t=1}^{T} \log p(s_{t+1},r_{t+1}|s_{t}, a_{t}) 
+    \log P(s_{0}) + \sum_{t=1}^{T} \log\pi_{\theta}(a_{t}|s_{t}) + \sum_{t=1}^{T} \log p(s_{t+1},r_{t+1}|s_{t}, a_{t}) 
 \end{equation*}
 
 from which we can see that:
@@ -70,15 +71,15 @@ from which we can see that:
 Now putting together the equations\ \ref{eq:nablae} and\ \ref{eq:nablalog}, we obtain the final policy gradient algorithm:
 
 \begin{equation}\label{eq:policygradient}
-    \nabla E_{\pi_{\theta}}[r(\tau)] = E_{\pi_{\theta}}[r(\tau)(\sum_{t=1}^{T} \nabla log\pi_{\tau})]    
+    \nabla E_{\pi_{\theta}}[r(\tau)] = E_{\pi_{\theta}}[r(\tau)(\sum_{t=1}^{T} \nabla \log\pi_{\theta}(a_{t}|s_{t})]    
 \end{equation}
 
-Replacing $r(\tau)$ from the equation\ \ref{eq:policygradient} with the discounted rewards $G_{t}$\ (\ \ref{eq:discounted}), we obtain the classic policy gradient algorithm called \textsl{Renforce}:
+Replacing $r(\tau)$ from the equation\ \ref{eq:policygradient} with the discounted rewards $G_{t}$\ (\ \ref{eq:discounted}), we obtain the classic policy gradient algorithm called \textit{Reinforce} (\textit{Monte-Carlo Policy Gradient}):
 
 \begin{equation}
-    \nabla E_{\pi_{\theta}}[r(\tau)] = E_{\pi_{\theta}}[\sum_{t=1}^{T} G_{t} \nabla log\pi_{\tau}] 
+    \nabla E_{\pi_{\theta}}[r(\tau)] = E_{\pi_{\theta}}[\sum_{t=1}^{T} G_{t} \nabla \log\pi_{\theta}(a_{t}|s_{t})] 
 \end{equation}
 
-In IRL, the policy does not receive the reward directly from the environment. Instead,  we assume that there is a human in the loop who has an intention for the agent’s task, and communicates this intention to the agent using one feedback channel, that is the Preferences\ \cite{NIPS2018_8025}. The preferences are pairs of short trajectory segments of agent's behaviour which the human compares, preferring those that are closer to the intended goal.
+In IRL, the policy does not receive the reward directly from the environment. Instead,  we assume that there is a human in the loop who has an intention for the agent's task, and it communicates this intention to the agent using one feedback channel, that is the Preferences\ \cite{NIPS2018_8025}. The preferences are pairs of short trajectory segments of agent's behavior which the human compares, preferring those that are closer to the intended goal.
 The preferences are collected during the experiment while the policy is training. 
-In this case, are introduced two new actors: an \textit{annotator} and a \textit{reward model}. The former gives preference feedback; the latter estimates a reward function from the annotator’s preferences which will give rewards to the policy during its training.
+In this case, are introduced two new actors: an \textit{annotator} and a \textit{reward model}. The former gives preference feedback; the latter estimates a reward function from the annotator's preferences which will give rewards to the policy during its training.

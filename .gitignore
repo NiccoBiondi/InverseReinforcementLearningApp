@@ -12,10 +12,4 @@
 *.cls
 *.bib
 
-zz_saving*/
-BackUp-Folder/
-
-History_Database/
-Clips_Database/
-
-prova.py
+old_weights/
