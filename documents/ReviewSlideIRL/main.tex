@@ -1,0 +1,93 @@
+\documentclass[10pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{algorithm,algorithmic}
+\usepackage{changepage}
+\usepackage{amsmath}
+\usepackage{comment}
+\usepackage{graphicx}
+\usepackage{media9}
+\usepackage{hyperref}
+
+\usetheme{Ilmenau}
+\usecolortheme{beaver}
+\setbeamercovered{invisible}
+
+\setbeamersize{text margin left=5mm,text margin right=5mm} 
+
+\AtBeginSection[]{
+  
+  \begin{frame}[plain]
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+
+\defbeamertemplate*{footline}{myminiframes theme}
+{%
+	\begin{beamercolorbox}[colsep=1.5pt]{upper separation line foot}
+	\end{beamercolorbox}
+	\begin{beamercolorbox}[ht=2.5ex,dp=1.125ex,%
+		leftskip=.3cm,rightskip=.3cm plus1fil]{author in head/foot}%
+		\leavevmode{\usebeamerfont{author in head/foot}\insertshortauthor}%
+		\hfill%
+		{\usebeamerfont{institute in head/foot}\usebeamercolor[fg]{institute in head/foot}\insertshortinstitute}%
+	\end{beamercolorbox}%
+	\begin{beamercolorbox}[ht=2.5ex,dp=1.125ex,%
+		leftskip=.3cm,rightskip=.3cm plus1fil]{title in head/foot}%
+		{\usebeamerfont{title in head/foot}\insertshorttitle\hfill \insertframenumber/\inserttotalframenumber}%
+	\end{beamercolorbox}%
+	\begin{beamercolorbox}[colsep=1.5pt]{lower separation line foot}
+	\end{beamercolorbox}
+}
+
+
+\title[Inverse Reinforcement Learning Tool for MiniGrid environment] %optional
+{Inverse Reinforcement Learning Tool \\ for MiniGrid environment }
+
+\author[Giulio Bazzanti, Niccolò Biondi] % (optional, for multiple authors)
+{Giulio~Bazzanti \and Niccolò~Biondi}
+
+\date[HCI 2020] % (optional)
+{Human Computer Interaction, 2020 March 5}
+
+
+
+\begin{document}
+	
+\begin{frame}[plain]
+	\titlepage
+	\addtocounter{framenumber}{-1}
+\end{frame}
+
+\begin{frame}[plain]
+\frametitle{Table of Contents}
+\tableofcontents
+
+\addtocounter{framenumber}{-1}
+\end{frame}
+
+\include{sections/01Introduction}	% Nicco	
+\include{sections/02Method}			% Bazza
+\include{sections/03Tool}			% Bazza
+\include{sections/04Experiments}	% Nicco
+\include{sections/05Conclusions}	% Nicco
+
+\begin{frame}[plain]
+	\vfill
+	\centering
+	\begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+		\usebeamerfont{title}Thanks for the attention\par%
+	\end{beamercolorbox}
+	\vfill
+	\addtocounter{framenumber}{-1}
+\end{frame}
+
+
+\end{document}
