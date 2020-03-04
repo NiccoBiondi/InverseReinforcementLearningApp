@@ -13,5 +13,5 @@
 *.bib
 
 old_weights/
-# */InverseRL/
-# */ReviewSlideIRL/
+*/InverseRL/
+*/ReviewSlideIRL/
