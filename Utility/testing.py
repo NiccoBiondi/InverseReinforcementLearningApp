@@ -17,7 +17,8 @@ from itertools import count
 sys.path.insert(1, os.path.dirname(os.path.abspath('__file__')))
 from ReinforcementLearning.csvRewardModel import csvRewardModel
 
-# A simple, memoryless MLP (Multy Layer Perceptron) agent.
+
+# A simple, memoryless MLP (Multi Layer Perceptron) agent.
 # Last layer are logits (scores for which higher values
 # represent preferred actions.
 class Policy(nn.Module):
@@ -30,10 +31,11 @@ class Policy(nn.Module):
         self.rewards = []
 
     def forward(self, x):
-        x = x.view(-1, 7*7)
+        x = x.view(-1, 7 * 7)
         x = F.relu(self.affine1(x))
         act_probs = self.affine2(x).clamp(-1000.0, +1000.0)
         return act_probs
+
 
 # Function that, given a policy network and a state selects a random action
 # according to the probabilities output by final layer in categorical mode.
@@ -45,17 +47,19 @@ def select_action(policy, state, mode='greedy'):
         action = dist.sample()
 
     elif mode == 'greedy':
-        probs = [ p.item() for p in probs[0] ]
+        probs = [p.item() for p in probs[0]]
         action = torch.tensor([probs.index(max(probs))])
 
     return action
+
 
 # Utility function. The MiniGrid gym environment uses 3 channels as
 # state, but for this we only use the first channel: represents all
 # objects (including goal) with integers. This function just strips
 # out the first channel and returns it.
 def state_filter(state):
-    return torch.from_numpy(state['image'][:,:,0]).float()
+    return torch.from_numpy(state['image'][:, :, 0]).float()
+
 
 # Function to compute discounted rewards after a complete episode.
 def compute_discounted_rewards(rewards, gamma=0.99):
@@ -65,6 +69,7 @@ def compute_discounted_rewards(rewards, gamma=0.99):
         running = r + gamma * running
         discounted_rewards.append(running)
     return list(reversed(discounted_rewards))
+
 
 # The function that runs the simulation for a specified length. The
 # nice thing about the MiniGrid environment is that the game never
@@ -88,7 +93,7 @@ def run_episode(env, policy, length, gamma=0.99):
 
         if len(a) > 0:
             action = a.pop()
-        
+
         # Simulate one step, get new state and instantaneous reward.
         state, reward, done, _ = env.step(action)
         state = state_filter(state)
@@ -105,6 +110,7 @@ def run_episode(env, policy, length, gamma=0.99):
     # Return the sequence of states, actions, and the corresponding rewards.
     return (states, actions, discounted_rewards)
 
+
 # The main loop. We load a specific policy model to test its effectiveness.
 if __name__ == '__main__':
     parser = OptionParser()
@@ -116,9 +122,9 @@ if __name__ == '__main__':
         default='MiniGrid-Empty-6x6-v0'
     )
     parser.add_option(
-        "-p", 
+        "-p",
         "--policy",
-        dest="policy_weigth", 
+        dest="policy_weigth",
         help="path to policy weigth",
         default=None
     )
@@ -127,9 +133,9 @@ if __name__ == '__main__':
 
     ###### Some configuration variables.
     episode_len = 150  # Length of each game.
-    obs_size = 7*7    # MiniGrid uses a 7x7 window of visibility.
-    act_size = 7      # Seven possible actions (turn left, right, forward, pickup, drop, etc.)
-    inner_size = 64   # Number of neurons in two hidden layers.
+    obs_size = 7 * 7  # MiniGrid uses a 7x7 window of visibility.
+    act_size = 7  # Seven possible actions (turn left, right, forward, pickup, drop, etc.)
+    inner_size = 64  # Number of neurons in two hidden layers.
 
     # Setup OpenAI Gym environment for guessing game.
     env = gym.make(options.env_name)
@@ -150,5 +156,3 @@ if __name__ == '__main__':
 
         print(discounted_rewards)
         print('*' * 100)
-
-	

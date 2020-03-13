@@ -12,7 +12,8 @@ import torch.autograd as autograd
 from torch.distributions.categorical import Categorical
 from itertools import count
 
-# A simple, memoryless MLP (Multy Layer Perceptron) agent.
+
+# A simple, memoryless MLP (Multi Layer Perceptron) agent.
 # Last layer are logits (scores for which higher values
 # represent preferred actions.
 class Policy(nn.Module):
@@ -22,10 +23,11 @@ class Policy(nn.Module):
         self.affine2 = nn.Linear(inner_size, act_size)
 
     def forward(self, x):
-        x = x.view(-1, 7*7)
+        x = x.view(-1, 7 * 7)
         x = F.relu(self.affine1(x))
-        act_probs = self.affine2(x).clamp(-1000.0, +1000.0) 
+        act_probs = self.affine2(x).clamp(-1000.0, +1000.0)
         return act_probs
+
 
 # Simple function to calculate the loss
 def Loss(policy, optimizer, states, actions, discounted_rewards):
@@ -40,20 +42,23 @@ def Loss(policy, optimizer, states, actions, discounted_rewards):
     optimizer.step()
     return losses
 
+
 # Function that, given a policy network and a state selects a random
 # action according to the probabilities output by final layer.
 def select_action(policy, state):
     probs = policy.forward(state)
-    dist = Categorical(logits=probs) # categorical actions' distribution
+    dist = Categorical(logits=probs)  # categorical actions' distribution
     action = dist.sample()
     return action
+
 
 # Utility function. The MiniGrid gym environment uses 3 channels as
 # state, but for this we only use the first channel: represents all
 # objects (including goal) with integers. This function just strips
 # out the first channel and returns it.
 def state_filter(state):
-    return torch.from_numpy(state['obs'][:,:,0]).float().cuda()
+    return torch.from_numpy(state['obs'][:, :, 0]).float().cuda()
+
 
 # Function to compute discounted rewards after a complete episode.
 def compute_discounted_rewards(rewards, gamma=0.99):
@@ -63,6 +68,7 @@ def compute_discounted_rewards(rewards, gamma=0.99):
         running = r.item() + gamma * running
         discounted_rewards.append(running)
     return list(reversed(discounted_rewards))
+
 
 # The function that runs the simulation for a specified length. The
 # nice thing about the MiniGrid environment is that the game never
@@ -83,7 +89,7 @@ def run_episode(env, policy, length, grid_wrapper):
 
     # Run for desired episode length.
     for step in range(length):
-        
+
         # Get action from policy net based on current state.
         action = select_action(policy, state_filter(state))
 
@@ -97,17 +103,16 @@ def run_episode(env, policy, length, grid_wrapper):
         dones.append(done)
         if done:
             break
-            
+
     # Return the sequence of states, actions, and the a list contain boolean variables
     # that is used to understand if in this sequence the agent achieves the goal.
     return (states, actions, dones, grids)
 
+
 # Simple utility function to save the policy weights
 def save_policy_weights(model, save_weights_path):
-
     current_time = time.strftime("%H:%M", time.localtime())
     if [save_weights_path + '/' + el for el in os.listdir(save_weights_path) if 'policy_weight' in el]:
         os.remove([save_weights_path + '/' + el for el in os.listdir(save_weights_path) if 'policy_weight' in el][0])
 
     torch.save(model.state_dict(), save_weights_path + '/policy_weight_' + current_time + '.pth')
-

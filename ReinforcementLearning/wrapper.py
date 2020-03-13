@@ -9,48 +9,48 @@ TILE_PIXELS = 32
 
 # Map of color names to RGB values
 COLORS = {
-    'red'   : np.array([255, 0, 0]),
-    'green' : np.array([0, 255, 0]),
-    'blue'  : np.array([0, 0, 255]),
+    'red': np.array([255, 0, 0]),
+    'green': np.array([0, 255, 0]),
+    'blue': np.array([0, 0, 255]),
     'purple': np.array([112, 39, 195]),
     'yellow': np.array([255, 255, 0]),
-    'grey'  : np.array([100, 100, 100])
+    'grey': np.array([100, 100, 100])
 }
 
 COLOR_NAMES = sorted(list(COLORS.keys()))
 
 # Used to map colors to integers
 COLOR_TO_IDX = {
-    'red'   : 0,
-    'green' : 1,
-    'blue'  : 2,
+    'red': 0,
+    'green': 1,
+    'blue': 2,
     'purple': 3,
     'yellow': 4,
-    'grey'  : 5
+    'grey': 5
 }
 
 IDX_TO_COLOR = dict(zip(COLOR_TO_IDX.values(), COLOR_TO_IDX.keys()))
 
 # Map of object type to integers
 OBJECT_TO_IDX = {
-    'unseen'        : 0,
-    'empty'         : 1,
-    'wall'          : 2,
-    'floor'         : 3,
-    'door'          : 4,
-    'key'           : 5,
-    'ball'          : 6,
-    'box'           : 7,
-    'goal'          : 8,
-    'lava'          : 9,
-    'agent'         : 10,
+    'unseen': 0,
+    'empty': 1,
+    'wall': 2,
+    'floor': 3,
+    'door': 4,
+    'key': 5,
+    'ball': 6,
+    'box': 7,
+    'goal': 8,
+    'lava': 9,
+    'agent': 10,
 }
 
 IDX_TO_OBJECT = dict(zip(OBJECT_TO_IDX.values(), OBJECT_TO_IDX.keys()))
 
 # Map of state names to integers
 STATE_TO_IDX = {
-    'open'  : 0,
+    'open': 0,
     'closed': 1,
     'locked': 2,
 }
@@ -67,8 +67,8 @@ DIR_TO_VEC = [
     np.array((0, -1)),
 ]
 
-
 CELL_PIXELS = 32
+
 
 class RGBImgObsWrapper(gym.core.ObservationWrapper):
     """
@@ -83,14 +83,13 @@ class RGBImgObsWrapper(gym.core.ObservationWrapper):
         self.observation_space = spaces.Box(
             low=0,
             high=255,
-            shape=(self.env.width*CELL_PIXELS, self.env.height*CELL_PIXELS, 3),
+            shape=(self.env.width * CELL_PIXELS, self.env.height * CELL_PIXELS, 3),
             dtype='uint8'
         )
-        
 
     def observation(self, obs):
         env = self.unwrapped
-        return {'obs': obs['image'], 'image': env.render(mode = 'rgb_array', highlight = False)}
+        return {'obs': obs['image'], 'image': env.render(mode='rgb_array', highlight=False)}
 
 
 class FullyObsWrapper(gym.core.ObservationWrapper):
@@ -118,4 +117,3 @@ class FullyObsWrapper(gym.core.ObservationWrapper):
         ])
 
         return full_grid
-        

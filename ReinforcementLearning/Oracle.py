@@ -6,6 +6,7 @@ import numpy as np
 
 from Utility.utility import read_csv_grids
 
+
 # count for how much frames are equal in the clip
 def no_move_count(grid):
     counts = np.zeros(len(grid))
@@ -14,11 +15,12 @@ def no_move_count(grid):
         for j in range(i, len(grid)):
             if np.array_equal(grid[i], grid[j]):
                 counts[i] += 1
-            
+
     return int(max(counts))
 
+
 # If in the clip the agent is in a state where the oracle matrix is 0
-# we assign 0 reward to the entaire clip, in essence we discard that. 
+# we assign 0 reward to the entire clip, in essence we discard that.
 def count_reward(grid, matrix):
     x_old, y_old = 1, 1
     reward = 0
@@ -32,8 +34,9 @@ def count_reward(grid, matrix):
         else:
             reward = 0
             return reward
-    
+
     return reward
+
 
 # Compute the clip reward, it is useful in dense Oracle more than Sparse one.
 def give_pref(reward_1, reward_2):
@@ -50,16 +53,16 @@ def give_pref(reward_1, reward_2):
 
     else:
         preference = [0, 0]
-    
+
     return preference
 
-# Define the artificial annotator, the Oracle. 
-# We adpoted two kind of Oracle: sparse and dense modalities.
-def createOracleMatrix(wrapper, env, dense=False):
 
+# Define the artificial annotator, the Oracle.
+# We adopted two kind of Oracle: sparse and dense modalities.
+def createOracleMatrix(wrapper, env, dense=False):
     # Define the wrapper and initialize an image to create
     # the oracle predefined reward matrix
-    img = wrapper.observation(env.reset())    
+    img = wrapper.observation(env.reset())
 
     # Create a sizexsize matrix of zero
     oracle_rewards = np.zeros((img.shape[0], img.shape[1]))
@@ -69,38 +72,39 @@ def createOracleMatrix(wrapper, env, dense=False):
     oracle_rewards[-2, 1:-1] = 1
 
     # Define the reward for each position in the grid
-    ind8 = np.where(img == 8) 
+    ind8 = np.where(img == 8)
     oracle_rewards[ind8[0], ind8[1]] = 10
 
-    if dense :
-        for col in range(2, len(oracle_rewards)//2):
-            for row in range(2, len(oracle_rewards)-1):
+    if dense:
+        for col in range(2, len(oracle_rewards) // 2):
+            for row in range(2, len(oracle_rewards) - 1):
                 if oracle_rewards[row][col] == 0:
-                    m = max(list(oracle_rewards[row-1:row+2, col-1:col+1].flatten()))
-                    if m == 10: 
-                        m = 1 
+                    m = max(list(oracle_rewards[row - 1:row + 2, col - 1:col + 1].flatten()))
+                    if m == 10:
+                        m = 1
                     elif m <= 0.1:
                         m = 0
                     oracle_rewards[row][col] = m / 2
 
-        for row in range(len(oracle_rewards)-2, 1, -1):
-            for col in range(1, len(oracle_rewards)-2):
+        for row in range(len(oracle_rewards) - 2, 1, -1):
+            for col in range(1, len(oracle_rewards) - 2):
                 if oracle_rewards[row][col] == 0:
-                    m = max(list(oracle_rewards[row-1:row+2, col-1:col+1].flatten()))
+                    m = max(list(oracle_rewards[row - 1:row + 2, col - 1:col + 1].flatten()))
                     if m == 10:
-                        m = 1 
+                        m = 1
                     elif m <= 0.1:
                         m = 0
                     oracle_rewards[row][col] = m / 2
-                
+
     return oracle_rewards
+
 
 class Oracle:
     def __init__(self, wrapper, env, model):
-        
+
         # Define matrix oracle reward
         self._matrix = createOracleMatrix(wrapper, env)
-        
+
         self._model = model
 
     # Function to give preference to a pair of clips. The following are handcrafted rules. 
@@ -124,7 +128,7 @@ class Oracle:
         # In the two clips the agent mooves at least twice
         if count_1 <= 3 and count_2 <= 3:
             preference = give_pref(reward_1, reward_2)
-        
+
         # In one clips make at least 3 moves and in the another clips no
         elif count_1 <= 3:
             preference = give_pref(reward_1, 0)
@@ -132,12 +136,12 @@ class Oracle:
         # In one clips make at least 3 moves and in the another clips no
         elif count_2 <= 3:
             preference = give_pref(0, reward_2)
-        
-        if preference == None: 
+
+        if preference == None:
             preference = [0, 0]
 
         if self._model != None:
-        
+
             if preference == [1, 0]:
                 self._model.logBarDxSignal.emit('Oracle decision : prefer left clip')
 
