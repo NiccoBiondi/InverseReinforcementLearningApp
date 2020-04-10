@@ -67,7 +67,7 @@ reward_batch = 16
 K = 1500
 percentile = 1
 
-episodes = 150
+episodes = 2
 len_episode = 150
 len_clip = 5
 
