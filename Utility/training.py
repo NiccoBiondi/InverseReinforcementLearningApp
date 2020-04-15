@@ -137,7 +137,7 @@ try:
 
                 # Rewards standardization with std = 0.5 and mean = 0
                 for i in range(len(reward)):
-                    reward[i] = ((reward[i] - np.mean(rewards)) / (np.std(rewards) + 1e-7)) * 0.6
+                    reward[i] = ((reward[i] - np.mean(rewards)) / (np.std(rewards) + 1e-7)) * 0.5
 
                 # Compute the discounted rewards 
                 discounted_rewards = compute_discounted_rewards(reward)
